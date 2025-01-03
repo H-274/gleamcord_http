@@ -2,6 +2,7 @@ import command/handler
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option.{type Option}
+import gleam/result
 import locale.{type Locale}
 
 pub type Error {
@@ -314,14 +315,16 @@ pub opaque type CommandOption {
 
 pub fn extract_focused(
   from options: Dict(String, CommandOption),
-) -> Result(CommandOption, Nil) {
-  use o <- list.find(dict.values(options))
-  case o {
-    String(focused: focused, ..)
-    | Integer(focused: focused, ..)
-    | Number(focused: focused, ..) -> focused
-    _ -> False
-  }
+) -> Result(CommandOption, Error) {
+  list.find(dict.values(options), fn(o) {
+    case o {
+      String(focused: focused, ..)
+      | Integer(focused: focused, ..)
+      | Number(focused: focused, ..) -> focused
+      _ -> False
+    }
+  })
+  |> result.replace_error(NotFound)
 }
 
 /// #(String, Bool) == #(value, focused)
