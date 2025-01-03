@@ -3,13 +3,13 @@ import command/handler.{type Handler}
 import gleam/list
 import locale.{type Locale}
 
-pub opaque type Definition(ctx) {
-  Definition(
+pub opaque type Command(ctx) {
+  Command(
     name: String,
     name_locales: List(#(Locale, String)),
     description: String,
     description_locales: List(#(Locale, String)),
-    sub_or_options: SubsOrOptionsDefinition(ctx),
+    sub_or_options: SubCommandTreeOrHandler(ctx),
     default_member_permissions: String,
     integration_types: List(Int),
     contexts: List(Int),
@@ -17,13 +17,13 @@ pub opaque type Definition(ctx) {
   )
 }
 
-pub fn new_definition(name name: String, desc description: String) {
-  Definition(
+pub fn new_command(name name: String, desc description: String) {
+  Command(
     name:,
     name_locales: [],
     description:,
     description_locales: [],
-    sub_or_options: OptionsDefinition([], handler.undefined),
+    sub_or_options: RootHandler([], handler.undefined),
     default_member_permissions: "",
     integration_types: [],
     contexts: [],
@@ -31,54 +31,54 @@ pub fn new_definition(name name: String, desc description: String) {
   )
 }
 
-pub fn definition_locales(
-  definition: Definition(ctx),
+pub fn command_locales(
+  definition: Command(ctx),
   locales: List(#(Locale, String, String)),
 ) {
   let name_locales = list.map(locales, fn(item) { #(item.0, item.1) })
   let description_locales = list.map(locales, fn(item) { #(item.0, item.2) })
 
-  Definition(..definition, name_locales:, description_locales:)
+  Command(..definition, name_locales:, description_locales:)
 }
 
-pub fn definition_integration_types(
-  definition: Definition(ctx),
+pub fn command_integration_types(
+  definition: Command(ctx),
   integration_types: List(Int),
 ) {
-  Definition(..definition, integration_types:)
+  Command(..definition, integration_types:)
 }
 
-pub fn definition_contexts(definition: Definition(ctx), contexts: List(Int)) {
-  Definition(..definition, contexts:)
+pub fn command_contexts(definition: Command(ctx), contexts: List(Int)) {
+  Command(..definition, contexts:)
 }
 
-pub fn definition_nsfw(definition: Definition(ctx)) {
-  Definition(..definition, nsfw: True)
+pub fn command_nsfw(definition: Command(ctx)) {
+  Command(..definition, nsfw: True)
 }
 
-pub fn definition_options_handler(
-  definition: Definition(ctx),
+pub fn command_handler(
+  definition: Command(ctx),
   options: List(command_option.Definition),
   handler: Handler(ctx),
 ) {
-  Definition(..definition, sub_or_options: OptionsDefinition(options, handler))
+  Command(..definition, sub_or_options: RootHandler(options, handler))
 }
 
-pub fn definition_sub_commands(
-  definition: Definition(ctx),
-  subs: List(SubCommandTreeDefinition(ctx)),
+pub fn command_sub_commands(
+  definition: Command(ctx),
+  subs: List(SubCommandTree(ctx)),
 ) {
-  Definition(..definition, sub_or_options: SubCommandDefinitions(subs))
+  Command(..definition, sub_or_options: SubCommandTree(subs))
 }
 
-pub opaque type SubsOrOptionsDefinition(ctx) {
-  SubCommandDefinitions(List(SubCommandTreeDefinition(ctx)))
-  OptionsDefinition(List(command_option.Definition), handler: Handler(ctx))
+pub opaque type SubCommandTreeOrHandler(ctx) {
+  SubCommandTree(List(SubCommandTree(ctx)))
+  RootHandler(List(command_option.Definition), handler: Handler(ctx))
 }
 
-pub opaque type SubCommandTreeDefinition(ctx) {
-  SubCommandGroupDefinition(SubCommandGroup(ctx))
-  SubCommandDefinition(SubCommand(ctx))
+pub opaque type SubCommandTree(ctx) {
+  SubCommandGroupNode(SubCommandGroup(ctx))
+  SubCommandNode(SubCommand(ctx))
 }
 
 pub opaque type SubCommandGroup(ctx) {
@@ -87,7 +87,7 @@ pub opaque type SubCommandGroup(ctx) {
     name_locales: List(#(Locale, String)),
     description: String,
     description_locales: List(#(Locale, String)),
-    sub_commands: List(SubCommandTreeDefinition(ctx)),
+    sub_commands: List(SubCommandTree(ctx)),
   )
 }
 
@@ -101,13 +101,6 @@ pub fn new_sub_command_group(name name: String, desc description: String) {
   )
 }
 
-pub fn append_sub_command_definition(
-  sub_group: SubCommandGroup(ctx),
-  sub: SubCommandTreeDefinition(ctx),
-) {
-  SubCommandGroup(..sub_group, sub_commands: [sub, ..sub_group.sub_commands])
-}
-
 pub fn sub_command_group_locales(
   sub_group: SubCommandGroup(ctx),
   locales: List(#(Locale, String, String)),
@@ -118,12 +111,11 @@ pub fn sub_command_group_locales(
   SubCommandGroup(..sub_group, name_locales:, description_locales:)
 }
 
-/// TODO find better name?
-pub fn sub_command_group_definition(
+pub fn sub_command_group_sub_trees(
   sub_group: SubCommandGroup(ctx),
-  sub_commands: List(SubCommandTreeDefinition(ctx)),
+  sub_commands: List(SubCommandTree(ctx)),
 ) {
-  SubCommandGroupDefinition(SubCommandGroup(..sub_group, sub_commands:))
+  SubCommandGroupNode(SubCommandGroup(..sub_group, sub_commands:))
 }
 
 pub opaque type SubCommand(ctx) {
@@ -132,7 +124,7 @@ pub opaque type SubCommand(ctx) {
     name_locales: List(#(Locale, String)),
     description: String,
     description_locales: List(#(Locale, String)),
-    options: List(command_option.Definition),
+    options: List(command_option.CommandOption),
     handler: Handler(ctx),
   )
 }
@@ -158,10 +150,10 @@ pub fn sub_command_locales(
   SubCommand(..sub, name_locales:, description_locales:)
 }
 
-pub fn sub_command_handler_definition(
+pub fn sub_command_handler(
   sub: SubCommand(ctx),
-  options: List(command_option.Definition),
+  options: List(command_option.CommandOption),
   handler: Handler(ctx),
 ) {
-  SubCommandDefinition(SubCommand(..sub, options:, handler:))
+  SubCommandNode(SubCommand(..sub, options:, handler:))
 }

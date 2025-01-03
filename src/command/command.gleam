@@ -3,7 +3,7 @@ import command/message
 import command/user
 
 pub type Command(ctx) {
-  ChatInput(chat_input.Definition(ctx))
+  ChatInput(chat_input.Command(ctx))
   User(user.Definition)
   Message(message.Definition)
 }
