@@ -1,4 +1,4 @@
 /// TODO
-pub type Definition {
-  Definition
+pub type Command(ctx) {
+  Command
 }

@@ -4,6 +4,6 @@ import command/user
 
 pub type Command(ctx) {
   ChatInput(chat_input.Command(ctx))
-  User(user.Definition)
-  Message(message.Definition)
+  User(user.Command(ctx))
+  Message(message.Command(ctx))
 }
