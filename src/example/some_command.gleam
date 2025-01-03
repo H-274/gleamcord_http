@@ -21,12 +21,10 @@ pub fn root_command() -> chat_input.Command(ctx) {
 
   use age <- result.try(
     command_option.extract_integer(from: opts, name: "age")
-    |> result.map(fn(x) { x.0 })
     |> result.replace_error(handler.Silent("Bad argument: \"age\"")),
   )
   let optional =
     command_option.extract_string(from: opts, name: "optional")
-    |> result.map(fn(x) { x.0 })
     |> option.from_result()
 
   run(i, bot, ctx, age, optional)

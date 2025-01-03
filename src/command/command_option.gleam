@@ -312,13 +312,25 @@ pub opaque type CommandOption {
   Attachment(name: String, value: String)
 }
 
+pub fn extract_focused(
+  from options: Dict(String, CommandOption),
+) -> Result(CommandOption, Nil) {
+  use o <- list.find(dict.values(options))
+  case o {
+    String(focused: focused, ..)
+    | Integer(focused: focused, ..)
+    | Number(focused: focused, ..) -> focused
+    _ -> False
+  }
+}
+
 /// #(String, Bool) == #(value, focused)
 pub fn extract_string(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(#(String, Bool), Error) {
+) -> Result(String, Error) {
   case dict.get(options, name) {
-    Ok(String(value: value, focused: focused, ..)) -> Ok(#(value, focused))
+    Ok(String(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
     Error(Nil) -> Error(NotFound)
   }
@@ -328,9 +340,9 @@ pub fn extract_string(
 pub fn extract_integer(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(#(Int, Bool), Error) {
+) -> Result(Int, Error) {
   case dict.get(options, name) {
-    Ok(Integer(value: value, focused: focused, ..)) -> Ok(#(value, focused))
+    Ok(Integer(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
     Error(Nil) -> Error(NotFound)
   }
@@ -395,9 +407,9 @@ pub fn extract_mentionable(
 pub fn extract_number(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(#(Float, Bool), Error) {
+) -> Result(Float, Error) {
   case dict.get(options, name) {
-    Ok(Number(value: value, focused: focused, ..)) -> Ok(#(value, focused))
+    Ok(Number(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
     Error(Nil) -> Error(NotFound)
   }
