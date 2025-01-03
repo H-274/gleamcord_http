@@ -1,5 +1,5 @@
-import command/command_option
-import command/handler.{type Handler}
+import command/command_option.{type CommandOption}
+import command/handler
 import gleam/list
 import locale.{type Locale}
 
@@ -23,7 +23,7 @@ pub fn new_command(name name: String, desc description: String) {
     name_locales: [],
     description:,
     description_locales: [],
-    sub_or_options: RootHandler([], handler.undefined),
+    sub_or_options: RootHandler([], handler.chat_input_undefined),
     default_member_permissions: "",
     integration_types: [],
     contexts: [],
@@ -58,8 +58,8 @@ pub fn command_nsfw(definition: Command(ctx)) {
 
 pub fn command_handler(
   definition: Command(ctx),
-  options: List(command_option.Definition),
-  handler: Handler(ctx),
+  options: List(command_option.Definition(ctx)),
+  handler: handler.ChatInputHandler(ctx, CommandOption),
 ) {
   Command(..definition, sub_or_options: RootHandler(options, handler))
 }
@@ -73,7 +73,10 @@ pub fn command_sub_commands(
 
 pub opaque type SubCommandTreeOrHandler(ctx) {
   SubCommandTree(List(SubCommandTree(ctx)))
-  RootHandler(List(command_option.Definition), handler: Handler(ctx))
+  RootHandler(
+    List(command_option.Definition(ctx)),
+    handler: handler.ChatInputHandler(ctx, CommandOption),
+  )
 }
 
 pub opaque type SubCommandTree(ctx) {
@@ -125,7 +128,7 @@ pub opaque type SubCommand(ctx) {
     description: String,
     description_locales: List(#(Locale, String)),
     options: List(command_option.CommandOption),
-    handler: Handler(ctx),
+    handler: handler.ChatInputHandler(ctx, CommandOption),
   )
 }
 
@@ -136,7 +139,7 @@ pub fn new_sub_command(name name: String, desc description: String) {
     description:,
     description_locales: [],
     options: [],
-    handler: handler.undefined,
+    handler: handler.chat_input_undefined,
   )
 }
 
@@ -153,7 +156,7 @@ pub fn sub_command_locales(
 pub fn sub_command_handler(
   sub: SubCommand(ctx),
   options: List(command_option.CommandOption),
-  handler: Handler(ctx),
+  handler: handler.ChatInputHandler(ctx, CommandOption),
 ) {
   SubCommandNode(SubCommand(..sub, options:, handler:))
 }
