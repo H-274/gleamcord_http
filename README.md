@@ -22,3 +22,8 @@ Further documentation can be found at <https://hexdocs.pm/discord_framework>.
 gleam run   # Run the project
 gleam test  # Run the tests
 ```
+
+## Improvements to do
+
+- Use resolved to populate the command option with the partial data type
+- Use resolved to populate the values of message components with the partial data type
