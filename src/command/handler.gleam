@@ -39,10 +39,10 @@ pub fn chat_input_undefined(_, _, _, _) {
   Error(NotImplemented)
 }
 
-pub fn user_undefined(_, _, _) {
+pub fn autocomplete_undefined(_, _, _, _) {
   Error(NotImplemented)
 }
 
-pub fn message_undefined(_, _, _) {
+pub fn other_undefined(_, _, _) {
   Error(NotImplemented)
 }

@@ -20,7 +20,7 @@ pub fn new_command(name name: String) {
     name:,
     name_locales: [],
     description: "",
-    handler: handler.user_undefined,
+    handler: handler.other_undefined,
     default_member_permissions: "",
     integration_types: [],
     contexts: [],
