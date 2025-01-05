@@ -9,13 +9,12 @@ const valid_key = "d5b2a4040ef85e097d60963464385b2826e0156d2acd90c967b92ca061702
 
 pub fn bad_key_verify_test() {
   // Given
-  let any_message = "any"
-  let any_signature = "any"
-  let bad_key = "#"
+  let bad_key = "bad"
   let expected = ed25519.BadPublicKey
 
   // When
-  let res = ed25519.verify(msg: any_message, sig: any_signature, key: bad_key)
+  let res =
+    ed25519.verify(msg: valid_message, sig: valid_signature, key: bad_key)
 
   // Then
   res
@@ -25,12 +24,12 @@ pub fn bad_key_verify_test() {
 
 pub fn bad_signature_verify_test() {
   // Given
-  let any_message = "any"
-  let bad_signature = "any"
+  let bad_signature = "bad"
   let expected = ed25519.BadSignature
 
   // When
-  let res = ed25519.verify(msg: any_message, sig: bad_signature, key: valid_key)
+  let res =
+    ed25519.verify(msg: valid_message, sig: bad_signature, key: valid_key)
 
   // Then
   res
@@ -40,7 +39,7 @@ pub fn bad_signature_verify_test() {
 
 pub fn altered_message_verify_test() {
   // Given
-  let altered_message = "Altered " <> valid_message
+  let altered_message = "altered " <> valid_message
   let expected = False
 
   // When
