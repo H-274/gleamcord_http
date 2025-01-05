@@ -1,5 +1,6 @@
 import command/handler
 import gleam/dict.{type Dict}
+import gleam/dynamic.{type Dynamic}
 import gleam/list
 import gleam/option.{type Option}
 import gleam/result
@@ -301,16 +302,17 @@ pub fn required(def: Definition(ctx)) {
   }
 }
 
+/// TODO replace dynamics
 pub opaque type CommandOption {
   String(name: String, value: String, focused: Bool)
   Integer(name: String, value: Int, focused: Bool)
   Boolean(name: String, value: Bool)
-  User(name: String, value: String)
-  Channel(name: String, value: String)
-  Role(name: String, value: String)
-  Mentionable(name: String, value: String)
+  User(name: String, value: Dynamic)
+  Channel(name: String, value: Dynamic)
+  Role(name: String, value: Dynamic)
+  Mentionable(name: String, value: Dynamic)
   Number(name: String, value: Float, focused: Bool)
-  Attachment(name: String, value: String)
+  Attachment(name: String, value: Dynamic)
 }
 
 pub fn extract_focused(
@@ -365,7 +367,7 @@ pub fn extract_boolean(
 pub fn extract_user(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(String, Error) {
+) -> Result(Dynamic, Error) {
   case dict.get(options, name) {
     Ok(User(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
@@ -376,7 +378,7 @@ pub fn extract_user(
 pub fn extract_channel(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(String, Error) {
+) -> Result(Dynamic, Error) {
   case dict.get(options, name) {
     Ok(Channel(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
@@ -387,7 +389,7 @@ pub fn extract_channel(
 pub fn extract_role(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(String, Error) {
+) -> Result(Dynamic, Error) {
   case dict.get(options, name) {
     Ok(Role(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
@@ -398,7 +400,7 @@ pub fn extract_role(
 pub fn extract_mentionable(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(String, Error) {
+) -> Result(Dynamic, Error) {
   case dict.get(options, name) {
     Ok(Mentionable(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
@@ -421,7 +423,7 @@ pub fn extract_number(
 pub fn extract_attachment(
   from options: Dict(String, CommandOption),
   name name: String,
-) -> Result(String, Error) {
+) -> Result(Dynamic, Error) {
   case dict.get(options, name) {
     Ok(Attachment(value: value, ..)) -> Ok(value)
     Ok(_) -> Error(UnexpectedType)
