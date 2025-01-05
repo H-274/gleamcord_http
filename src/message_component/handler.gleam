@@ -6,7 +6,7 @@ import message_component/data.{
   type ButtonData, type ChannelSelectData, type MentionableSelectData,
   type RoleSelectData, type StringSelectData, type TextInputData,
   type UserSelectData,
-} as _
+}
 
 pub type ComponentResponse {
   JsonString(String)
