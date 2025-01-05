@@ -1,28 +1,38 @@
-import gleam/dict.{type Dict}
-import gleam/dynamic.{type Dynamic}
-import gleam/option.{type Option}
-import locale.{type Locale}
-
-/// TODO replace dynamics
 pub type Interaction(data) {
-  Interaction(
-    id: String,
-    application_id: String,
-    data: data,
-    guild: Option(Dynamic),
-    guild_id: Option(String),
-    channel: Option(Dynamic),
-    channel_id: Option(String),
-    member: Option(String),
-    user: Option(Dynamic),
-    token: String,
-    version: Int,
-    message: Option(Dynamic),
-    app_permissions: String,
-    locale: Locale,
-    guild_locale: Option(Locale),
-    entitlements: List(Dynamic),
-    authorizing_integration_owners: Dict(Dynamic, Dynamic),
-    context: Dynamic,
-  )
+  PingInteraction(Ping)
+  AppCommandInteraction(AppCommand(data))
+  AppCommandAutocompleteInteraction(AppCommandAutocomplete(data))
+  MessageComponentInteraction(MessageComponent(data))
+  ModalSubdmitInteraction(ModalSubdmit(data))
+}
+
+pub type Ping {
+  Ping
+}
+
+pub type AppCommand(command_data) {
+  AppCommand(data: command_data)
+}
+
+pub type AppCommandAutocomplete(command_data) {
+  AppCommandAutocomplete(data: command_data)
+}
+
+pub type MessageComponent(component_data) {
+  MessageComponent(data: component_data)
+}
+
+pub type ModalSubdmit(modal_data) {
+  ModalSubdmit(data: modal_data)
+}
+
+pub type Context {
+  Guild
+  BotDm
+  PrivateChannel
+}
+
+pub type InstallationContext {
+  GuildInstall
+  UserInstall
 }

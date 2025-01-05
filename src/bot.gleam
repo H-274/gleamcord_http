@@ -1,2 +1,4 @@
 /// TODO
-pub type Bot
+pub type Bot {
+  Bot(application_id: String, token: String)
+}
