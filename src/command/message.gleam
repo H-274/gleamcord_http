@@ -2,7 +2,6 @@ import command/handler
 import gleam/list
 import locale.{type Locale}
 
-/// TODO
 pub opaque type Command(ctx) {
   Command(
     name: String,
