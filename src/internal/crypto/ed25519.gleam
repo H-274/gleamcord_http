@@ -8,15 +8,15 @@ pub type VerifyError {
   ExternalCallFailed(erlang.Crash)
 }
 
-@external(erlang, "ed25519", "verify_public")
-fn verify_public(
-  message: BitArray,
-  signature: BitArray,
-  public_key: BitArray,
+@external(erlang, "ed25519", "verify_message")
+fn verify_message(
+  msg message: BitArray,
+  sig signature: BitArray,
+  key public_key: BitArray,
 ) -> Bool
 
 pub fn verify(
-  m message: String,
+  msg message: String,
   sig signature: String,
   key public_key: String,
 ) -> Result(Bool, VerifyError) {
@@ -30,9 +30,5 @@ pub fn verify(
   )
   let message = bit_array.from_string(message)
 
-  {
-    use <- erlang.rescue()
-    verify_public(message, signature, public_key)
-  }
-  |> result.map_error(ExternalCallFailed)
+  Ok(verify_message(msg: message, sig: signature, key: public_key))
 }
