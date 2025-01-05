@@ -1,11 +1,9 @@
 import gleam/bit_array
-import gleam/erlang
 import gleam/result
 
 pub type VerifyError {
   BadPublicKey
   BadSignature
-  ExternalCallFailed(erlang.Crash)
 }
 
 @external(erlang, "ed25519", "verify_message")
