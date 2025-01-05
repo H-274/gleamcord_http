@@ -1,32 +1,33 @@
-import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
-import locale.{type Locale}
+import resolved.{type Resolved}
 
-/// TODO replace dynamics
-pub type Interaction {
-  Interaction(
+pub type ChatInputData {
+  ChatInputData(
     id: String,
-    application_id: String,
-    data: Data,
-    guild: Option(Dynamic),
+    name: String,
+    resolved: Resolved,
+    options: List(Dynamic),
     guild_id: Option(String),
-    channel: Option(Dynamic),
-    channel_id: Option(String),
-    member: Option(String),
-    user: Option(Dynamic),
-    token: String,
-    version: Int,
-    message: Option(Dynamic),
-    app_permissions: String,
-    locale: Locale,
-    guild_locale: Option(Locale),
-    entitlements: List(Dynamic),
-    authorizing_integration_owners: Dict(Dynamic, Dynamic),
-    context: Dynamic,
   )
 }
 
-pub type Data {
-  Data(id: String, name: String)
+pub type UserData {
+  UserData(
+    id: String,
+    name: String,
+    resolved: Resolved,
+    guild_id: Option(String),
+    target_id: Option(String),
+  )
+}
+
+pub type MessageData {
+  MessageData(
+    id: String,
+    name: String,
+    resolved: Resolved,
+    guild_id: Option(String),
+    target_id: Option(String),
+  )
 }

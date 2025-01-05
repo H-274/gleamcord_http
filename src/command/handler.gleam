@@ -1,6 +1,7 @@
 import bot.{type Bot}
-import command/interaction.{type Interaction}
+import command/interaction.{type ChatInputData, type MessageData, type UserData} as _
 import gleam/dict.{type Dict}
+import interaction.{type Interaction}
 
 /// TODO
 pub type CommandResponse {
@@ -20,17 +21,18 @@ pub type AutocompleteResponse {
 }
 
 pub type ChatInputHandler(ctx, option) =
-  fn(Interaction, Bot, ctx, Dict(String, option)) ->
+  fn(Interaction(ChatInputData), Bot, ctx, Dict(String, option)) ->
     Result(CommandResponse, CommandError)
 
 pub type UserHandler(ctx) =
-  fn(Interaction, Bot, ctx) -> Result(CommandResponse, CommandError)
+  fn(Interaction(UserData), Bot, ctx) -> Result(CommandResponse, CommandError)
 
 pub type MessageHandler(ctx) =
-  fn(Interaction, Bot, ctx) -> Result(CommandResponse, CommandError)
+  fn(Interaction(MessageData), Bot, ctx) ->
+    Result(CommandResponse, CommandError)
 
 pub type AutocompleteHandler(ctx, option) =
-  fn(Interaction, Bot, ctx, Dict(String, option)) ->
+  fn(Interaction(ChatInputData), Bot, ctx, Dict(String, option)) ->
     Result(AutocompleteResponse, Nil)
 
 pub fn chat_input_undefined(_, _, _, _) {
