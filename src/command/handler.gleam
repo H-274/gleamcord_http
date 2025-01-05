@@ -1,5 +1,5 @@
 import bot.{type Bot}
-import command/interaction.{type ChatInputData, type MessageData, type UserData} as _
+import command/data.{type ChatInputData, type MessageData, type UserData}
 import gleam/dict.{type Dict}
 import interaction.{type Interaction}
 
