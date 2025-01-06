@@ -20,7 +20,7 @@ pub fn create() -> ChatInputCommand(Nil) {
 }
 
 fn event() -> cic.SubCommandNode(Nil) {
-  let command =
+  let define_command = fn(handler) {
     cic.new_sub_command(name: "event", desc: "")
     |> cic.sub_command_options([
       co.new_string_def(name: "name", desc: "")
@@ -29,8 +29,10 @@ fn event() -> cic.SubCommandNode(Nil) {
       co.new_user_def(name: "host", desc: "")
         |> co.user_def,
     ])
+    |> cic.sub_command_handler(handler)
+  }
 
-  use i, bot, ctx, opts <- cic.sub_command_handler(command)
+  use i, bot, ctx, opts <- define_command()
   use name <- result.try(
     co.extract_string(opts, "name")
     |> result.replace_error(cic.InvalidParam("name")),
@@ -45,27 +47,31 @@ fn event_run(_i, _bot: Bot, _ctx: Nil, _name: String, _host: Option(Dynamic)) {
 }
 
 pub fn greet() -> UserCommand(Nil) {
-  let command =
+  let define_command = fn(handler) {
     uc.new(
       name: "greet",
       integration_types: [interaction.GuildInstall],
       contexts: [interaction.Guild],
     )
     |> uc.name_locales([#(locale.French, "saluer")])
+    |> uc.handler(handler)
+  }
 
-  use _i, _bot, _ctx <- uc.handler(command)
+  use _i, _bot, _ctx <- define_command()
   Error(uc.NotImplemented)
 }
 
 pub fn delete() -> MessageCommand(Nil) {
-  let command =
+  let define_command = fn(handler) {
     mc.new(
       name: "delete",
       integration_types: [interaction.GuildInstall],
       contexts: [interaction.Guild],
     )
     |> mc.name_locales([#(locale.French, "supprimer")])
+    |> mc.handler(handler)
+  }
 
-  use _i, _bot, _ctx <- mc.handler(command)
+  use _i, _bot, _ctx <- define_command()
   Error(mc.NotImplemented)
 }
