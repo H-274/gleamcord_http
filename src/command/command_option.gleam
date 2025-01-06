@@ -1,7 +1,10 @@
+import command/autocomplete/autocomplete
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/list
+import gleam/option.{type Option}
 import gleam/result
+import locale.{type Locale}
 
 pub type Error {
   NotFound
@@ -159,7 +162,463 @@ pub fn extract_attachment(
   }
 }
 
-/// TODO
-pub type Definition {
-  StringDef
+pub opaque type Definition {
+  StringDefinition(StringDefinition)
+  IntegerDefinition(IntegerDefinition)
+  BooleanDefinition(BooleanDefinition)
+  UserDefinition(UserDefinition)
+  ChannelDefinition(ChannelDefinition)
+  RoleDefinition(RoleDefinition)
+  MentionableDefinition(MentionableDefinition)
+  NumberDefinition(NumberDefinition)
+  AttachmentDefinition(AttachmentDefinition)
+}
+
+pub opaque type StringDefinition {
+  StringDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+    choices: List(OptionChoice(String)),
+    /// Between 0 and 6000
+    min_length: Option(Int),
+    /// Between 0 and 6000
+    max_length: Option(Int),
+    autocomplete: autocomplete.Handler(String),
+  )
+}
+
+pub fn new_string_def(name name: String, desc description: String) {
+  StringDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+    choices: [],
+    min_length: option.None,
+    max_length: option.None,
+    autocomplete: autocomplete.default_handler,
+  )
+}
+
+pub fn string_def_locales(
+  def: StringDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  StringDef(..def, name_locales:, description_locales:)
+}
+
+pub fn string_def_required(def: StringDefinition) {
+  StringDef(..def, required: True)
+}
+
+pub fn string_def_choices(
+  def: StringDefinition,
+  choices: List(OptionChoice(String)),
+) {
+  StringDef(..def, choices:)
+}
+
+pub fn string_def_min_length(def: StringDefinition, min_length: Int) {
+  StringDef(..def, min_length: option.Some(min_length))
+}
+
+pub fn string_def_max_length(def: StringDefinition, max_length: Int) {
+  StringDef(..def, max_length: option.Some(max_length))
+}
+
+pub fn string_def_autocomplete(
+  def: StringDefinition,
+  autocomplete: autocomplete.Handler(String),
+) {
+  StringDef(..def, autocomplete:)
+}
+
+pub fn string_def(def: StringDefinition) {
+  StringDefinition(def)
+}
+
+pub opaque type IntegerDefinition {
+  IntegerDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+    choices: List(OptionChoice(Int)),
+    min_value: Option(Int),
+    max_value: Option(Int),
+    autocomplete: autocomplete.Handler(Int),
+  )
+}
+
+pub fn new_integer_def(name name: String, desc description: String) {
+  IntegerDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+    choices: [],
+    min_value: option.None,
+    max_value: option.None,
+    autocomplete: autocomplete.default_handler,
+  )
+}
+
+pub fn integer_def_locales(
+  def: IntegerDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  IntegerDef(..def, name_locales:, description_locales:)
+}
+
+pub fn integer_def_required(def: IntegerDefinition) {
+  IntegerDef(..def, required: True)
+}
+
+pub fn integer_def_choices(
+  def: IntegerDefinition,
+  choices: List(OptionChoice(Int)),
+) {
+  IntegerDef(..def, choices:)
+}
+
+pub fn integer_def_min_length(def: IntegerDefinition, min_value: Int) {
+  IntegerDef(..def, min_value: option.Some(min_value))
+}
+
+pub fn integer_def_max_length(def: IntegerDefinition, max_value: Int) {
+  IntegerDef(..def, max_value: option.Some(max_value))
+}
+
+pub fn integer_def_autocomplete(
+  def: IntegerDefinition,
+  autocomplete: autocomplete.Handler(Int),
+) {
+  IntegerDef(..def, autocomplete:)
+}
+
+pub fn integer_def(def: IntegerDefinition) {
+  IntegerDefinition(def)
+}
+
+pub opaque type BooleanDefinition {
+  BooleanDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+  )
+}
+
+pub fn new_boolean_def(name name: String, desc description: String) {
+  BooleanDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+  )
+}
+
+pub fn boolean_def_locales(
+  def: BooleanDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  BooleanDef(..def, name_locales:, description_locales:)
+}
+
+pub fn boolean_def_required(def: BooleanDefinition) {
+  BooleanDef(..def, required: True)
+}
+
+pub fn boolean_def(def: BooleanDefinition) {
+  BooleanDefinition(def)
+}
+
+pub opaque type UserDefinition {
+  UserDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+  )
+}
+
+pub fn new_user_def(name name: String, desc description: String) {
+  UserDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+  )
+}
+
+pub fn user_def_locales(
+  def: UserDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  UserDef(..def, name_locales:, description_locales:)
+}
+
+pub fn user_def_required(def: UserDefinition) {
+  UserDef(..def, required: True)
+}
+
+pub fn user_def(def: UserDefinition) {
+  UserDefinition(def)
+}
+
+pub opaque type ChannelDefinition {
+  ChannelDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+    // TODO (replace)
+    channel_types: List(Int),
+  )
+}
+
+pub fn new_channel_def(name name: String, desc description: String) {
+  ChannelDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+    channel_types: [],
+  )
+}
+
+pub fn channel_def_locales(
+  def: ChannelDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  ChannelDef(..def, name_locales:, description_locales:)
+}
+
+pub fn channel_def_required(def: ChannelDefinition) {
+  ChannelDef(..def, required: True)
+}
+
+pub fn channel_def_typre(def: ChannelDefinition, channel_types: List(Int)) {
+  ChannelDef(..def, channel_types:)
+}
+
+pub fn channel_def(def: ChannelDefinition) {
+  ChannelDefinition(def)
+}
+
+pub opaque type RoleDefinition {
+  RoleDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+  )
+}
+
+pub fn new_role_def(name name: String, desc description: String) {
+  RoleDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+  )
+}
+
+pub fn role_def_locales(
+  def: RoleDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  RoleDef(..def, name_locales:, description_locales:)
+}
+
+pub fn role_def_required(def: RoleDefinition) {
+  RoleDef(..def, required: True)
+}
+
+pub fn role_def(def: RoleDefinition) {
+  RoleDefinition(def)
+}
+
+pub opaque type MentionableDefinition {
+  MentionableDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+  )
+}
+
+pub fn new_mentionable_def(name name: String, desc description: String) {
+  RoleDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+  )
+}
+
+pub fn mentionable_def_locales(
+  def: MentionableDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  MentionableDef(..def, name_locales:, description_locales:)
+}
+
+pub fn mentionable_def_required(def: MentionableDefinition) {
+  MentionableDef(..def, required: True)
+}
+
+pub fn mentionable_def(def: MentionableDefinition) {
+  MentionableDefinition(def)
+}
+
+pub opaque type NumberDefinition {
+  NumberDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+    choices: List(OptionChoice(Float)),
+    min_value: Option(Float),
+    max_value: Option(Float),
+    autocomplete: autocomplete.Handler(Float),
+  )
+}
+
+pub fn new_number_def(name name: String, desc description: String) {
+  NumberDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+    choices: [],
+    min_value: option.None,
+    max_value: option.None,
+    autocomplete: autocomplete.default_handler,
+  )
+}
+
+pub fn number_def_locales(
+  def: NumberDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  NumberDef(..def, name_locales:, description_locales:)
+}
+
+pub fn number_def_required(def: NumberDefinition) {
+  NumberDef(..def, required: True)
+}
+
+pub fn number_def_choices(
+  def: NumberDefinition,
+  choices: List(OptionChoice(Float)),
+) {
+  NumberDef(..def, choices:)
+}
+
+pub fn number_def_min_length(def: NumberDefinition, min_value: Float) {
+  NumberDef(..def, min_value: option.Some(min_value))
+}
+
+pub fn number_def_max_length(def: NumberDefinition, max_value: Float) {
+  NumberDef(..def, max_value: option.Some(max_value))
+}
+
+pub fn number_def_autocomplete(
+  def: NumberDefinition,
+  autocomplete: autocomplete.Handler(Float),
+) {
+  NumberDef(..def, autocomplete:)
+}
+
+pub fn number_def(def: NumberDefinition) {
+  NumberDefinition(def)
+}
+
+pub opaque type AttachmentDefinition {
+  AttachmentDef(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    description: String,
+    description_locales: List(#(Locale, String)),
+    required: Bool,
+  )
+}
+
+pub fn new_attachment_def(name name: String, desc description: String) {
+  AttachmentDef(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    required: False,
+  )
+}
+
+pub fn attachment_def_locales(
+  def: AttachmentDefinition,
+  locales: List(#(Locale, String, String)),
+) {
+  let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
+  let description_locales = list.map(locales, fn(l) { #(l.0, l.2) })
+
+  AttachmentDef(..def, name_locales:, description_locales:)
+}
+
+pub fn attachment_def_required(def: AttachmentDefinition) {
+  AttachmentDef(..def, required: True)
+}
+
+pub fn attachment_def(def: AttachmentDefinition) {
+  AttachmentDefinition(def)
+}
+
+pub type OptionChoice(value) {
+  OptionChoice(
+    name: String,
+    name_locales: List(#(Locale, String)),
+    value: value,
+  )
 }
