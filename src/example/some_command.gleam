@@ -24,8 +24,10 @@ fn event() -> cic.SubCommandNode(Nil) {
     cic.new_sub_command(name: "event", desc: "")
     |> cic.sub_command_options([
       co.new_string_def(name: "name", desc: "")
-      |> co.string_def_required()
-      |> co.string_def(),
+        |> co.string_def_required()
+        |> co.string_def(),
+      co.new_user_def(name: "host", desc: "")
+        |> co.user_def,
     ])
 
   use i, bot, ctx, opts <- cic.sub_command_handler(command)
