@@ -1,5 +1,8 @@
 import bot.{type Bot}
+import gleam/dict.{type Dict}
+import gleam/option.{type Option}
 import interaction
+import resolved.{type Resolved}
 
 pub type Response {
   JsonString(String)
@@ -9,12 +12,19 @@ pub type Error {
   NotImplemented
 }
 
-pub type Data(val) {
-  Data(val)
+pub type Data(option) {
+  Data(
+    id: String,
+    name: String,
+    resolved: Resolved,
+    options: Dict(String, option),
+    guild_id: Option(String),
+  )
 }
 
-pub type Handler(ctx, val) =
-  fn(interaction.AppCommandAutocomplete(Data(val)), Bot, ctx, val) ->
+/// TODO figure out how to run this???
+pub type Handler(option, ctx, val) =
+  fn(interaction.AppCommandAutocomplete(Data(option)), Bot, ctx, val) ->
     Result(Response, Error)
 
 pub fn default_handler(_, _, _, _) {

@@ -186,7 +186,7 @@ pub opaque type StringDefinition(ctx) {
     min_length: Option(Int),
     /// Between 0 and 6000
     max_length: Option(Int),
-    autocomplete: autocomplete.Handler(String, ctx),
+    autocomplete: autocomplete.Handler(CommandOption, ctx, String),
   )
 }
 
@@ -235,7 +235,7 @@ pub fn string_def_max_length(def: StringDefinition(ctx), max_length: Int) {
 
 pub fn string_def_autocomplete(
   def: StringDefinition(ctx),
-  autocomplete: autocomplete.Handler(String, ctx),
+  autocomplete: autocomplete.Handler(CommandOption, ctx, String),
 ) {
   StringDef(..def, autocomplete:)
 }
@@ -254,7 +254,7 @@ pub opaque type IntegerDefinition(ctx) {
     choices: List(OptionChoice(Int)),
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: autocomplete.Handler(Int, ctx),
+    autocomplete: autocomplete.Handler(CommandOption, ctx, Int),
   )
 }
 
@@ -303,7 +303,7 @@ pub fn integer_def_max_length(def: IntegerDefinition(ctx), max_value: Int) {
 
 pub fn integer_def_autocomplete(
   def: IntegerDefinition(ctx),
-  autocomplete: autocomplete.Handler(Int, ctx),
+  autocomplete: autocomplete.Handler(CommandOption, ctx, Int),
 ) {
   IntegerDef(..def, autocomplete:)
 }
@@ -519,7 +519,7 @@ pub opaque type NumberDefinition(ctx) {
     choices: List(OptionChoice(Float)),
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: autocomplete.Handler(Float, ctx),
+    autocomplete: autocomplete.Handler(CommandOption, ctx, Float),
   )
 }
 
@@ -568,7 +568,7 @@ pub fn number_def_max_length(def: NumberDefinition(ctx), max_value: Float) {
 
 pub fn number_def_autocomplete(
   def: NumberDefinition(ctx),
-  autocomplete: autocomplete.Handler(Float, ctx),
+  autocomplete: autocomplete.Handler(CommandOption, ctx, Float),
 ) {
   NumberDef(..def, autocomplete:)
 }
