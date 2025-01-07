@@ -36,7 +36,7 @@ pub opaque type Command(ctx) {
     integration_types: List(interaction.InstallationContext),
     contexts: List(interaction.Context),
     nsfw: Bool,
-    options: List(command_option.Definition),
+    options: List(command_option.Definition(ctx)),
     handler: Handler(ctx),
   )
 }
@@ -193,7 +193,7 @@ pub opaque type SubCommand(ctx) {
     name_locales: List(#(Locale, String)),
     description: String,
     description_locales: List(#(Locale, String)),
-    options: List(command_option.Definition),
+    options: List(command_option.Definition(ctx)),
     handler: Handler(ctx),
   )
 }
@@ -221,7 +221,7 @@ pub fn sub_command_locales(
 
 pub fn sub_command_options(
   sub: SubCommand(ctx),
-  options: List(command_option.Definition),
+  options: List(command_option.Definition(ctx)),
 ) {
   SubCommand(..sub, options:)
 }
@@ -236,4 +236,14 @@ pub type Handler(ctx) =
 
 fn default_handler(_, _, _, _) {
   Error(NotImplemented)
+}
+
+pub fn run(
+  command: Command(ctx),
+  interaction: interaction.AppCommand(Data),
+  bot: Bot,
+  ctx: ctx,
+  options: Dict(String, CommandOption),
+) {
+  command.handler(interaction, bot, ctx, options)
 }

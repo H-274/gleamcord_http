@@ -1,7 +1,7 @@
 import bot.{type Bot}
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
-import interaction.{type Interaction}
+import interaction
 
 /// TODO
 pub type Response {
@@ -82,7 +82,7 @@ pub fn handler(button: StyledButton(ctx), handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(Interaction(Data), Bot, ctx) -> Result(Response, Error)
+  fn(interaction.MessageComponent(Data), Bot, ctx) -> Result(Response, Error)
 
 pub fn default_handler(_, _, _) {
   Error(NotImplemented)
@@ -90,7 +90,7 @@ pub fn default_handler(_, _, _) {
 
 pub fn run(
   button: StyledButton(ctx),
-  interaction: Interaction(Data),
+  interaction: interaction.MessageComponent(Data),
   bot: Bot,
   ctx: ctx,
 ) {

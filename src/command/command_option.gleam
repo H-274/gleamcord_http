@@ -162,19 +162,19 @@ pub fn extract_attachment(
   }
 }
 
-pub opaque type Definition {
-  StringDefinition(StringDefinition)
-  IntegerDefinition(IntegerDefinition)
+pub opaque type Definition(ctx) {
+  StringDefinition(StringDefinition(ctx))
+  IntegerDefinition(IntegerDefinition(ctx))
   BooleanDefinition(BooleanDefinition)
   UserDefinition(UserDefinition)
   ChannelDefinition(ChannelDefinition)
   RoleDefinition(RoleDefinition)
   MentionableDefinition(MentionableDefinition)
-  NumberDefinition(NumberDefinition)
+  NumberDefinition(NumberDefinition(ctx))
   AttachmentDefinition(AttachmentDefinition)
 }
 
-pub opaque type StringDefinition {
+pub opaque type StringDefinition(ctx) {
   StringDef(
     name: String,
     name_locales: List(#(Locale, String)),
@@ -186,7 +186,7 @@ pub opaque type StringDefinition {
     min_length: Option(Int),
     /// Between 0 and 6000
     max_length: Option(Int),
-    autocomplete: autocomplete.Handler(String),
+    autocomplete: autocomplete.Handler(String, ctx),
   )
 }
 
@@ -205,7 +205,7 @@ pub fn new_string_def(name name: String, desc description: String) {
 }
 
 pub fn string_def_locales(
-  def: StringDefinition,
+  def: StringDefinition(ctx),
   locales: List(#(Locale, String, String)),
 ) {
   let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
@@ -214,37 +214,37 @@ pub fn string_def_locales(
   StringDef(..def, name_locales:, description_locales:)
 }
 
-pub fn string_def_required(def: StringDefinition) {
+pub fn string_def_required(def: StringDefinition(ctx)) {
   StringDef(..def, required: True)
 }
 
 pub fn string_def_choices(
-  def: StringDefinition,
+  def: StringDefinition(ctx),
   choices: List(OptionChoice(String)),
 ) {
   StringDef(..def, choices:)
 }
 
-pub fn string_def_min_length(def: StringDefinition, min_length: Int) {
+pub fn string_def_min_length(def: StringDefinition(ctx), min_length: Int) {
   StringDef(..def, min_length: option.Some(min_length))
 }
 
-pub fn string_def_max_length(def: StringDefinition, max_length: Int) {
+pub fn string_def_max_length(def: StringDefinition(ctx), max_length: Int) {
   StringDef(..def, max_length: option.Some(max_length))
 }
 
 pub fn string_def_autocomplete(
-  def: StringDefinition,
-  autocomplete: autocomplete.Handler(String),
+  def: StringDefinition(ctx),
+  autocomplete: autocomplete.Handler(String, ctx),
 ) {
   StringDef(..def, autocomplete:)
 }
 
-pub fn string_def(def: StringDefinition) {
+pub fn string_def(def: StringDefinition(ctx)) {
   StringDefinition(def)
 }
 
-pub opaque type IntegerDefinition {
+pub opaque type IntegerDefinition(ctx) {
   IntegerDef(
     name: String,
     name_locales: List(#(Locale, String)),
@@ -254,7 +254,7 @@ pub opaque type IntegerDefinition {
     choices: List(OptionChoice(Int)),
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: autocomplete.Handler(Int),
+    autocomplete: autocomplete.Handler(Int, ctx),
   )
 }
 
@@ -273,7 +273,7 @@ pub fn new_integer_def(name name: String, desc description: String) {
 }
 
 pub fn integer_def_locales(
-  def: IntegerDefinition,
+  def: IntegerDefinition(ctx),
   locales: List(#(Locale, String, String)),
 ) {
   let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
@@ -282,33 +282,33 @@ pub fn integer_def_locales(
   IntegerDef(..def, name_locales:, description_locales:)
 }
 
-pub fn integer_def_required(def: IntegerDefinition) {
+pub fn integer_def_required(def: IntegerDefinition(ctx)) {
   IntegerDef(..def, required: True)
 }
 
 pub fn integer_def_choices(
-  def: IntegerDefinition,
+  def: IntegerDefinition(ctx),
   choices: List(OptionChoice(Int)),
 ) {
   IntegerDef(..def, choices:)
 }
 
-pub fn integer_def_min_length(def: IntegerDefinition, min_value: Int) {
+pub fn integer_def_min_length(def: IntegerDefinition(ctx), min_value: Int) {
   IntegerDef(..def, min_value: option.Some(min_value))
 }
 
-pub fn integer_def_max_length(def: IntegerDefinition, max_value: Int) {
+pub fn integer_def_max_length(def: IntegerDefinition(ctx), max_value: Int) {
   IntegerDef(..def, max_value: option.Some(max_value))
 }
 
 pub fn integer_def_autocomplete(
-  def: IntegerDefinition,
-  autocomplete: autocomplete.Handler(Int),
+  def: IntegerDefinition(ctx),
+  autocomplete: autocomplete.Handler(Int, ctx),
 ) {
   IntegerDef(..def, autocomplete:)
 }
 
-pub fn integer_def(def: IntegerDefinition) {
+pub fn integer_def(def: IntegerDefinition(ctx)) {
   IntegerDefinition(def)
 }
 
@@ -509,7 +509,7 @@ pub fn mentionable_def(def: MentionableDefinition) {
   MentionableDefinition(def)
 }
 
-pub opaque type NumberDefinition {
+pub opaque type NumberDefinition(ctx) {
   NumberDef(
     name: String,
     name_locales: List(#(Locale, String)),
@@ -519,7 +519,7 @@ pub opaque type NumberDefinition {
     choices: List(OptionChoice(Float)),
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: autocomplete.Handler(Float),
+    autocomplete: autocomplete.Handler(Float, ctx),
   )
 }
 
@@ -538,7 +538,7 @@ pub fn new_number_def(name name: String, desc description: String) {
 }
 
 pub fn number_def_locales(
-  def: NumberDefinition,
+  def: NumberDefinition(ctx),
   locales: List(#(Locale, String, String)),
 ) {
   let name_locales = list.map(locales, fn(l) { #(l.0, l.1) })
@@ -547,33 +547,33 @@ pub fn number_def_locales(
   NumberDef(..def, name_locales:, description_locales:)
 }
 
-pub fn number_def_required(def: NumberDefinition) {
+pub fn number_def_required(def: NumberDefinition(ctx)) {
   NumberDef(..def, required: True)
 }
 
 pub fn number_def_choices(
-  def: NumberDefinition,
+  def: NumberDefinition(ctx),
   choices: List(OptionChoice(Float)),
 ) {
   NumberDef(..def, choices:)
 }
 
-pub fn number_def_min_length(def: NumberDefinition, min_value: Float) {
+pub fn number_def_min_length(def: NumberDefinition(ctx), min_value: Float) {
   NumberDef(..def, min_value: option.Some(min_value))
 }
 
-pub fn number_def_max_length(def: NumberDefinition, max_value: Float) {
+pub fn number_def_max_length(def: NumberDefinition(ctx), max_value: Float) {
   NumberDef(..def, max_value: option.Some(max_value))
 }
 
 pub fn number_def_autocomplete(
-  def: NumberDefinition,
-  autocomplete: autocomplete.Handler(Float),
+  def: NumberDefinition(ctx),
+  autocomplete: autocomplete.Handler(Float, ctx),
 ) {
   NumberDef(..def, autocomplete:)
 }
 
-pub fn number_def(def: NumberDefinition) {
+pub fn number_def(def: NumberDefinition(ctx)) {
   NumberDefinition(def)
 }
 

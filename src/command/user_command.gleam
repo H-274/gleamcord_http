@@ -71,3 +71,12 @@ pub type Handler(ctx) =
 fn default_handler(_, _, _) {
   Error(NotImplemented)
 }
+
+pub fn run(
+  command: UserCommand(ctx),
+  interaction: interaction.AppCommand(Data),
+  bot: Bot,
+  ctx: ctx,
+) {
+  command.handler(interaction, bot, ctx)
+}
