@@ -32,17 +32,13 @@ fn verify_request(
 
   use sig <- given.error(
     in: dict.get(headers, "X-Signature-Ed25519"),
-    then: fn(_) {
-      wisp.bad_request()
-      |> wisp.string_body("Missing header: \"X-Signature-Ed25519\"")
-    },
+    then: wisp.bad_request()
+      |> wisp.string_body("Missing header: \"X-Signature-Ed25519\""),
   )
   use timestamp <- given.error(
     in: dict.get(headers, "X-Signature-Timestamp"),
-    then: fn(_) {
-      wisp.bad_request()
-      |> wisp.string_body("Missing header: \"X-Signature-Timestamp\"")
-    },
+    then: wisp.bad_request()
+      |> wisp.string_body("Missing header: \"X-Signature-Timestamp\""),
   )
 
   case ed25519.verify(msg: timestamp <> str_body, sig:, key:) {
@@ -55,7 +51,7 @@ fn verify_request(
       wisp.response(401)
     }
     Error(ed25519.BadSignature) -> {
-      wisp.log_error("Bad signature: " <> sig)
+      wisp.log_debug("Bad signature: " <> sig)
       wisp.response(401)
     }
     Error(ed25519.BadPublicKey) -> {

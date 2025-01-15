@@ -41,7 +41,7 @@ fn handle_request(config: Configuration(ctx), req: Request) {
     return: wisp.not_found(),
   )
 
-  use interaction <- given.error(
+  use interaction <- given.lazy_error(
     in: decode.run(json_body, interaction.decoder()),
     then: fn(e) {
       wisp.log_critical("Unable to decode interaction")
