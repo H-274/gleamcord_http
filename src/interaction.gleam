@@ -1,9 +1,11 @@
+import decode/zero as decode
+
 pub type Interaction(data) {
   PingInteraction(Ping)
   AppCommandInteraction(AppCommand(data))
   AppCommandAutocompleteInteraction(AppCommandAutocomplete(data))
   MessageComponentInteraction(MessageComponent(data))
-  ModalSubdmitInteraction(ModalSubdmit(data))
+  ModalSubdmitInteraction(ModalSubmit(data))
 }
 
 pub type Ping {
@@ -22,8 +24,8 @@ pub type MessageComponent(component_data) {
   MessageComponent(data: component_data)
 }
 
-pub type ModalSubdmit(modal_data) {
-  ModalSubdmit(data: modal_data)
+pub type ModalSubmit(modal_data) {
+  ModalSubmit(data: modal_data)
 }
 
 pub type Context {
@@ -35,4 +37,8 @@ pub type Context {
 pub type InstallationContext {
   GuildInstall
   UserInstall
+}
+
+pub fn decoder() -> decode.Decoder(Interaction(data)) {
+  todo
 }

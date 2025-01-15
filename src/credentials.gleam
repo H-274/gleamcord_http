@@ -1,3 +1,3 @@
 pub type Credentials {
-  Credentials(application_id: String, token: String)
+  Credentials(application_id: String, pub_key: String, token: String)
 }

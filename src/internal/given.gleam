@@ -65,3 +65,27 @@ pub fn none(
     option.Some(val) -> otherwise(val)
   }
 }
+
+pub fn is(
+  expected expected: a,
+  from from: a,
+  then then: fn(a) -> b,
+  else_ otherwise: fn() -> b,
+) {
+  case from {
+    expected -> then(from)
+    _ -> otherwise()
+  }
+}
+
+pub fn is_not(
+  expected expected: a,
+  from from: a,
+  then then: fn(a) -> b,
+  else_ otherwise: fn() -> b,
+) {
+  case from {
+    expected -> otherwise()
+    _ -> then(from)
+  }
+}
