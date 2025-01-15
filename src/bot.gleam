@@ -41,7 +41,7 @@ fn handle_request(config: Configuration(ctx), req: Request) {
   use <- given.is_not(
     expected: ["interactions"],
     from: wisp.path_segments(req),
-    then: fn(_) { wisp.moved_permanently("/interactions") },
+    then: fn(_) { wisp.not_found() },
   )
 
   use interaction <- given.error(

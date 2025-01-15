@@ -15,14 +15,17 @@ pub fn middleware(
   use <- wisp.log_request(req)
   use <- wisp.rescue_crashes
   use <- wisp.require_method(req, http.Post)
-  use req <- wisp.handle_head(req)
   use <- verify_request(req_copy, credentials)
   use json_body <- wisp.require_json(req)
 
   handle_request(req, json_body)
 }
 
-fn verify_request(req: Request, credentials: Credentials, handle_request) {
+fn verify_request(
+  req: Request,
+  credentials: Credentials,
+  handle_request: fn() -> Response,
+) {
   let key = credentials.pub_key
   let headers = req.headers |> dict.from_list()
   use str_body <- wisp.require_string_body(req)
@@ -43,10 +46,16 @@ fn verify_request(req: Request, credentials: Credentials, handle_request) {
   )
 
   case ed25519.verify(msg: timestamp <> str_body, sig:, key:) {
-    Ok(True) -> handle_request()
-    Ok(False) -> wisp.response(401)
+    Ok(True) -> {
+      wisp.log_debug("Valid request: \n" <> timestamp <> str_body)
+      handle_request()
+    }
+    Ok(False) -> {
+      wisp.log_debug("Invalid request: \n" <> timestamp <> str_body)
+      wisp.response(401)
+    }
     Error(ed25519.BadSignature) -> {
-      wisp.log_error("Bad signature")
+      wisp.log_error("Bad signature: " <> sig)
       wisp.response(401)
     }
     Error(ed25519.BadPublicKey) -> {
