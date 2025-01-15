@@ -83,7 +83,7 @@ pub fn handler(select_menu: RoleSelectMenu(ctx), handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.MessageComponent(Data), Credentials, ctx, List(Dynamic)) ->
+  fn(interaction.MessageComponent, Credentials, ctx, List(Dynamic)) ->
     Result(Response, Error)
 
 pub fn default_handler(_, _, _, _) {
@@ -92,7 +92,7 @@ pub fn default_handler(_, _, _, _) {
 
 pub fn run(
   select_menu: RoleSelectMenu(ctx),
-  interaction: interaction.MessageComponent(Data),
+  interaction: interaction.MessageComponent,
   creds: Credentials,
   ctx: ctx,
   values: List(Dynamic),

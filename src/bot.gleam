@@ -57,7 +57,6 @@ fn handle_request(config: Configuration(ctx), req: Request) {
     interaction.PingInteraction(_) ->
       wisp.no_content() |> wisp.json_body(string_tree.from_string("type: 1"))
 
-    // Custom handling
     interaction.AppCommandInteraction(interaction.AppCommand(..) as i) -> todo
     interaction.AppCommandAutocompleteInteraction(
       interaction.AppCommandAutocomplete(..) as i,

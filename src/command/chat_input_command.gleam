@@ -231,12 +231,7 @@ pub fn sub_command_handler(sub: SubCommand(ctx), handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(
-    interaction.AppCommand(Data),
-    Credentials,
-    ctx,
-    Dict(String, CommandOption),
-  ) ->
+  fn(interaction.AppCommand, Credentials, ctx, Dict(String, CommandOption)) ->
     Result(Response, Error)
 
 fn default_handler(_, _, _, _) {
@@ -245,7 +240,7 @@ fn default_handler(_, _, _, _) {
 
 pub fn run(
   command: Command(ctx),
-  interaction: interaction.AppCommand(Data),
+  interaction: interaction.AppCommand,
   creds: Credentials,
   ctx: ctx,
   options: Dict(String, CommandOption),

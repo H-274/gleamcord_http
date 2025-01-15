@@ -66,7 +66,7 @@ pub fn handler(command: MessageCommand(ctx), handler handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.AppCommand(Data), Credentials, ctx) -> Result(Response, Error)
+  fn(interaction.AppCommand, Credentials, ctx) -> Result(Response, Error)
 
 fn default_handler(_, _, _) {
   Error(NotImplemented)
@@ -74,7 +74,7 @@ fn default_handler(_, _, _) {
 
 pub fn run(
   command: MessageCommand(ctx),
-  interaction: interaction.AppCommand(Data),
+  interaction: interaction.AppCommand,
   creds: Credentials,
   ctx: ctx,
 ) {

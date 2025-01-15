@@ -1,31 +1,65 @@
 import decode/zero as decode
 
-pub type Interaction(data) {
+pub type Interaction {
   PingInteraction(Ping)
-  AppCommandInteraction(AppCommand(data))
-  AppCommandAutocompleteInteraction(AppCommandAutocomplete(data))
-  MessageComponentInteraction(MessageComponent(data))
-  ModalSubdmitInteraction(ModalSubmit(data))
+  AppCommandInteraction(AppCommand)
+  AppCommandAutocompleteInteraction(AppCommandAutocomplete)
+  MessageComponentInteraction(MessageComponent)
+  ModalSubdmitInteraction(ModalSubmit)
+}
+
+pub fn decoder() -> decode.Decoder(Interaction) {
+  use type_ <- decode.field("type", decode.int)
+
+  case type_ {
+    1 -> ping_decoder()
+    2 -> app_command_decoder()
+    3 -> app_command_autocomplete_decoder()
+    4 -> message_component_decoder()
+    5 -> modal_submit_decoder()
+
+    _ -> decode.failure(PingInteraction(Ping), "Interaction")
+  }
 }
 
 pub type Ping {
   Ping
 }
 
-pub type AppCommand(command_data) {
-  AppCommand(data: command_data)
+fn ping_decoder() -> decode.Decoder(Interaction) {
+  decode.success(PingInteraction(Ping))
 }
 
-pub type AppCommandAutocomplete(command_data) {
-  AppCommandAutocomplete(data: command_data)
+pub type AppCommand {
+  AppCommand
 }
 
-pub type MessageComponent(component_data) {
-  MessageComponent(data: component_data)
+fn app_command_decoder() -> decode.Decoder(Interaction) {
+  todo
 }
 
-pub type ModalSubmit(modal_data) {
-  ModalSubmit(data: modal_data)
+pub type AppCommandAutocomplete {
+  AppCommandAutocomplete
+}
+
+fn app_command_autocomplete_decoder() -> decode.Decoder(Interaction) {
+  todo
+}
+
+pub type MessageComponent {
+  MessageComponent
+}
+
+fn message_component_decoder() -> decode.Decoder(Interaction) {
+  todo
+}
+
+pub type ModalSubmit {
+  ModalSubmit
+}
+
+fn modal_submit_decoder() -> decode.Decoder(Interaction) {
+  todo
 }
 
 pub type Context {
@@ -37,8 +71,4 @@ pub type Context {
 pub type InstallationContext {
   GuildInstall
   UserInstall
-}
-
-pub fn decoder() -> decode.Decoder(Interaction(data)) {
-  todo
 }
