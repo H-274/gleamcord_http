@@ -1,7 +1,7 @@
 //// TODO
 
-import bot.{type Bot}
 import command/command_option.{type CommandOption}
+import credentials.{type Credentials}
 import gleam/dict.{type Dict}
 import gleam/list
 import interaction
@@ -231,7 +231,12 @@ pub fn sub_command_handler(sub: SubCommand(ctx), handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.AppCommand(Data), Bot, ctx, Dict(String, CommandOption)) ->
+  fn(
+    interaction.AppCommand(Data),
+    Credentials,
+    ctx,
+    Dict(String, CommandOption),
+  ) ->
     Result(Response, Error)
 
 fn default_handler(_, _, _, _) {
@@ -241,9 +246,9 @@ fn default_handler(_, _, _, _) {
 pub fn run(
   command: Command(ctx),
   interaction: interaction.AppCommand(Data),
-  bot: Bot,
+  creds: Credentials,
   ctx: ctx,
   options: Dict(String, CommandOption),
 ) {
-  command.handler(interaction, bot, ctx, options)
+  command.handler(interaction, creds, ctx, options)
 }

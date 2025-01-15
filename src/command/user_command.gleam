@@ -1,4 +1,4 @@
-import bot.{type Bot}
+import credentials.{type Credentials}
 import interaction
 import locale.{type Locale}
 
@@ -66,7 +66,7 @@ pub fn handler(command: UserCommand(ctx), handler handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.AppCommand(Data), Bot, ctx) -> Result(Response, Error)
+  fn(interaction.AppCommand(Data), Credentials, ctx) -> Result(Response, Error)
 
 fn default_handler(_, _, _) {
   Error(NotImplemented)
@@ -75,8 +75,8 @@ fn default_handler(_, _, _) {
 pub fn run(
   command: UserCommand(ctx),
   interaction: interaction.AppCommand(Data),
-  bot: Bot,
+  creds: Credentials,
   ctx: ctx,
 ) {
-  command.handler(interaction, bot, ctx)
+  command.handler(interaction, creds, ctx)
 }

@@ -1,4 +1,4 @@
-import bot.{type Bot}
+import credentials.{type Credentials}
 import gleam/dict.{type Dict}
 import gleam/option.{type Option}
 import interaction
@@ -24,7 +24,7 @@ pub type Data(option) {
 
 /// TODO figure out how to run this???
 pub type Handler(option, ctx, val) =
-  fn(interaction.AppCommandAutocomplete(Data(option)), Bot, ctx, val) ->
+  fn(interaction.AppCommandAutocomplete(Data(option)), Credentials, ctx, val) ->
     Result(Response, Error)
 
 pub fn default_handler(_, _, _, _) {

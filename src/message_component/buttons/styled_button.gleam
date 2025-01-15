@@ -1,4 +1,4 @@
-import bot.{type Bot}
+import credentials.{type Credentials}
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
 import interaction
@@ -82,7 +82,8 @@ pub fn handler(button: StyledButton(ctx), handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.MessageComponent(Data), Bot, ctx) -> Result(Response, Error)
+  fn(interaction.MessageComponent(Data), Credentials, ctx) ->
+    Result(Response, Error)
 
 pub fn default_handler(_, _, _) {
   Error(NotImplemented)
@@ -91,8 +92,8 @@ pub fn default_handler(_, _, _) {
 pub fn run(
   button: StyledButton(ctx),
   interaction: interaction.MessageComponent(Data),
-  bot: Bot,
+  creds: Credentials,
   ctx: ctx,
 ) {
-  button.handler(interaction, bot, ctx)
+  button.handler(interaction, creds, ctx)
 }

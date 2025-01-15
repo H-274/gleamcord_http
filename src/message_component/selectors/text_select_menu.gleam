@@ -1,4 +1,4 @@
-import bot.{type Bot}
+import credentials.{type Credentials}
 import gleam/dynamic.{type Dynamic}
 import gleam/int
 import interaction
@@ -92,7 +92,7 @@ pub fn handler(select_menu: TextSelectMenu(ctx), handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.MessageComponent(Data), Bot, ctx, List(Dynamic)) ->
+  fn(interaction.MessageComponent(Data), Credentials, ctx, List(Dynamic)) ->
     Result(Response, Error)
 
 pub fn default_handler(_, _, _, _) {
@@ -102,9 +102,9 @@ pub fn default_handler(_, _, _, _) {
 pub fn run(
   select_menu: TextSelectMenu(ctx),
   interaction: interaction.MessageComponent(Data),
-  bot: Bot,
+  creds: Credentials,
   ctx: ctx,
   values: List(Dynamic),
 ) {
-  select_menu.handler(interaction, bot, ctx, values)
+  select_menu.handler(interaction, creds, ctx, values)
 }
