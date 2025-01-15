@@ -1,6 +1,7 @@
 import command/command.{type Command}
 import credentials.{type Credentials}
 import decode/zero as decode
+import gleam/bool
 import gleam/erlang/process
 import gleam/string_tree
 import interaction
@@ -38,10 +39,9 @@ pub fn start(config: Configuration(ctx), port: Int) {
 
 fn handle_request(config: Configuration(ctx), req: Request) {
   use req, json_body <- web.middleware(req, config.credentials)
-  use <- given.is_not(
-    expected: ["interactions"],
-    from: wisp.path_segments(req),
-    then: fn(_) { wisp.not_found() },
+  use <- bool.guard(
+    when: ["interactions"] != wisp.path_segments(req),
+    return: wisp.not_found(),
   )
 
   use interaction <- given.error(
