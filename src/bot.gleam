@@ -33,8 +33,6 @@ pub fn start(config: Configuration(ctx), port: Int) {
     |> mist.new()
     |> mist.port(port)
     |> mist.start_http()
-
-  process.sleep_forever()
 }
 
 fn handle_request(config: Configuration(ctx), req: Request) {
