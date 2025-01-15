@@ -1,14 +1,14 @@
 import decode/zero as decode
 
-pub type Interaction {
+pub type Interaction(data) {
   PingInteraction(Ping)
-  AppCommandInteraction(AppCommand)
-  AppCommandAutocompleteInteraction(AppCommandAutocomplete)
-  MessageComponentInteraction(MessageComponent)
-  ModalSubdmitInteraction(ModalSubmit)
+  AppCommandInteraction(AppCommand(data))
+  AppCommandAutocompleteInteraction(AppCommandAutocomplete(data))
+  MessageComponentInteraction(MessageComponent(data))
+  ModalSubdmitInteraction(ModalSubmit(data))
 }
 
-pub fn decoder() -> decode.Decoder(Interaction) {
+pub fn decoder() -> decode.Decoder(Interaction(data)) {
   use type_ <- decode.field("type", decode.int)
 
   case type_ {
@@ -26,39 +26,39 @@ pub type Ping {
   Ping
 }
 
-fn ping_decoder() -> decode.Decoder(Interaction) {
+fn ping_decoder() -> decode.Decoder(Interaction(data)) {
   decode.success(PingInteraction(Ping))
 }
 
-pub type AppCommand {
-  AppCommand
+pub type AppCommand(data) {
+  AppCommand(data: data)
 }
 
-fn app_command_decoder() -> decode.Decoder(Interaction) {
+fn app_command_decoder() -> decode.Decoder(Interaction(data)) {
   todo
 }
 
-pub type AppCommandAutocomplete {
-  AppCommandAutocomplete
+pub type AppCommandAutocomplete(data) {
+  AppCommandAutocomplete(data: data)
 }
 
-fn app_command_autocomplete_decoder() -> decode.Decoder(Interaction) {
+fn app_command_autocomplete_decoder() -> decode.Decoder(Interaction(data)) {
   todo
 }
 
-pub type MessageComponent {
-  MessageComponent
+pub type MessageComponent(data) {
+  MessageComponent(data: data)
 }
 
-fn message_component_decoder() -> decode.Decoder(Interaction) {
+fn message_component_decoder() -> decode.Decoder(Interaction(data)) {
   todo
 }
 
-pub type ModalSubmit {
-  ModalSubmit
+pub type ModalSubmit(data) {
+  ModalSubmit(data: data)
 }
 
-fn modal_submit_decoder() -> decode.Decoder(Interaction) {
+fn modal_submit_decoder() -> decode.Decoder(Interaction(data)) {
   todo
 }
 

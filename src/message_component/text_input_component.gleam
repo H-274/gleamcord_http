@@ -109,7 +109,7 @@ pub fn placeholder(input: TextInputComponent(ctx), placeholder: String) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.MessageComponent, Credentials, ctx, String) ->
+  fn(interaction.MessageComponent(Data), Credentials, ctx, String) ->
     Result(Response, Error)
 
 pub fn default_handler(_, _, _, _) {
@@ -118,7 +118,7 @@ pub fn default_handler(_, _, _, _) {
 
 pub fn run(
   input: TextInputComponent(ctx),
-  interaction: interaction.MessageComponent,
+  interaction: interaction.MessageComponent(Data),
   creds: Credentials,
   ctx: ctx,
   value: String,

@@ -82,7 +82,8 @@ pub fn handler(button: StyledButton(ctx), handler: Handler(ctx)) {
 }
 
 pub type Handler(ctx) =
-  fn(interaction.MessageComponent, Credentials, ctx) -> Result(Response, Error)
+  fn(interaction.MessageComponent(Data), Credentials, ctx) ->
+    Result(Response, Error)
 
 pub fn default_handler(_, _, _) {
   Error(NotImplemented)
@@ -90,7 +91,7 @@ pub fn default_handler(_, _, _) {
 
 pub fn run(
   button: StyledButton(ctx),
-  interaction: interaction.MessageComponent,
+  interaction: interaction.MessageComponent(Data),
   creds: Credentials,
   ctx: ctx,
 ) {
