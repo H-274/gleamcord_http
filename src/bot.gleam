@@ -2,7 +2,6 @@ import command/command.{type Command}
 import credentials.{type Credentials}
 import decode/zero as decode
 import gleam/bool
-import gleam/erlang/process
 import gleam/string_tree
 import interaction
 import internal/given
