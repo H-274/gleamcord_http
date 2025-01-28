@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu20
+    runs-on: ubuntu24
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
