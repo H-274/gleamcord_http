@@ -5,7 +5,12 @@ import gleam/erlang/process
 pub fn main() {
   let assert Ok(_) =
     Credentials("app_id", "pub_key", "token")
-    |> bot.Configuration(context: Nil, commands: [], components: [])
+    |> bot.Configuration(
+      context: Nil,
+      commands: [],
+      components: [],
+      modals: Nil,
+    )
     |> bot.start(8080)
 
   process.sleep_forever()
