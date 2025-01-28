@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu24
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
@@ -18,6 +18,6 @@ jobs:
           gleam-version: "1.6.3"
           rebar3-version: "3"
           # elixir-version: "1.15.4"
-      - run: gleam build
+      - run: gleam dep download
       - run: gleam test
       - run: gleam format --check src test
