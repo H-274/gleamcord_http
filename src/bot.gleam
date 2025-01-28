@@ -18,6 +18,7 @@ pub type Configuration(ctx) {
     context: ctx,
     commands: List(Command(ctx)),
     components: List(MessageComponent(ctx)),
+    modals: Nil,
   )
 }
 
@@ -54,13 +55,68 @@ fn handle_request(config: Configuration(ctx), req: Request) {
     interaction.PingInteraction(_) ->
       wisp.no_content() |> wisp.json_body(string_tree.from_string("type: 1"))
 
-    interaction.AppCommandInteraction(interaction.AppCommand(..) as i) -> todo
+    interaction.AppCommandInteraction(interaction.AppCommand(..) as i) ->
+      app_command_routing(
+        i,
+        config.commands,
+        config.context,
+        config.credentials,
+      )
     interaction.AppCommandAutocompleteInteraction(
       interaction.AppCommandAutocomplete(..) as i,
-    ) -> todo
+    ) ->
+      app_command_autocomplete_routing(
+        i,
+        config.commands,
+        config.context,
+        config.credentials,
+      )
     interaction.MessageComponentInteraction(
       interaction.MessageComponent(..) as i,
-    ) -> todo
-    interaction.ModalSubdmitInteraction(interaction.ModalSubmit(..)) -> todo
+    ) ->
+      message_component_routing(
+        i,
+        config.components,
+        config.context,
+        config.credentials,
+      )
+    interaction.ModalSubdmitInteraction(interaction.ModalSubmit(..) as i) ->
+      modal_submit_routing(i, config.modals, config.context, config.credentials)
   }
+}
+
+fn app_command_routing(
+  app_command: interaction.AppCommand(data),
+  commands: List(Command(ctx)),
+  context: ctx,
+  credentials: Credentials,
+) {
+  todo
+}
+
+fn app_command_autocomplete_routing(
+  app_command: interaction.AppCommandAutocomplete(data),
+  commands: List(Command(ctx)),
+  context: ctx,
+  credentials: Credentials,
+) {
+  todo
+}
+
+fn message_component_routing(
+  message_component: interaction.MessageComponent(data),
+  components: List(MessageComponent(ctx)),
+  context: ctx,
+  credentials: Credentials,
+) {
+  todo
+}
+
+fn modal_submit_routing(
+  modal_submit: interaction.ModalSubmit(data),
+  modals: Nil,
+  context: ctx,
+  credentials: Credentials,
+) {
+  todo
 }
