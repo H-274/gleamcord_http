@@ -16,7 +16,7 @@ target = "erlang"
 
 internal_modules = ["discord_framework/internal"]
 
-gleam = ">= 1.6.0"
+gleam = ">= 1.7.0"
 
 [dependencies]
 gleam_stdlib = ">= 0.34.0 and < 2.0.0"
