@@ -7,9 +7,3 @@ pub type Interaction {
   MessageInteraction(message.Interaction)
   UserInteraction(user.Interaction)
 }
-
-pub type ApplicationCommand {
-  ChatInputCommand(chat_input.Command)
-  MessageCommand(message.Command)
-  UserCommand(user.Command)
-}
