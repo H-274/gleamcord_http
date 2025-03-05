@@ -14,7 +14,7 @@ pub type Interaction {
 }
 
 pub type Command(bot, success, failure) {
-  Command(handler: Handler(bot, success, failure))
+  Command(handler: HandlerWithParams(bot, success, failure))
   CommandTree
 }
 
@@ -34,18 +34,18 @@ pub type Leaf(bot, success, failure) {
 pub fn extract_command_handler(
   command: Command(bot, success, failure),
   options: List(CommandOption),
-) -> Result(HandlerWithParams(bot, success, failure), Nil) {
+) -> Result(Handler(bot, success, failure), Nil) {
   case command {
     Command(handler: handler) -> {
-      let handler_with_params = fn(i, bot) { handler(i, todo, bot) }
-      Ok(handler_with_params)
+      let handler = fn(i, bot) { handler(i, todo, bot) }
+      Ok(handler)
     }
     CommandTree -> todo
   }
 }
 
-pub type Handler(bot, success, failure) =
+pub type HandlerWithParams(bot, success, failure) =
   fn(Interaction, List(CommandParam), bot) -> Result(success, failure)
 
-pub type HandlerWithParams(bot, success, failure) =
+pub type Handler(bot, success, failure) =
   fn(Interaction, bot) -> Result(success, failure)

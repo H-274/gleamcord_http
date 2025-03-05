@@ -3,5 +3,8 @@ pub type Interaction {
 }
 
 pub type Command(bot, success, failure) {
-  Command
+  Command(handler: Handler(bot, success, failure))
 }
+
+pub type Handler(bot, success, failure) =
+  fn(Interaction, bot) -> Result(success, failure)
