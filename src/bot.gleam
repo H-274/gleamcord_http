@@ -47,7 +47,7 @@ fn handle_command(bot: Bot(_), interaction: application_command.Interaction) {
 
 fn handle_chat_input_command(bot: Bot(_), interaction: chat_input.Interaction) {
   use command <- result.try(
-    list.key_find(bot.chat_commands, todo as "name from interaction")
+    list.key_find(bot.chat_commands, interaction.name)
     |> result.replace_error(NotFound),
   )
   use handler <- result.try(
@@ -60,7 +60,7 @@ fn handle_chat_input_command(bot: Bot(_), interaction: chat_input.Interaction) {
 
 fn handle_message_command(bot: Bot(_), interaction: message.Interaction) {
   use command <- result.try(
-    list.key_find(bot.message_commands, todo as "name from interaction")
+    list.key_find(bot.message_commands, interaction.name)
     |> result.replace_error(NotFound),
   )
 
@@ -69,7 +69,7 @@ fn handle_message_command(bot: Bot(_), interaction: message.Interaction) {
 
 fn handle_user_command(bot: Bot(_), interaction: user.Interaction) {
   use command <- result.try(
-    list.key_find(bot.user_commands, todo as "name from interaction")
+    list.key_find(bot.user_commands, interaction.name)
     |> result.replace_error(NotFound),
   )
 
