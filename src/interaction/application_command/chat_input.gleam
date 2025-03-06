@@ -1,5 +1,6 @@
 import gleam/list
 import gleam/option.{type Option}
+import gleam/result
 import interaction/application_command/command_option.{type CommandOption}
 import interaction/application_command/command_param.{type CommandParam}
 import interaction/base
@@ -78,7 +79,7 @@ pub fn extract_command_handler(
       extract_sub_command_handler(sub_commands, options)
 
     Command(handler: handler, ..) -> {
-      let params = list.filter_map(options, command_option.to_param)
+      use params <- result.try(list.try_map(options, command_option.to_param))
       let handler = fn(interaction, bot) { handler(interaction, params, bot) }
       Ok(handler)
     }
@@ -89,7 +90,29 @@ fn extract_sub_command_handler(
   sub_commands: List(CommandTree(bot, success, failure)),
   options: List(CommandOption),
 ) -> Result(Handler(bot, success, failure), Nil) {
-  todo
+  case sub_commands, options {
+    [Node(CommandNode(name: node_name, ..)), ..rest],
+      [command_option.SubCommandGroup(name: group_name, ..)]
+      if node_name != group_name
+    -> extract_sub_command_handler(rest, options)
+    [Node(CommandNode(options: sub_commands, ..)), ..],
+      [command_option.SubCommandGroup(options: options, ..)]
+    -> extract_sub_command_handler(sub_commands, options)
+
+    [Leaf(CommandLeaf(name: leaf_name, ..)), ..rest],
+      [command_option.SubCommand(name: sub_name, ..)]
+      if leaf_name != sub_name
+    -> extract_sub_command_handler(rest, options)
+    [Leaf(CommandLeaf(handler: handler, ..)), ..],
+      [command_option.SubCommand(options: options, ..)]
+    -> {
+      use params <- result.try(list.try_map(options, command_option.to_param))
+      let handler = fn(interaction, bot) { handler(interaction, params, bot) }
+      Ok(handler)
+    }
+
+    _, _ -> Error(Nil)
+  }
 }
 
 pub type HandlerWithParams(bot, success, failure) =
