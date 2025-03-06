@@ -1,6 +1,6 @@
-import bot
 import interaction/application_command/message
 import interaction/application_command/user
+import interaction/response
 
 pub fn chat_input_command() {
   todo
@@ -17,7 +17,7 @@ pub fn message_command() {
 
   use _i, _bot <- message.with_command_handler(command)
 
-  Error(bot.NotImplemented)
+  Error(response.NotImplemented)
 }
 
 pub fn user_command() {
@@ -27,5 +27,5 @@ pub fn user_command() {
 
   use _i, _bot <- user.with_command_handler(command)
 
-  Error(bot.NotImplemented)
+  Error(response.NotImplemented)
 }

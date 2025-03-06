@@ -1,5 +1,6 @@
 import gleam/option.{type Option}
 import interaction/base
+import interaction/response
 import resolved.{type Resolved}
 
 pub type Interaction {
@@ -11,7 +12,7 @@ pub type Interaction {
   )
 }
 
-pub type Command(bot, success, failure) {
+pub type Command(bot) {
   Command(
     name: String,
     name_locales: List(#(String, String)),
@@ -21,7 +22,7 @@ pub type Command(bot, success, failure) {
     nsfw: Bool,
     integration_types: List(base.ApplicationIntegration),
     contexts: List(base.Context),
-    handler: Handler(bot, success, failure),
+    handler: Handler(bot),
   )
 }
 
@@ -45,33 +46,33 @@ pub fn new_command(
 }
 
 pub fn command_name_locales(
-  command: Command(_, _, _),
+  command: Command(_),
   locales name_locales: List(#(String, String)),
 ) {
   Command(..command, name_locales:)
 }
 
 pub fn command_description_locales(
-  command: Command(_, _, _),
+  command: Command(_),
   locales description_locales: List(#(String, String)),
 ) {
   Command(..command, description_locales:)
 }
 
-pub fn command_default_member_perms(command: Command(_, _, _), perms: String) {
+pub fn command_default_member_perms(command: Command(_), perms: String) {
   Command(..command, default_member_permissions: option.Some(perms))
 }
 
-pub fn command_nsfw(command: Command(_, _, _), nsfw: Bool) {
+pub fn command_nsfw(command: Command(_), nsfw: Bool) {
   Command(..command, nsfw:)
 }
 
 pub fn with_command_handler(
-  command: Command(success, failure, bot),
-  handler: fn(Interaction, bot) -> Result(success, failure),
+  command: Command(success),
+  handler: fn(Interaction, bot) -> Result(response.Success, response.Failure),
 ) {
   Command(..command, handler:)
 }
 
-pub type Handler(bot, success, failure) =
-  fn(Interaction, bot) -> Result(success, failure)
+pub type Handler(bot) =
+  fn(Interaction, bot) -> Result(response.Success, response.Failure)

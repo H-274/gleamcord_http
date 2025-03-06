@@ -4,6 +4,7 @@ import gleam/result
 import interaction/application_command/command_option.{type CommandOption}
 import interaction/application_command/command_param.{type CommandParam}
 import interaction/base
+import interaction/response
 import resolved.{type Resolved}
 
 pub type Interaction {
@@ -16,7 +17,7 @@ pub type Interaction {
   )
 }
 
-pub type Command(bot, success, failure) {
+pub type Command(bot) {
   Command(
     name: String,
     name_locales: List(#(String, String)),
@@ -28,14 +29,14 @@ pub type Command(bot, success, failure) {
     integration_types: List(base.ApplicationIntegration),
     contexts: List(base.Context),
     version: String,
-    handler: HandlerWithParams(bot, success, failure),
+    handler: HandlerWithParams(bot),
   )
   CommandTree(
     name: String,
     name_locales: List(#(String, String)),
     description: String,
     description_locales: List(#(String, String)),
-    sub_commands: List(CommandTree(bot, success, failure)),
+    sub_commands: List(CommandTree(bot)),
     default_member_permissions: Option(String),
     nsfw: Bool,
     integration_types: List(base.ApplicationIntegration),
@@ -44,36 +45,36 @@ pub type Command(bot, success, failure) {
   )
 }
 
-pub type CommandTree(bot, success, failure) {
-  Node(Node(bot, success, failure))
-  Leaf(Leaf(bot, success, failure))
+pub type CommandTree(bot) {
+  Node(Node(bot))
+  Leaf(Leaf(bot))
 }
 
-pub type Node(bot, success, failure) {
+pub type Node(bot) {
   CommandNode(
     name: String,
     name_locales: List(#(String, String)),
     description: String,
     description_locales: List(#(String, String)),
-    options: List(CommandTree(bot, success, failure)),
+    options: List(CommandTree(bot)),
   )
 }
 
-pub type Leaf(bot, success, failure) {
+pub type Leaf(bot) {
   CommandLeaf(
     name: String,
     name_locales: List(#(String, String)),
     description: String,
     description_locales: List(#(String, String)),
     options: List(CommandParam),
-    handler: HandlerWithParams(bot, success, failure),
+    handler: HandlerWithParams(bot),
   )
 }
 
 pub fn extract_command_handler(
-  command: Command(bot, success, failure),
+  command: Command(bot),
   options: List(CommandOption),
-) -> Result(Handler(bot, success, failure), Nil) {
+) -> Result(Handler(bot), Nil) {
   case command {
     CommandTree(sub_commands: sub_commands, ..) ->
       extract_sub_command_handler(sub_commands, options)
@@ -87,9 +88,9 @@ pub fn extract_command_handler(
 }
 
 fn extract_sub_command_handler(
-  sub_commands: List(CommandTree(bot, success, failure)),
+  sub_commands: List(CommandTree(bot)),
   options: List(CommandOption),
-) -> Result(Handler(bot, success, failure), Nil) {
+) -> Result(Handler(bot), Nil) {
   case sub_commands, options {
     [Node(CommandNode(name: node_name, ..)), ..rest],
       [command_option.SubCommandGroup(name: group_name, ..)]
@@ -114,8 +115,9 @@ fn extract_sub_command_handler(
   }
 }
 
-pub type HandlerWithParams(bot, success, failure) =
-  fn(Interaction, List(CommandParam), bot) -> Result(success, failure)
+pub type HandlerWithParams(bot) =
+  fn(Interaction, List(CommandParam), bot) ->
+    Result(response.Success, response.Failure)
 
-pub type Handler(bot, success, failure) =
-  fn(Interaction, bot) -> Result(success, failure)
+pub type Handler(bot) =
+  fn(Interaction, bot) -> Result(response.Success, response.Failure)
