@@ -1,4 +1,4 @@
-import gleam/list
+import gleam/dict.{type Dict}
 import gleam/result
 import interaction.{type Interaction}
 import interaction/application_command
@@ -7,18 +7,59 @@ import interaction/application_command/message
 import interaction/application_command/user
 
 /// TODO: add message components and modal submits
-pub type Bot(ctx) {
+pub opaque type Bot(ctx) {
   Bot(
-    pub_key: String,
-    chat_commands: List(
-      #(String, chat_input.Command(Bot(ctx), Success, Failure)),
-    ),
-    message_commands: List(
-      #(String, message.Command(Bot(ctx), Success, Failure)),
-    ),
-    user_commands: List(#(String, user.Command(Bot(ctx), Success, Failure))),
+    public_ley: String,
     context: ctx,
+    chat_commands: Dict(String, chat_input.Command(Bot(ctx), Success, Failure)),
+    message_commands: Dict(String, message.Command(Bot(ctx), Success, Failure)),
+    user_commands: Dict(String, user.Command(Bot(ctx), Success, Failure)),
   )
+}
+
+pub fn new(public_ley: String, context: ctx) -> Bot(ctx) {
+  Bot(
+    public_ley:,
+    context:,
+    chat_commands: dict.from_list([]),
+    message_commands: dict.from_list([]),
+    user_commands: dict.from_list([]),
+  )
+}
+
+pub fn get_key(bot: Bot(_)) {
+  let Bot(public_ley: key, ..) = bot
+  key
+}
+
+pub fn add_chat_command(
+  bot: Bot(ctx),
+  command: chat_input.Command(Bot(ctx), Success, Failure),
+) {
+  let Bot(chat_commands: commands, ..) = bot
+  let chat_commands = dict.insert(commands, command.name, command)
+
+  Bot(..bot, chat_commands:)
+}
+
+pub fn add_message_command(
+  bot: Bot(ctx),
+  command: message.Command(Bot(ctx), Success, Failure),
+) {
+  let Bot(message_commands: commands, ..) = bot
+  let message_commands = dict.insert(commands, command.name, command)
+
+  Bot(..bot, message_commands:)
+}
+
+pub fn add_user_command(
+  bot: Bot(ctx),
+  command: user.Command(Bot(ctx), Success, Failure),
+) {
+  let Bot(user_commands: commands, ..) = bot
+  let user_commands = dict.insert(commands, command.name, command)
+
+  Bot(..bot, user_commands:)
 }
 
 pub fn handle_interaction(
@@ -47,7 +88,7 @@ fn handle_command(bot: Bot(_), interaction: application_command.Interaction) {
 
 fn handle_chat_input_command(bot: Bot(_), interaction: chat_input.Interaction) {
   use command <- result.try(
-    list.key_find(bot.chat_commands, interaction.name)
+    dict.get(bot.chat_commands, interaction.name)
     |> result.replace_error(NotFound),
   )
   use handler <- result.try(
@@ -60,7 +101,7 @@ fn handle_chat_input_command(bot: Bot(_), interaction: chat_input.Interaction) {
 
 fn handle_message_command(bot: Bot(_), interaction: message.Interaction) {
   use command <- result.try(
-    list.key_find(bot.message_commands, interaction.name)
+    dict.get(bot.message_commands, interaction.name)
     |> result.replace_error(NotFound),
   )
 
@@ -69,7 +110,7 @@ fn handle_message_command(bot: Bot(_), interaction: message.Interaction) {
 
 fn handle_user_command(bot: Bot(_), interaction: user.Interaction) {
   use command <- result.try(
-    list.key_find(bot.user_commands, interaction.name)
+    dict.get(bot.user_commands, interaction.name)
     |> result.replace_error(NotFound),
   )
 
@@ -85,6 +126,7 @@ pub type Success {
 
 pub type Failure {
   NotFound
+  NotImplemented
   InternalServerError
   Other(String)
 }
