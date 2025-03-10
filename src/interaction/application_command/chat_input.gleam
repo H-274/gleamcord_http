@@ -111,6 +111,7 @@ fn extract_sub_command_handler(
       let handler = fn(interaction, bot) { handler(interaction, params, bot) }
       Ok(handler)
     }
+
     _, _ -> Error(Nil)
   }
 }

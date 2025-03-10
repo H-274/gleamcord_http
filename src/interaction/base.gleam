@@ -1,3 +1,4 @@
+import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
 
@@ -18,7 +19,7 @@ pub type Base {
     locale: Option(String),
     guild_locale: Option(String),
     entitlements: List(Dynamic),
-    authorizing_integration_owners: List(#(ApplicationIntegration, String)),
+    authorizing_integration_owners: Dict(ApplicationIntegration, String),
     context: Option(Context),
   )
 }
