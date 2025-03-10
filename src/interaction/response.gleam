@@ -1,5 +1,8 @@
 pub type Success {
   Pong
+  MessageReply
+  MessageUpdate
+  Deferred
 }
 
 pub type Failure {
