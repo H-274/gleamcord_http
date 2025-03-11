@@ -7,17 +7,16 @@ pub fn chat_input_command() {
   let builder = chat_input.new_command_builder("ping", "pongs", [], [])
   let params = []
 
-  use _i, _params, _bot <- chat_input.with_command_handler(params, builder)
+  use _i, _params, _bot <- chat_input.with_command_handler(builder, params)
 
   Error(response.NotImplemented)
 }
 
 pub fn chat_input_command_tree() {
   chat_input.new_command_builder("set", "sets a value", [], [])
-  |> chat_input.command_tree(
-    [chat_input_command_tree_group([chat_input_command_tree_leaf()])],
-    _,
-  )
+  |> chat_input.command_tree([
+    chat_input_command_tree_group([chat_input_command_tree_leaf()]),
+  ])
 }
 
 pub fn chat_input_command_tree_group(

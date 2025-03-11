@@ -100,8 +100,8 @@ pub fn command_nsfw(builder: CommandBuilder, nsfw: Bool) {
 }
 
 pub fn with_command_handler(
-  params: List(CommandParam),
   builder: CommandBuilder,
+  params: List(CommandParam),
   handler: HandlerWithParams(bot),
 ) -> Command(bot) {
   Command(
@@ -119,8 +119,8 @@ pub fn with_command_handler(
 }
 
 pub fn command_tree(
-  sub_commands: List(CommandTree(bot)),
   builder: CommandBuilder,
+  sub_commands: List(CommandTree(bot)),
 ) -> Command(bot) {
   CommandTree(
     name: builder.name,
