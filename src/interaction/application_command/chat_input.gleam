@@ -30,7 +30,7 @@ pub opaque type CommandBuilder {
   )
 }
 
-pub opaque type Command(bot) {
+pub type Command(bot) {
   Command(
     name: String,
     name_locales: List(#(String, String)),
