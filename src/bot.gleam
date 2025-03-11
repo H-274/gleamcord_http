@@ -5,6 +5,9 @@ import interaction/application_command
 import interaction/application_command/chat_input
 import interaction/application_command/message
 import interaction/application_command/user
+import interaction/autocomplete
+import interaction/message_component
+import interaction/modal_submit
 import interaction/response
 
 /// TODO: add message components and modal submits
@@ -61,11 +64,10 @@ pub fn handle_interaction(
   case interaction {
     interaction.Ping(_) -> Ok(response.Pong)
     interaction.ApplicationCommand(i) -> handle_command(bot, i)
-    interaction.ApplicationCommandAutocomplete(_i) ->
-      todo as "Missing logic for application command autocompletion"
-    interaction.MessageComponent(_i) ->
-      todo as "Missing logic for message components"
-    interaction.ModalSubmit(_i) -> todo as "Missing logic for modal submissions"
+    interaction.ApplicationCommandAutocomplete(i) ->
+      handle_command_autcomplete(bot, i)
+    interaction.MessageComponent(i) -> handle_message_component(bot, i)
+    interaction.ModalSubmit(i) -> handle_modal_submit(bot, i)
   }
 }
 
@@ -107,4 +109,28 @@ fn handle_user_command(bot: Bot(_), interaction: user.Interaction) {
   )
 
   command.handler(interaction, bot)
+}
+
+fn handle_command_autcomplete(
+  bot: Bot(_),
+  interaction: autocomplete.Interaction,
+) {
+  let _ = bot
+  let _ = interaction
+  todo as "Missing autocomplete handler logic"
+}
+
+fn handle_message_component(
+  bot: Bot(_),
+  interaction: message_component.Interaction,
+) {
+  let _ = bot
+  let _ = interaction
+  todo as "Missing message component handler logic"
+}
+
+fn handle_modal_submit(bot: Bot(_), interaction: modal_submit.Interaction) {
+  let _ = bot
+  let _ = interaction
+  todo as "Missing modal submit handler logic"
 }

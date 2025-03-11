@@ -1,13 +1,39 @@
+import interaction/application_command/chat_input
 import interaction/application_command/message
 import interaction/application_command/user
 import interaction/response
 
 pub fn chat_input_command() {
-  todo
+  let builder = chat_input.new_command_builder("ping", "pongs", [], [])
+  let params = []
+
+  use _i, _params, _bot <- chat_input.with_command_handler(params, builder)
+
+  Error(response.NotImplemented)
 }
 
 pub fn chat_input_command_tree() {
-  todo
+  chat_input.new_command_builder("set", "sets a value", [], [])
+  |> chat_input.command_tree(
+    [chat_input_command_tree_group([chat_input_command_tree_leaf()])],
+    _,
+  )
+}
+
+pub fn chat_input_command_tree_group(
+  sub_commands: List(chat_input.CommandTree(_)),
+) {
+  chat_input.new_command_node("player", "player setters")
+  |> chat_input.node_options(sub_commands)
+}
+
+pub fn chat_input_command_tree_leaf() {
+  let leaf = chat_input.new_command_leaf("name", "sets players name")
+  let params = []
+
+  use _i, _params, _bot <- chat_input.with_leaf_handler(leaf, params)
+
+  Error(response.NotImplemented)
 }
 
 pub fn message_command() {
