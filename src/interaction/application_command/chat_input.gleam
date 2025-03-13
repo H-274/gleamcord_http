@@ -17,7 +17,7 @@ pub type Interaction {
   )
 }
 
-pub opaque type CommandBuilder {
+pub type CommandBuilder {
   CommandBuilder(
     name: String,
     name_locales: List(#(String, String)),

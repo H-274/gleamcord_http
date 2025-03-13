@@ -9,7 +9,8 @@ pub fn chat_input_command() {
 
   use _i, _params, _bot <- chat_input.with_command_handler(builder, params)
 
-  Error(response.NotImplemented)
+  use message <- response.new_message_reply()
+  response.Message(..message, content: "Pong", components: [], embeds: [])
 }
 
 pub fn chat_input_command_tree() {
