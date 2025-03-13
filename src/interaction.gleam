@@ -1,7 +1,11 @@
 pub type Interaction {
   Ping
-  ApplicationCommand
+  ApplicationCommandInteraction(ApplicationCommandInteraction)
   ApplicationCommandAutocomplete
   MessageComponent
   ModalSubmit
+}
+
+pub type ApplicationCommandInteraction {
+  ApplicationCommand
 }
