@@ -1,3 +1,0 @@
-pub type Interaction {
-  Interaction
-}
