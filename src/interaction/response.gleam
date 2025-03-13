@@ -1,10 +1,10 @@
-import gleam/dynamic.{type Dynamic}
-
+// TODO
 pub type Success {
   Pong
   MessageReply
+  DeferredReply
   MessageUpdate
-  Deferred
+  DeferredUpdate
 }
 
 pub type Failure {

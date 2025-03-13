@@ -1,5 +1,6 @@
 //// TODO review type names and type variant names
 
+import gleam/dict.{type Dict}
 import interaction.{type ApplicationCommandInteraction}
 import interaction/response
 
@@ -84,8 +85,10 @@ pub fn tree_leaf(
   TreeLeaf(def, params, handler)
 }
 
+// TODO
 pub type ParamDefinition
 
+// TODO
 pub type Param
 
 pub fn user_command(def: CommandDefinition(bot), handler: Handler(bot)) {
@@ -97,14 +100,9 @@ pub fn message_command(def: CommandDefinition(bot), handler: Handler(bot)) {
 }
 
 pub type Handler(bot) =
-  fn(ApplicationCommandInteraction, bot) -> Result(Success, response.Failure)
+  fn(ApplicationCommandInteraction, bot) ->
+    Result(response.Success, response.Failure)
 
 pub type ParamsHandler(bot) =
-  fn(ApplicationCommandInteraction, List(Param), bot) ->
-    Result(Success, response.Failure)
-
-/// TODO
-pub opaque type Success {
-  MessageReply
-  DeferredMessage
-}
+  fn(ApplicationCommandInteraction, Dict(String, Param), bot) ->
+    Result(response.Success, response.Failure)

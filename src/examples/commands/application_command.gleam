@@ -38,7 +38,7 @@ pub fn chat_input_command_tree_node(
   todo
 }
 
-pub fn chat_input_command_tree_leaf() -> ac.CommandTreeNode(bot) {
+pub fn chat_input_command_tree_leaf() -> ac.CommandTreeNode(_) {
   todo
 }
 
