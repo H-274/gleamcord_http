@@ -75,8 +75,8 @@ pub fn chat_input_command(
 }
 
 pub fn chat_input_tree_commands(
-  def: CommandDefinition(bot),
-  sub_commands: List(CommandTreeNode(bot)),
+  def def: CommandDefinition(bot),
+  commands sub_commands: List(CommandTreeNode(bot)),
 ) {
   ChatInputCommandTree(def, sub_commands)
 }
@@ -86,19 +86,30 @@ pub opaque type CommandTreeNode(bot) {
   TreeLeaf(NodeDefinition, List(ParamDefinition), ParamsHandler(bot))
 }
 
-/// TODO
 pub type NodeDefinition {
-  NodeDefinition
+  NodeDefinition(
+    name: String,
+    name_locales: List(#(String, String)),
+    description: String,
+    description_locales: List(#(String, String)),
+  )
 }
 
-pub fn tree_node(def: NodeDefinition, sub_commands: List(CommandTreeNode(_))) {
+pub fn new_node_definition(name name: String, desc description: String) {
+  NodeDefinition(name:, name_locales: [], description:, description_locales: [])
+}
+
+pub fn tree_node(
+  def def: NodeDefinition,
+  commands sub_commands: List(CommandTreeNode(_)),
+) {
   TreeNode(def, sub_commands)
 }
 
 pub fn tree_leaf(
-  def: NodeDefinition,
-  params: List(ParamDefinition),
-  handler: ParamsHandler(_),
+  def def: NodeDefinition,
+  params params: List(ParamDefinition),
+  handler handler: ParamsHandler(_),
 ) {
   TreeLeaf(def, params, handler)
 }
@@ -133,7 +144,10 @@ pub fn user_command(def: CommandDefinition(bot), handler: Handler(bot)) {
   UserCommand(def, handler)
 }
 
-pub fn message_command(def: CommandDefinition(bot), handler: Handler(bot)) {
+pub fn message_command(
+  def def: CommandDefinition(bot),
+  handler handler: Handler(bot),
+) {
   MessageCommand(def, handler)
 }
 
