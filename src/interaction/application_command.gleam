@@ -1,6 +1,9 @@
 //// TODO review type names and type variant names
 
+import gleam/bool
 import gleam/dict.{type Dict}
+import gleam/list
+import gleam/string
 import interaction.{type ApplicationCommandInteraction}
 import interaction/response
 
@@ -13,6 +16,21 @@ pub opaque type ApplicationCommand(bot) {
   ChatInputCommandTree(CommandDefinition(bot), List(CommandTreeNode(bot)))
   UserCommand(CommandDefinition(bot), Handler(bot))
   MessageCommand(CommandDefinition(bot), Handler(bot))
+}
+
+pub fn is_valid(command: ApplicationCommand(_)) -> Bool {
+  case command {
+    ChatInputCommand(def, ..) | ChatInputCommandTree(def, ..) ->
+      is_valid_definition(def:) |> bool.and(!string.is_empty(def.description))
+
+    UserCommand(def, ..) | MessageCommand(def, ..) -> is_valid_definition(def:)
+  }
+}
+
+fn is_valid_definition(def definition: CommandDefinition(_)) {
+  { !string.is_empty(definition.name) }
+  |> bool.and(list.length(definition.contexts) > 0)
+  |> bool.and(list.length(definition.integration_types) > 0)
 }
 
 pub type CommandDefinition(bot) {
@@ -49,9 +67,9 @@ pub fn new_definition(
 }
 
 pub fn chat_input_command(
-  def: CommandDefinition(bot),
-  params: List(ParamDefinition),
-  handler: ParamsHandler(bot),
+  def def: CommandDefinition(bot),
+  params params: List(ParamDefinition),
+  handler handler: ParamsHandler(bot),
 ) {
   ChatInputCommand(def, params, handler)
 }
@@ -86,10 +104,30 @@ pub fn tree_leaf(
 }
 
 // TODO
-pub type ParamDefinition
+
+pub type ParamBase {
+  ParamBase
+}
+
+pub opaque type ParamDefinition {
+  StringDef(ParamBase)
+  IntegerDef(ParamBase)
+}
+
+pub fn new_string_definition(base: ParamBase) -> ParamDefinition {
+  StringDef(base)
+}
+
+pub fn new_integer_definition(base: ParamBase) -> ParamDefinition {
+  IntegerDef(base)
+}
 
 // TODO
-pub type Param
+pub type Param {
+  StringParam(name: String, value: String, focused: Bool)
+  IntegerParam(name: String, value: Int, focused: Bool)
+  FloatParam(name: String, value: Float, focused: Bool)
+}
 
 pub fn user_command(def: CommandDefinition(bot), handler: Handler(bot)) {
   UserCommand(def, handler)

@@ -7,9 +7,12 @@ pub fn chat_input_command() -> ac.ApplicationCommand(_) {
       ..ac.new_definition(name: "ping", desc: "pongs", integs: [], contexts: []),
       name_locales: [],
     )
-  let params = []
+  let params = [
+    ac.ParamBase |> ac.new_string_definition,
+    ac.ParamBase |> ac.new_integer_definition,
+  ]
 
-  use _i, _params, _bot <- ac.chat_input_command(def, params)
+  use _i, _params, _bot <- ac.chat_input_command(def:, params:)
 
   // Replace with your command logic
   Error(response.NotImplemented)
