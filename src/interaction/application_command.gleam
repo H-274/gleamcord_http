@@ -140,7 +140,10 @@ pub type Param {
   FloatParam(name: String, value: Float, focused: Bool)
 }
 
-pub fn user_command(def: CommandDefinition(bot), handler: Handler(bot)) {
+pub fn user_command(
+  def def: CommandDefinition(bot),
+  handler handler: Handler(bot),
+) {
   UserCommand(def, handler)
 }
 
