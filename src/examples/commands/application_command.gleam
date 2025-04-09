@@ -11,10 +11,7 @@ pub fn chat_input_command() -> ac.ApplicationCommand(_) {
       ..ac.new_definition(name: "ping", desc: "pongs", integs: [], contexts: []),
       name_locales: [],
     )
-  let params = [
-    ac.ParamBase |> ac.new_string_definition,
-    ac.ParamBase |> ac.new_integer_definition,
-  ]
+  let params = [ac.StringDef(ac.ParamBase), ac.IntegerDef(ac.ParamBase)]
 
   use _i, _params, _bot <- ac.chat_input_command(def:, params:)
 
@@ -41,9 +38,11 @@ pub fn chat_input_command_tree() -> ac.ApplicationCommand(_) {
 }
 
 pub fn chat_input_command_tree_node(
-  _sub_commands: List(ac.CommandTreeNode(bot)),
+  commands: List(ac.CommandTreeNode(bot)),
 ) -> ac.CommandTreeNode(bot) {
-  todo
+  let def = ac.new_node_definition(name: "node", desc: "")
+
+  ac.tree_node(def:, commands:)
 }
 
 pub fn chat_input_command_tree_leaf() -> ac.CommandTreeNode(_) {

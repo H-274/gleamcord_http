@@ -1,9 +1,9 @@
 pub type Interaction {
   PingInteraction(PingInteraction)
   ApplicationCommandInteraction(ApplicationCommandInteraction)
-  ApplicationCommandAutocomplete
-  MessageComponent
-  ModalSubmit
+  AutocompleteInteraction(AutocompleteInteraction)
+  MessageComponentInteractiion(MessageComponentInteraction)
+  ModalSubmitInteraction(ModalSubmitInteraction)
 }
 
 pub type PingInteraction {
@@ -12,4 +12,16 @@ pub type PingInteraction {
 
 pub type ApplicationCommandInteraction {
   ApplicationCommand
+}
+
+pub type AutocompleteInteraction {
+  Autocomplete
+}
+
+pub type MessageComponentInteraction {
+  MessageComponent
+}
+
+pub type ModalSubmitInteraction {
+  ModalSubmit
 }

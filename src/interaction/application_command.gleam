@@ -3,6 +3,7 @@
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
+import gleam/option.{type Option}
 import gleam/string
 import interaction.{type ApplicationCommandInteraction}
 import interaction/response
@@ -10,12 +11,12 @@ import interaction/response
 pub opaque type ApplicationCommand(bot) {
   ChatInputCommand(
     CommandDefinition(bot),
-    List(ParamDefinition),
-    ParamsHandler(bot),
+    List(ParamDefinition(bot)),
+    ParamsCommandHandler(bot),
   )
   ChatInputCommandTree(CommandDefinition(bot), List(CommandTreeNode(bot)))
-  UserCommand(CommandDefinition(bot), Handler(bot))
-  MessageCommand(CommandDefinition(bot), Handler(bot))
+  UserCommand(CommandDefinition(bot), CommandHandler(bot))
+  MessageCommand(CommandDefinition(bot), CommandHandler(bot))
 }
 
 pub fn is_valid(command: ApplicationCommand(_)) -> Bool {
@@ -68,8 +69,8 @@ pub fn new_definition(
 
 pub fn chat_input_command(
   def def: CommandDefinition(bot),
-  params params: List(ParamDefinition),
-  handler handler: ParamsHandler(bot),
+  params params: List(ParamDefinition(bot)),
+  handler handler: ParamsCommandHandler(bot),
 ) {
   ChatInputCommand(def, params, handler)
 }
@@ -83,7 +84,11 @@ pub fn chat_input_tree_commands(
 
 pub opaque type CommandTreeNode(bot) {
   TreeNode(NodeDefinition, List(CommandTreeNode(bot)))
-  TreeLeaf(NodeDefinition, List(ParamDefinition), ParamsHandler(bot))
+  TreeLeaf(
+    NodeDefinition,
+    List(ParamDefinition(bot)),
+    ParamsCommandHandler(bot),
+  )
 }
 
 pub type NodeDefinition {
@@ -108,8 +113,8 @@ pub fn tree_node(
 
 pub fn tree_leaf(
   def def: NodeDefinition,
-  params params: List(ParamDefinition),
-  handler handler: ParamsHandler(_),
+  params params: List(ParamDefinition(bot)),
+  handler handler: ParamsCommandHandler(bot),
 ) {
   TreeLeaf(def, params, handler)
 }
@@ -120,17 +125,16 @@ pub type ParamBase {
   ParamBase
 }
 
-pub opaque type ParamDefinition {
+pub type ParamDefinition(bot) {
   StringDef(ParamBase)
+  ChoicesStringDef(ParamBase, ParamDataHandler(bot, List(String)))
+  AutocompleteStringDef(ParamBase, ParamDataHandler(bot, String))
   IntegerDef(ParamBase)
-}
-
-pub fn new_string_definition(base: ParamBase) -> ParamDefinition {
-  StringDef(base)
-}
-
-pub fn new_integer_definition(base: ParamBase) -> ParamDefinition {
-  IntegerDef(base)
+  ChoicesIntegerDef(ParamBase, ParamDataHandler(bot, List(Int)))
+  AutocompleteIntegerDef(ParamBase, ParamDataHandler(bot, Int))
+  FloatDef(ParamBase)
+  ChoicesFloatDef(ParamBase, ParamDataHandler(bot, List(Float)))
+  AutocompleteFloatDef(ParamBase, ParamDataHandler(bot, Float))
 }
 
 // TODO
@@ -142,22 +146,26 @@ pub type Param {
 
 pub fn user_command(
   def def: CommandDefinition(bot),
-  handler handler: Handler(bot),
+  handler handler: CommandHandler(bot),
 ) {
   UserCommand(def, handler)
 }
 
 pub fn message_command(
   def def: CommandDefinition(bot),
-  handler handler: Handler(bot),
+  handler handler: CommandHandler(bot),
 ) {
   MessageCommand(def, handler)
 }
 
-pub type Handler(bot) =
+pub type CommandHandler(bot) =
   fn(ApplicationCommandInteraction, bot) ->
     Result(response.Success, response.Failure)
 
-pub type ParamsHandler(bot) =
+pub type ParamsCommandHandler(bot) =
   fn(ApplicationCommandInteraction, Dict(String, Param), bot) ->
     Result(response.Success, response.Failure)
+
+pub type ParamDataHandler(bot, value) =
+  fn(ApplicationCommandInteraction, Dict(String, Param), bot) ->
+    Result(value, response.Failure)
