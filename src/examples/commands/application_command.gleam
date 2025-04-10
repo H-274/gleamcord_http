@@ -28,7 +28,10 @@ pub fn chat_input_command() {
   let params = [name_param]
 
   use _i, params, _bot <- ac.chat_input_command(def, params)
-  let assert Ok(_city) = param.get_string(params, "city")
+  let _city = case param.get_string(params, "city") {
+    Ok(city) -> city
+    _ -> "world"
+  }
 
   todo as "Response logic"
 }
