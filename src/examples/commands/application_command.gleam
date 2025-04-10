@@ -10,16 +10,11 @@ pub fn chat_input_command() {
     ])
 
   let name_param =
-    param.StringDefBuilder(
-      ..param.string_builder(
-        param.BaseDefinition(
-          ..param.new_base(name: "city", desc: "city to greet"),
-          required: False,
-        ),
-      ),
-      min_length: option.Some(2),
-      max_length: option.Some(25),
-    )
+    param.base(name: "city", desc: "city to greet")
+    |> param.required(False)
+    |> param.string_builder()
+    |> param.string_min_length(2)
+    |> param.string_min_length(25)
     |> param.string_with_autocomplete(city_autocomplete)
 
   let params = [name_param]
