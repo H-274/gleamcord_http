@@ -1,5 +1,4 @@
 import gleam/io
-import gleam/option
 import interaction/application_command as ac
 import interaction/application_command_param as param
 
@@ -9,15 +8,7 @@ pub fn chat_input_command() {
       Nil,
     ])
 
-  let name_param =
-    param.base(name: "city", desc: "city to greet")
-    |> param.required(False)
-    |> param.string_builder()
-    |> param.string_min_length(2)
-    |> param.string_min_length(25)
-    |> param.string_with_autocomplete(city_autocomplete)
-
-  let params = [name_param]
+  let params = [city_param()]
 
   use _i, params, _bot <- ac.chat_input_command(def, params)
   let city = case param.get_string(params, "city") {
@@ -29,6 +20,14 @@ pub fn chat_input_command() {
   todo as "Response logic"
 }
 
-fn city_autocomplete(_i, _params, _bot) {
-  todo as "Autocompletion logic"
+fn city_param() {
+  let builder =
+    param.base(name: "city", desc: "city to greet")
+    |> param.required(False)
+    |> param.string_builder()
+    |> param.string_min_length(2)
+    |> param.string_min_length(25)
+
+  use _i, _params, _bot <- param.string_with_autocomplete(builder)
+  todo as "Autocomplete logic"
 }
