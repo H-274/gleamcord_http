@@ -3,9 +3,9 @@
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
-import gleam/option.{type Option}
 import gleam/string
 import interaction.{type ApplicationCommandInteraction}
+import interaction/application_command_param.{type ParamDefinition}
 import interaction/response
 
 pub opaque type ApplicationCommand(bot) {
@@ -125,18 +125,6 @@ pub type ParamBase {
   ParamBase
 }
 
-pub type ParamDefinition(bot) {
-  StringDef(ParamBase)
-  ChoicesStringDef(ParamBase, ParamDataHandler(bot, List(String)))
-  AutocompleteStringDef(ParamBase, ParamDataHandler(bot, String))
-  IntegerDef(ParamBase)
-  ChoicesIntegerDef(ParamBase, ParamDataHandler(bot, List(Int)))
-  AutocompleteIntegerDef(ParamBase, ParamDataHandler(bot, Int))
-  FloatDef(ParamBase)
-  ChoicesFloatDef(ParamBase, ParamDataHandler(bot, List(Float)))
-  AutocompleteFloatDef(ParamBase, ParamDataHandler(bot, Float))
-}
-
 // TODO
 pub type Param {
   StringParam(name: String, value: String, focused: Bool)
@@ -165,7 +153,3 @@ pub type CommandHandler(bot) =
 pub type ParamsCommandHandler(bot) =
   fn(ApplicationCommandInteraction, Dict(String, Param), bot) ->
     Result(response.Success, response.Failure)
-
-pub type ParamDataHandler(bot, value) =
-  fn(ApplicationCommandInteraction, Dict(String, Param), bot) ->
-    Result(value, response.Failure)
