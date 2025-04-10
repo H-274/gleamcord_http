@@ -25,7 +25,7 @@ pub type BaseDefinition {
   )
 }
 
-pub fn new_base(name: String, description: String) -> BaseDefinition {
+pub fn new_base(name name: String, desc description: String) -> BaseDefinition {
   BaseDefinition(
     name:,
     name_localizations: [],
@@ -41,14 +41,14 @@ pub opaque type ParamDefinition(bot) {
     choices: List(ParamChoice(String)),
     min_length: Option(Int),
     max_length: Option(Int),
-    autocomplete: Option(AutocompleteHandler(String)),
+    autocomplete: Option(AutocompleteHandler(Param, bot)),
   )
   IntegerDefinition(
     BaseDefinition,
     choices: List(ParamChoice(Int)),
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: Option(AutocompleteHandler(Int)),
+    autocomplete: Option(AutocompleteHandler(Param, bot)),
   )
   BooleanDefinition(BaseDefinition)
   UserDefinition(BaseDefinition)
@@ -60,18 +60,18 @@ pub opaque type ParamDefinition(bot) {
     choices: List(ParamChoice(Float)),
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: Option(AutocompleteHandler(Float)),
+    autocomplete: Option(AutocompleteHandler(Param, bot)),
   )
   AttachmentDefinition(BaseDefinition)
 }
 
-pub type StringDefBuilder {
+pub type StringDefBuilder(bot) {
   StringDefBuilder(
     BaseDefinition,
     choices: List(ParamChoice(String)),
     min_length: Option(Int),
     max_length: Option(Int),
-    autocomplete: Option(AutocompleteHandler(String)),
+    autocomplete: Option(AutocompleteHandler(Param, bot)),
   )
 }
 
@@ -79,27 +79,27 @@ pub fn string_builder(base: BaseDefinition) {
   StringDefBuilder(base, [], option.None, option.None, option.None)
 }
 
-pub fn string_def(builder: StringDefBuilder) {
+pub fn string_def(builder: StringDefBuilder(_)) {
   let StringDefBuilder(base, choices, min_length, max_length, autocomplete) =
     builder
   StringDefinition(base, choices:, min_length:, max_length:, autocomplete:)
 }
 
 pub fn string_with_autocomplete(
-  builder: StringDefBuilder,
-  handler: AutocompleteHandler(String),
+  builder: StringDefBuilder(bot),
+  handler: AutocompleteHandler(Param, bot),
 ) {
   StringDefBuilder(..builder, autocomplete: option.Some(handler))
   |> string_def()
 }
 
-pub type IntegerDefBuilder {
+pub type IntegerDefBuilder(bot) {
   IntegerDefBuilder(
     BaseDefinition,
     choices: List(ParamChoice(Int)),
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: Option(AutocompleteHandler(Int)),
+    autocomplete: Option(AutocompleteHandler(Param, bot)),
   )
 }
 
@@ -107,15 +107,15 @@ pub fn integer_builder(base: BaseDefinition) {
   IntegerDefBuilder(base, [], option.None, option.None, option.None)
 }
 
-pub fn integer_def(builder: IntegerDefBuilder) {
+pub fn integer_def(builder: IntegerDefBuilder(_)) {
   let IntegerDefBuilder(base, choices, min_value, max_value, autocomplete) =
     builder
   IntegerDefinition(base, choices:, min_value:, max_value:, autocomplete:)
 }
 
 pub fn integer_with_autocomplete(
-  builder: IntegerDefBuilder,
-  handler: AutocompleteHandler(Int),
+  builder: IntegerDefBuilder(bot),
+  handler: AutocompleteHandler(Param, bot),
 ) {
   IntegerDefBuilder(..builder, autocomplete: option.Some(handler))
   |> integer_def()
@@ -141,13 +141,13 @@ pub fn mentionable_def(base: BaseDefinition) {
   MentionableDefinition(base)
 }
 
-pub type NumberDefBuilder {
+pub type NumberDefBuilder(bot) {
   NumberDefBuilder(
     BaseDefinition,
     choices: List(ParamChoice(Float)),
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: Option(AutocompleteHandler(Float)),
+    autocomplete: Option(AutocompleteHandler(Param, bot)),
   )
 }
 
@@ -155,15 +155,15 @@ pub fn number_builder(base: BaseDefinition) {
   NumberDefBuilder(base, [], option.None, option.None, option.None)
 }
 
-pub fn number_def(builder: NumberDefBuilder) {
+pub fn number_def(builder: NumberDefBuilder(_)) {
   let NumberDefBuilder(base, choices, min_value, max_value, autocomplete) =
     builder
   NumberDefinition(base, choices:, min_value:, max_value:, autocomplete:)
 }
 
 pub fn number_with_autocomplete(
-  builder: NumberDefBuilder,
-  handler: AutocompleteHandler(Float),
+  builder: NumberDefBuilder(bot),
+  handler: AutocompleteHandler(Param, bot),
 ) {
   NumberDefBuilder(..builder, autocomplete: option.Some(handler))
   |> number_def()

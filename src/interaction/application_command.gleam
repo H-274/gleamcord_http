@@ -5,7 +5,7 @@ import gleam/dict.{type Dict}
 import gleam/list
 import gleam/string
 import interaction.{type ApplicationCommandInteraction}
-import interaction/application_command_param.{type ParamDefinition}
+import interaction/application_command_param.{type Param, type ParamDefinition}
 import interaction/response
 
 pub opaque type ApplicationCommand(bot) {
@@ -117,19 +117,6 @@ pub fn tree_leaf(
   handler handler: ParamsCommandHandler(bot),
 ) {
   TreeLeaf(def, params, handler)
-}
-
-// TODO
-
-pub type ParamBase {
-  ParamBase
-}
-
-// TODO
-pub type Param {
-  StringParam(name: String, value: String, focused: Bool)
-  IntegerParam(name: String, value: Int, focused: Bool)
-  FloatParam(name: String, value: Float, focused: Bool)
 }
 
 pub fn user_command(
