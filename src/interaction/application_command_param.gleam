@@ -1,4 +1,6 @@
 import gleam/dict.{type Dict}
+import gleam/float
+import gleam/int
 import gleam/list
 import gleam/option.{type Option}
 import interaction/application_command_autocomplete.{type AutocompleteHandler}
@@ -104,11 +106,15 @@ pub fn string_choices(
   StringBuilder(..builder, choices:)
 }
 
+/// The value will be clamped between the allowed min and max
 pub fn string_min_length(builder: StringBuilder(_), min_length: Int) {
+  let min_length = int.clamp(min_length, min_len, max_len)
   StringBuilder(..builder, min_length: option.Some(min_length))
 }
 
+/// The value will be clamped between the allowed min and max
 pub fn string_max_length(builder: StringBuilder(_), max_length: Int) {
+  let max_length = int.clamp(max_length, min_len, max_len)
   StringBuilder(..builder, max_length: option.Some(max_length))
 }
 
@@ -147,11 +153,15 @@ pub fn integer_choices(
   IntegerBuilder(..builder, choices:)
 }
 
+/// The value will be clamped between the allowed min and max
 pub fn integer_min_value(builder: IntegerBuilder(_), min_value: Int) {
+  let min_value = int.clamp(min_value, min_int, max_int)
   IntegerBuilder(..builder, min_value: option.Some(min_value))
 }
 
+/// The value will be clamped between the allowed min and max
 pub fn integer_max_value(builder: IntegerBuilder(_), max_value: Int) {
+  let max_value = int.clamp(max_value, min_int, max_int)
   IntegerBuilder(..builder, max_value: option.Some(max_value))
 }
 
@@ -210,11 +220,15 @@ pub fn number_choices(
   NumberBuilder(..builder, choices:)
 }
 
+/// The value will be clamped between the allowed min and max
 pub fn number_min_value(builder: NumberBuilder(_), min_value: Float) {
+  let min_value = float.clamp(min_value, min_number, max_number)
   NumberBuilder(..builder, min_value: option.Some(min_value))
 }
 
+/// The value will be clamped between the allowed min and max
 pub fn number_max_value(builder: NumberBuilder(_), max_value: Float) {
+  let max_value = float.clamp(max_value, min_number, max_number)
   NumberBuilder(..builder, max_value: option.Some(max_value))
 }
 
