@@ -1,16 +1,19 @@
 import gleam/io
-import interaction/application_command as ac
+import interaction/application_command
 import interaction/application_command_param as param
 
 pub fn chat_input_command() {
   let def =
-    ac.new_definition(name: "Hello", desc: "world", integs: [Nil], contexts: [
-      Nil,
-    ])
+    application_command.new_definition(
+      name: "Hello",
+      desc: "world",
+      integs: [Nil],
+      contexts: [Nil],
+    )
 
   let params = [city_param()]
 
-  use _i, params, _bot <- ac.chat_input_command(def, params)
+  use _i, params, _bot <- application_command.chat_input_command(def, params)
   let city = case param.get_string(params, "city") {
     Ok(city) -> city
     _ -> "world"
