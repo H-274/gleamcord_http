@@ -32,7 +32,9 @@ fn city_param() {
     |> param.string_min_length(2)
     |> param.string_min_length(25)
 
-  use _i, _params, _bot <- param.string_with_autocomplete(builder)
+  use _i, params, _bot <- param.string_with_autocomplete(builder)
+  let assert Ok(_city) = param.get_string(params, "city")
+
   todo as "Autocomplete logic"
 }
 

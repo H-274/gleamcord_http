@@ -1,7 +1,6 @@
 import gleam/dict.{type Dict}
 import gleam/float
 import gleam/int
-import gleam/list
 import gleam/option.{type Option}
 import interaction/application_command_autocomplete.{type AutocompleteHandler}
 
@@ -357,16 +356,5 @@ pub fn get_attachment(
   case dict.get(params, name) {
     Ok(Attachment(value: v, ..)) -> Ok(v)
     _ -> Error(Nil)
-  }
-}
-
-pub fn get_focused(params: Dict(String, Param)) -> Result(Param, Nil) {
-  use param <- list.find(dict.values(params))
-  case param {
-    String(focused: focused, ..)
-    | Integer(focused: focused, ..)
-    | Number(focused: focused, ..) -> focused
-
-    _ -> False
   }
 }

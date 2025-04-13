@@ -2,8 +2,10 @@ import gleam/option.{type Option}
 import interaction.{type MessageComponentInteraction}
 import interaction/response
 
+pub type ActionRow(bot) =
+  List(MessageComponent(bot))
+
 pub opaque type MessageComponent(bot) {
-  ActionRow(List(MessageComponent(bot)))
   Button(ButtonComponent(bot))
   StringSelect
   TextInput
@@ -11,10 +13,6 @@ pub opaque type MessageComponent(bot) {
   RoleSelect
   MentionableSelect
   ChannelSelect
-}
-
-pub fn action_row(row: List(MessageComponent(_))) {
-  ActionRow(row)
 }
 
 pub opaque type ButtonComponent(bot) {
