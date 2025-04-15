@@ -15,7 +15,7 @@ pub fn chat_input_command() {
   let params = [city_param()]
 
   use _i, params, _bot <- application_command.chat_input_command(def, params)
-  let city = case param.get_string(params, "city") {
+  let city = case param.get_string(params:, name: "city") {
     Ok(city) -> city
     _ -> "world"
   }
@@ -25,15 +25,16 @@ pub fn chat_input_command() {
 }
 
 fn city_param() {
+  let name = "city"
   let builder =
-    param.base(name: "city", desc: "city to greet")
+    param.base(name:, desc: "city to greet")
     |> param.required(False)
     |> param.string_builder()
     |> param.string_min_length(2)
     |> param.string_min_length(25)
 
   use _i, params, _bot <- param.string_with_autocomplete(builder)
-  let assert Ok(_city) = param.get_string(params, "city")
+  let assert Ok(_city) = param.get_string(params:, name:)
 
   todo as "Autocomplete logic"
 }

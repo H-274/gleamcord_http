@@ -273,8 +273,8 @@ pub type Param {
 }
 
 pub fn get_string(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(String, Nil) {
   case dict.get(params, name) {
     Ok(String(value: v, ..)) -> Ok(v)
@@ -283,8 +283,8 @@ pub fn get_string(
 }
 
 pub fn get_integer(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(Int, Nil) {
   case dict.get(params, name) {
     Ok(Integer(value: v, ..)) -> Ok(v)
@@ -292,7 +292,10 @@ pub fn get_integer(
   }
 }
 
-pub fn get_bool(params: Dict(String, Param), name: String) -> Result(Bool, Nil) {
+pub fn get_bool(
+  params params: Dict(String, Param),
+  name name: String,
+) -> Result(Bool, Nil) {
   case dict.get(params, name) {
     Ok(Boolean(value: v, ..)) -> Ok(v)
     _ -> Error(Nil)
@@ -300,8 +303,8 @@ pub fn get_bool(params: Dict(String, Param), name: String) -> Result(Bool, Nil) 
 }
 
 pub fn get_user(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(String, Nil) {
   case dict.get(params, name) {
     Ok(User(value: v, ..)) -> Ok(v)
@@ -310,8 +313,8 @@ pub fn get_user(
 }
 
 pub fn get_channel(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(String, Nil) {
   case dict.get(params, name) {
     Ok(Channel(value: v, ..)) -> Ok(v)
@@ -320,8 +323,8 @@ pub fn get_channel(
 }
 
 pub fn get_role(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(String, Nil) {
   case dict.get(params, name) {
     Ok(Role(value: v, ..)) -> Ok(v)
@@ -330,8 +333,8 @@ pub fn get_role(
 }
 
 pub fn get_mentionable(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(String, Nil) {
   case dict.get(params, name) {
     Ok(Mentionable(value: v, ..)) -> Ok(v)
@@ -340,8 +343,8 @@ pub fn get_mentionable(
 }
 
 pub fn get_number(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(Float, Nil) {
   case dict.get(params, name) {
     Ok(Number(value: v, ..)) -> Ok(v)
@@ -350,8 +353,8 @@ pub fn get_number(
 }
 
 pub fn get_attachment(
-  params: Dict(String, Param),
-  name: String,
+  params params: Dict(String, Param),
+  name name: String,
 ) -> Result(String, Nil) {
   case dict.get(params, name) {
     Ok(Attachment(value: v, ..)) -> Ok(v)
