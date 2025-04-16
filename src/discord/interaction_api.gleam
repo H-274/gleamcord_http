@@ -1,3 +1,7 @@
+//// Helper functions to create HTTP requests to the Discord interactions API
+//// 
+//// TODO: Use a proper "Response" object as a param when one exists
+
 import bot.{type Bot}
 import discord/api
 import gleam/bool
@@ -38,7 +42,7 @@ pub fn get_original_response(
   bot: Bot(_),
   id interaction_id: String,
   token interaction_token: String,
-) {
+) -> Request(String) {
   let endpoint =
     string.join(
       [
@@ -63,7 +67,8 @@ pub fn edit_original_response(
   bot: Bot(_),
   id interaction_id: String,
   token interaction_token: String,
-) {
+  response response: String,
+) -> Request(String) {
   let endpoint =
     string.join(
       [
@@ -81,6 +86,7 @@ pub fn edit_original_response(
   req
   |> request.set_method(http.Patch)
   |> api.authorization_header(bot)
+  |> request.set_body(response)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response
@@ -88,7 +94,7 @@ pub fn delete_original_response(
   bot: Bot(_),
   id interaction_id: String,
   token interaction_token: String,
-) {
+) -> Request(String) {
   let endpoint =
     string.join(
       [
@@ -114,7 +120,7 @@ pub fn create_followup_message(
   id interaction_id: String,
   token interaction_token: String,
   response response: String,
-) {
+) -> Request(String) {
   let endpoint =
     string.join(
       [api.base_url, "interactions", interaction_id, interaction_token],
@@ -134,7 +140,7 @@ pub fn get_followup_message(
   id interaction_id: String,
   token interaction_token: String,
   message message_id: String,
-) {
+) -> Request(String) {
   let endpoint =
     string.join(
       [
@@ -161,7 +167,7 @@ pub fn edit_followup_message(
   token interaction_token: String,
   message message_id: String,
   response response: String,
-) {
+) -> Request(String) {
   let endpoint =
     string.join(
       [
@@ -188,7 +194,7 @@ pub fn delete_followup_message(
   id interaction_id: String,
   token interaction_token: String,
   message message_id: String,
-) {
+) -> Request(String) {
   let endpoint =
     string.join(
       [
