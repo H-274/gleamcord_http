@@ -5,6 +5,7 @@ import gleam/http
 import gleam/http/request.{type Request}
 import gleam/string
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response
 pub fn create_response(
   bot: Bot(_),
   id interaction_id: String,
@@ -32,6 +33,7 @@ pub fn create_response(
   |> request.set_body(response)
 }
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response
 pub fn get_original_response(
   bot: Bot(_),
   id interaction_id: String,
@@ -56,6 +58,7 @@ pub fn get_original_response(
   |> api.authorization_header(bot)
 }
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response
 pub fn edit_original_response(
   bot: Bot(_),
   id interaction_id: String,
@@ -80,6 +83,7 @@ pub fn edit_original_response(
   |> api.authorization_header(bot)
 }
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response
 pub fn delete_original_response(
   bot: Bot(_),
   id interaction_id: String,
@@ -104,6 +108,7 @@ pub fn delete_original_response(
   |> api.authorization_header(bot)
 }
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message
 pub fn create_followup_message(
   bot: Bot(_),
   id interaction_id: String,
@@ -123,6 +128,7 @@ pub fn create_followup_message(
   |> request.set_body(response)
 }
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message
 pub fn get_followup_message(
   bot: Bot(_),
   id interaction_id: String,
@@ -148,6 +154,7 @@ pub fn get_followup_message(
   |> api.authorization_header(bot)
 }
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message
 pub fn edit_followup_message(
   bot: Bot(_),
   id interaction_id: String,
@@ -175,6 +182,7 @@ pub fn edit_followup_message(
   |> request.set_body(response)
 }
 
+/// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message
 pub fn delete_followup_message(
   bot: Bot(_),
   id interaction_id: String,
