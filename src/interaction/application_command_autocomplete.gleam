@@ -1,7 +1,4 @@
 import gleam/dict.{type Dict}
-import interaction.{type AutocompleteInteraction}
-import interaction/response
 
-pub type AutocompleteHandler(param, bot) =
-  fn(AutocompleteInteraction, Dict(String, param), bot) ->
-    Result(response.Success, response.Failure)
+pub type AutocompleteHandler(interaction, param, bot, success, failure) =
+  fn(interaction, Dict(String, param), bot) -> Result(success, failure)
