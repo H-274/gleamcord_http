@@ -1,5 +1,5 @@
-//// TODO review type names and type variant names
-
+import discord/context.{type Context}
+import discord/integration_type.{type IntegrationType}
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
@@ -66,10 +66,8 @@ pub type CommandDefinition(bot) {
     description: String,
     description_locales: List(#(String, String)),
     default_member_permissions: String,
-    // TODO
-    integration_types: List(Nil),
-    // TODO
-    contexts: List(Nil),
+    integration_types: List(IntegrationType),
+    contexts: List(Context),
     nsfw: Bool,
   )
 }
@@ -77,8 +75,8 @@ pub type CommandDefinition(bot) {
 pub fn new_definition(
   name name: String,
   desc description: String,
-  integs integration_types: List(Nil),
-  contexts contexts: List(Nil),
+  integs integration_types: List(IntegrationType),
+  contexts contexts: List(Context),
 ) {
   CommandDefinition(
     name:,

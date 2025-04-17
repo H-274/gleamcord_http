@@ -1,3 +1,5 @@
+import discord/context
+import discord/integration_type.{GuildIntegration}
 import gleam/result
 import interaction/application_command
 import interaction/application_command_param as param
@@ -8,8 +10,8 @@ pub fn chat_input_command() {
     application_command.new_definition(
       name: "Hello",
       desc: "world",
-      integs: [Nil],
-      contexts: [Nil],
+      integs: [GuildIntegration],
+      contexts: [context.Placeholder],
     )
 
   let params = [city_param()]
