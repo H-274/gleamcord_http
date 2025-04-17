@@ -4,7 +4,7 @@
 //// TODO: Use a proper "Emoji" object as a param when one exists
 
 import bot.{type Bot}
-import discord/api
+import discord/api/api
 import gleam/http
 import gleam/http/request.{type Request}
 import gleam/int

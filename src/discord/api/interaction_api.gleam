@@ -3,7 +3,7 @@
 //// TODO: Use a proper "Response" object as a param when one exists
 
 import bot.{type Bot}
-import discord/api
+import discord/api/api
 import gleam/bool
 import gleam/http
 import gleam/http/request.{type Request}
