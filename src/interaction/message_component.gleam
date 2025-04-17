@@ -1,3 +1,4 @@
+import gleam/json.{type Json}
 import gleam/option.{type Option}
 import interaction.{type MessageComponentInteraction}
 import interaction/response
@@ -95,3 +96,75 @@ pub type RoleSelectComponent
 pub type MentionableSelectComponent
 
 pub type ChannelSelectComponent
+
+pub fn json_encode(component: MessageComponent(_)) -> Json {
+  case component {
+    Button(component) -> button_json(component)
+    _ ->
+      panic as "Other components are missing implementations and cannot be used"
+  }
+}
+
+fn button_json(button: ButtonComponent(_)) {
+  case button {
+    PrimaryButton(def, disabled: disabled, ..) -> {
+      let fields = [
+        #("type", json.int(2)),
+        #("label", json.string(def.label)),
+        // #("emoji", todo as "emoji_json()"),
+        #("style", json.int(1)),
+        #("disabled", json.bool(disabled)),
+      ]
+      json.object(fields)
+    }
+    SecondaryButton(def, disabled: disabled, ..) -> {
+      let fields = [
+        #("type", json.int(2)),
+        #("label", json.string(def.label)),
+        // #("emoji", todo as "emoji_json()"),
+        #("style", json.int(2)),
+        #("disabled", json.bool(disabled)),
+      ]
+      json.object(fields)
+    }
+    SuccessButton(def, disabled: disabled, ..) -> {
+      let fields = [
+        #("type", json.int(2)),
+        #("label", json.string(def.label)),
+        // #("emoji", todo as "emoji_json()"),
+        #("style", json.int(3)),
+        #("disabled", json.bool(disabled)),
+      ]
+      json.object(fields)
+    }
+    DangerButton(def, disabled: disabled, ..) -> {
+      let fields = [
+        #("type", json.int(2)),
+        #("label", json.string(def.label)),
+        // #("emoji", todo as "emoji_json()"),
+        #("style", json.int(4)),
+        #("disabled", json.bool(disabled)),
+      ]
+      json.object(fields)
+    }
+    LinkButton(label, url, disabled) -> {
+      let fields = [
+        #("type", json.int(2)),
+        #("label", json.string(label)),
+        #("style", json.int(5)),
+        #("url", json.string(url)),
+        #("disabled", json.bool(disabled)),
+      ]
+      json.object(fields)
+    }
+    PremiumButton(sku_id, disabled) -> {
+      let fields = [
+        #("type", json.int(2)),
+        #("style", json.int(6)),
+        #("sku_idrl", json.string(sku_id)),
+        #("disabled", json.bool(disabled)),
+      ]
+      json.object(fields)
+    }
+  }
+}
