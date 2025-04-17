@@ -1,21 +1,20 @@
 //// Helper functions to create HTTP requests to the Discord interactions API
 
-import bot.{type Bot}
 import discord/api/api
 import gleam/bool
 import gleam/http
 import gleam/http/request.{type Request}
 import gleam/string
-import interaction/response
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response
 pub fn create_response(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
-  response response: response.Success,
+  response response: response,
+  encoder encoder: fn(response) -> BitArray,
   with_callback with_callback: Bool,
-) -> Request(String) {
+) -> Request(BitArray) {
   let endpoint =
     string.join(
       [
@@ -28,19 +27,17 @@ pub fn create_response(
       "/",
     )
 
-  let response = response |> todo as "Encode response"
-
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Post)
   |> request.set_query([#("with_response", bool.to_string(with_callback))])
-  |> api.authorization_header(bot)
-  |> request.set_body(response)
+  |> request.set_header("Authorization", auth_string)
+  |> request.set_body(encoder(response))
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response
 pub fn get_original_response(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
 ) -> Request(String) {
@@ -60,16 +57,17 @@ pub fn get_original_response(
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Get)
-  |> api.authorization_header(bot)
+  |> request.set_header("Authorization", auth_string)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response
 pub fn edit_original_response(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
-  response response: response.Success,
-) -> Request(String) {
+  response response: response,
+  encoder encoder: fn(response) -> BitArray,
+) -> Request(BitArray) {
   let endpoint =
     string.join(
       [
@@ -83,18 +81,16 @@ pub fn edit_original_response(
       "/",
     )
 
-  let response = response |> todo as "Encode response"
-
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Patch)
-  |> api.authorization_header(bot)
-  |> request.set_body(response)
+  |> request.set_header("Authorization", auth_string)
+  |> request.set_body(encoder(response))
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response
 pub fn delete_original_response(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
 ) -> Request(String) {
@@ -114,17 +110,17 @@ pub fn delete_original_response(
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Delete)
-  |> api.authorization_header(bot)
+  |> request.set_header("Authorization", auth_string)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message
 pub fn create_followup_message(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
-  // TODO replace with proper message object
-  message message: String,
-) -> Request(String) {
+  message message: message,
+  encoder encoder: fn(message) -> BitArray,
+) -> Request(BitArray) {
   let endpoint =
     string.join(
       [api.base_url, "interactions", interaction_id, interaction_token],
@@ -134,13 +130,13 @@ pub fn create_followup_message(
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Post)
-  |> api.authorization_header(bot)
-  |> request.set_body(message)
+  |> request.set_header("Authorization", auth_string)
+  |> request.set_body(encoder(message))
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message
 pub fn get_followup_message(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
   id message_id: String,
@@ -161,18 +157,18 @@ pub fn get_followup_message(
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Get)
-  |> api.authorization_header(bot)
+  |> request.set_header("Authorization", auth_string)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message
 pub fn edit_followup_message(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
   id message_id: String,
-  // TODO replace with proper message object
-  message message: String,
-) -> Request(String) {
+  message message: message,
+  encoder encoder: fn(message) -> BitArray,
+) -> Request(BitArray) {
   let endpoint =
     string.join(
       [
@@ -189,13 +185,13 @@ pub fn edit_followup_message(
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Patch)
-  |> api.authorization_header(bot)
-  |> request.set_body(message)
+  |> request.set_header("Authorization", auth_string)
+  |> request.set_body(encoder(message))
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message
 pub fn delete_followup_message(
-  bot: Bot(_),
+  auth_string: String,
   interaction_id: String,
   interaction_token: String,
   id message_id: String,
@@ -216,5 +212,5 @@ pub fn delete_followup_message(
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Delete)
-  |> api.authorization_header(bot)
+  |> request.set_header("Authorization", auth_string)
 }
