@@ -30,9 +30,13 @@ fn city_param() {
     |> param.string_min_length(25)
 
   use _i, params, _bot <- param.string_with_autocomplete(builder)
-  let assert Ok(_city) = param.get_string(params:, name:)
+  let assert Ok(city) = param.get_string(params:, name:)
 
-  Ok("New York")
+  case city {
+    "New Y" <> _ -> Ok("New York")
+    "New M" <> _ -> Ok("New Mexico")
+    _ -> Ok("Toronto")
+  }
 }
 
 pub fn button_component(disabled: Bool) {
