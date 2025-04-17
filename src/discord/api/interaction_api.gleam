@@ -1,6 +1,4 @@
 //// Helper functions to create HTTP requests to the Discord interactions API
-//// 
-//// TODO: Use a proper "Response" object as a param when one exists
 
 import bot.{type Bot}
 import discord/api/api
@@ -8,13 +6,14 @@ import gleam/bool
 import gleam/http
 import gleam/http/request.{type Request}
 import gleam/string
+import interaction/response
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response
 pub fn create_response(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
-  response response: String,
+  interaction_id: String,
+  interaction_token: String,
+  response response: response.Success,
   with_callback with_callback: Bool,
 ) -> Request(String) {
   let endpoint =
@@ -29,6 +28,8 @@ pub fn create_response(
       "/",
     )
 
+  let response = response |> todo as "Encode response"
+
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Post)
@@ -40,8 +41,8 @@ pub fn create_response(
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response
 pub fn get_original_response(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
+  interaction_id: String,
+  interaction_token: String,
 ) -> Request(String) {
   let endpoint =
     string.join(
@@ -65,9 +66,9 @@ pub fn get_original_response(
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response
 pub fn edit_original_response(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
-  response response: String,
+  interaction_id: String,
+  interaction_token: String,
+  response response: response.Success,
 ) -> Request(String) {
   let endpoint =
     string.join(
@@ -82,6 +83,8 @@ pub fn edit_original_response(
       "/",
     )
 
+  let response = response |> todo as "Encode response"
+
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Patch)
@@ -92,8 +95,8 @@ pub fn edit_original_response(
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response
 pub fn delete_original_response(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
+  interaction_id: String,
+  interaction_token: String,
 ) -> Request(String) {
   let endpoint =
     string.join(
@@ -117,9 +120,10 @@ pub fn delete_original_response(
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message
 pub fn create_followup_message(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
-  response response: String,
+  interaction_id: String,
+  interaction_token: String,
+  // TODO replace with proper message object
+  message message: String,
 ) -> Request(String) {
   let endpoint =
     string.join(
@@ -131,15 +135,15 @@ pub fn create_followup_message(
   req
   |> request.set_method(http.Post)
   |> api.authorization_header(bot)
-  |> request.set_body(response)
+  |> request.set_body(message)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message
 pub fn get_followup_message(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
-  message message_id: String,
+  interaction_id: String,
+  interaction_token: String,
+  id message_id: String,
 ) -> Request(String) {
   let endpoint =
     string.join(
@@ -163,10 +167,11 @@ pub fn get_followup_message(
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message
 pub fn edit_followup_message(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
-  message message_id: String,
-  response response: String,
+  interaction_id: String,
+  interaction_token: String,
+  id message_id: String,
+  // TODO replace with proper message object
+  message message: String,
 ) -> Request(String) {
   let endpoint =
     string.join(
@@ -185,15 +190,15 @@ pub fn edit_followup_message(
   req
   |> request.set_method(http.Patch)
   |> api.authorization_header(bot)
-  |> request.set_body(response)
+  |> request.set_body(message)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message
 pub fn delete_followup_message(
   bot: Bot(_),
-  id interaction_id: String,
-  token interaction_token: String,
-  message message_id: String,
+  interaction_id: String,
+  interaction_token: String,
+  id message_id: String,
 ) -> Request(String) {
   let endpoint =
     string.join(
