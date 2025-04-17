@@ -1,7 +1,11 @@
 //// Helper functions to create HTTP requests to the Discord message API
 //// 
-//// TODO: Use a proper "Message" object as a param when one exists
-//// TODO: Use a proper "Emoji" object as a param when one exists
+//// > TODO: Use a proper "Message" object as a param when one exists
+//// 
+//// > TODO: Use a proper "Emoji" object as a param when one exists
+//// 
+//// > TODO: Support for message attachments in messages.
+//// >> Note: Change the body type to BitArray for multipart data to work
 
 import bot.{type Bot}
 import discord/api/api
