@@ -1,10 +1,10 @@
 import gleam/option.{type Option}
 
-pub type ActionRow(component, bot, success, failure) =
-  List(MessageComponent(component, bot, success, failure))
+pub type ActionRow(component_interaction, bot, success, failure) =
+  List(MessageComponent(component_interaction, bot, success, failure))
 
-pub opaque type MessageComponent(component, bot, success, failure) {
-  Button(ButtonComponent(component, bot, success, failure))
+pub opaque type MessageComponent(component_interaction, bot, success, failure) {
+  Button(ButtonComponent(component_interaction, bot, success, failure))
   StringSelect
   TextInput
   UserSelect
@@ -13,26 +13,26 @@ pub opaque type MessageComponent(component, bot, success, failure) {
   ChannelSelect
 }
 
-pub opaque type ButtonComponent(component, bot, success, failure) {
+pub opaque type ButtonComponent(component_interaction, bot, success, failure) {
   PrimaryButton(
     Definition,
     disabled: Bool,
-    handler: ButtonHandler(component, bot, success, failure),
+    handler: ButtonHandler(component_interaction, bot, success, failure),
   )
   SecondaryButton(
     Definition,
     disabled: Bool,
-    handler: ButtonHandler(component, bot, success, failure),
+    handler: ButtonHandler(component_interaction, bot, success, failure),
   )
   SuccessButton(
     Definition,
     disabled: Bool,
-    handler: ButtonHandler(component, bot, success, failure),
+    handler: ButtonHandler(component_interaction, bot, success, failure),
   )
   DangerButton(
     Definition,
     disabled: Bool,
-    handler: ButtonHandler(component, bot, success, failure),
+    handler: ButtonHandler(component_interaction, bot, success, failure),
   )
   LinkButton(label: String, url: String, disabled: Bool)
   PremiumButton(sku_id: String, disabled: Bool)
