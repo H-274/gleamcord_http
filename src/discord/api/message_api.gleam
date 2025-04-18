@@ -116,6 +116,8 @@ pub fn create_reaction(
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#delete-own-reaction
+/// 
+/// The `emoji` parameter is formated as follows: `name:id`
 pub fn delete_own_reaction(
   auth_string: String,
   channel_id: String,
@@ -145,6 +147,8 @@ pub fn delete_own_reaction(
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#delete-own-reaction
+/// 
+/// The `emoji` parameter is formated as follows: `name:id`
 pub fn delete_user_reaction(
   auth_string: String,
   channel_id: String,
@@ -175,6 +179,8 @@ pub fn delete_user_reaction(
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#get-reactions
+/// 
+/// The `emoji` parameter is formated as follows: `name:id`
 pub fn get_reactions(
   auth_string: String,
   channel_id: String,
@@ -230,6 +236,8 @@ pub fn delete_all_reactions(
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#delete-all-reactions-for-emoji
+/// 
+/// The `emoji` parameter is formated as follows: `name:id`
 pub fn delete_all_reactions_for_emoji(
   auth_string: String,
   channel_id: String,
