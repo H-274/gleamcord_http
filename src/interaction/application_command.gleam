@@ -7,28 +7,35 @@ import gleam/string
 import interaction/application_command_param.{type Param, type ParamDefinition}
 
 pub opaque type ApplicationCommand(
-  command,
-  autocomplete,
+  command_interaction,
+  autocomplete_interaction,
   bot,
-  p_success,
-  p_failure,
+  autocomplete_success,
+  autocomplete_failure,
   success,
   failure,
 ) {
   ChatInputCommand(
     CommandDefinition(bot),
-    List(ParamDefinition(autocomplete, bot, p_success, p_failure)),
-    ParamsCommandHandler(command, bot, success, failure),
+    List(
+      ParamDefinition(
+        autocomplete_interaction,
+        bot,
+        autocomplete_success,
+        autocomplete_failure,
+      ),
+    ),
+    ParamsCommandHandler(command_interaction, bot, success, failure),
   )
   ChatInputCommandTree(
     CommandDefinition(bot),
     List(
       CommandTreeNode(
-        command,
-        autocomplete,
+        command_interaction,
+        autocomplete_interaction,
         bot,
-        p_success,
-        p_failure,
+        autocomplete_success,
+        autocomplete_failure,
         success,
         failure,
       ),
@@ -36,11 +43,11 @@ pub opaque type ApplicationCommand(
   )
   UserCommand(
     CommandDefinition(bot),
-    CommandHandler(command, bot, success, failure),
+    CommandHandler(command_interaction, bot, success, failure),
   )
   MessageCommand(
     CommandDefinition(bot),
-    CommandHandler(command, bot, success, failure),
+    CommandHandler(command_interaction, bot, success, failure),
   )
 }
 
@@ -106,11 +113,11 @@ pub fn chat_input_tree_commands(
 }
 
 pub opaque type CommandTreeNode(
-  command,
-  autocomplete,
+  command_interaction,
+  autocomplete_interaction,
   bot,
-  p_success,
-  p_failure,
+  autocomplete_success,
+  autocomplete_failure,
   success,
   failure,
 ) {
@@ -118,11 +125,11 @@ pub opaque type CommandTreeNode(
     NodeDefinition,
     List(
       CommandTreeNode(
-        command,
-        autocomplete,
+        command_interaction,
+        autocomplete_interaction,
         bot,
-        p_success,
-        p_failure,
+        autocomplete_success,
+        autocomplete_failure,
         success,
         failure,
       ),
@@ -130,8 +137,15 @@ pub opaque type CommandTreeNode(
   )
   TreeLeaf(
     NodeDefinition,
-    List(ParamDefinition(autocomplete, bot, p_success, p_failure)),
-    ParamsCommandHandler(command, bot, success, failure),
+    List(
+      ParamDefinition(
+        autocomplete_interaction,
+        bot,
+        autocomplete_success,
+        autocomplete_failure,
+      ),
+    ),
+    ParamsCommandHandler(command_interaction, bot, success, failure),
   )
 }
 
