@@ -64,7 +64,7 @@ pub fn crosspost_message(
   auth_string: String,
   channel_id: String,
   message message_id: String,
-) -> Request(String) {
+) -> Request(BitArray) {
   let endpoint =
     string.join(
       [
@@ -82,6 +82,7 @@ pub fn crosspost_message(
   req
   |> request.set_method(http.Post)
   |> request.set_header("Authorization", auth_string)
+  |> request.set_body(<<>>)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#create-reaction
@@ -215,7 +216,7 @@ pub fn delete_all_reactions(
   auth_string: String,
   channel_id: String,
   id message_id: String,
-) -> Request(String) {
+) -> Request(BitArray) {
   let endpoint =
     string.join(
       [
@@ -233,6 +234,7 @@ pub fn delete_all_reactions(
   req
   |> request.set_method(http.Delete)
   |> request.set_header("Authorization", auth_string)
+  |> request.set_body(<<>>)
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#delete-all-reactions-for-emoji
