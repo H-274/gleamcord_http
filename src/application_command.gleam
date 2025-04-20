@@ -1,10 +1,10 @@
-import discord/context.{type Context}
-import discord/integration_type.{type IntegrationType}
+import application_command_param.{type Param, type ParamDefinition}
+import discord/entities/context.{type Context}
+import discord/entities/integration_type.{type IntegrationType}
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/string
-import interaction/application_command_param.{type Param, type ParamDefinition}
 
 pub opaque type ApplicationCommand(
   command_interaction,

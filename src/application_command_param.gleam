@@ -1,8 +1,8 @@
+import application_command_autocomplete.{type AutocompleteHandler}
 import gleam/dict.{type Dict}
 import gleam/float
 import gleam/int
 import gleam/option.{type Option}
-import interaction/application_command_autocomplete.{type AutocompleteHandler}
 
 pub const min_len: Int = 0
 
