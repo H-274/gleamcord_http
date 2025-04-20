@@ -38,10 +38,10 @@ fn city_param() {
     |> param.string_min_length(25)
 
   use _i, params, _bot <- param.string_with_autocomplete(builder)
-  let assert Ok(city) = param.get_string(params:, name:)
+  let assert Ok(input) = param.get_string(params:, name:)
 
-  list.filter(cities, string.starts_with(_, city))
-  |> list.map(fn(c) { choice.new(c, c) })
+  list.filter(cities, string.starts_with(_, input))
+  |> list.map(fn(city) { choice.new(city, city) })
   |> response.StringChoices()
 }
 
