@@ -1,11 +1,13 @@
-import discord/context.{BotDM}
-import discord/integration_type.{GuildInstall}
+import application_command
+import application_command_param as param
+import discord/entities/choice
+import discord/entities/context.{BotDM}
+import discord/entities/integration_type.{GuildInstall}
 import gleam/list
 import gleam/result
 import gleam/string
-import interaction/application_command
-import interaction/application_command_param as param
-import interaction/message_component
+import message_component
+import response
 
 const cities = ["New York", "New Mexico", "Tokyo", "Toronto"]
 
@@ -39,8 +41,8 @@ fn city_param() {
   let assert Ok(city) = param.get_string(params:, name:)
 
   list.filter(cities, string.starts_with(_, city))
-  |> list.map(fn(c) { param.new_choice(c, c) })
-  |> Ok()
+  |> list.map(fn(c) { choice.new(c, c) })
+  |> response.StringChoices()
 }
 
 pub fn button_component(disabled: Bool) {

@@ -1,57 +1,25 @@
 import application_command_param.{type Param, type ParamDefinition}
 import discord/entities/context.{type Context}
 import discord/entities/integration_type.{type IntegrationType}
+import discord/entities/interaction
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/string
+import response
 
-pub opaque type ApplicationCommand(
-  command_interaction,
-  autocomplete_interaction,
-  bot,
-  autocomplete_success,
-  autocomplete_failure,
-  success,
-  failure,
-) {
+pub opaque type ApplicationCommand(bot) {
   ChatInputCommand(
     CommandDefinition(bot),
-    List(
-      ParamDefinition(
-        autocomplete_interaction,
-        bot,
-        autocomplete_success,
-        autocomplete_failure,
-      ),
-    ),
-    ParamsCommandHandler(command_interaction, bot, success, failure),
+    List(ParamDefinition(bot, response.Autocomplete)),
+    ParamsCommandHandler(bot),
   )
-  ChatInputCommandTree(
-    CommandDefinition(bot),
-    List(
-      CommandTreeNode(
-        command_interaction,
-        autocomplete_interaction,
-        bot,
-        autocomplete_success,
-        autocomplete_failure,
-        success,
-        failure,
-      ),
-    ),
-  )
-  UserCommand(
-    CommandDefinition(bot),
-    CommandHandler(command_interaction, bot, success, failure),
-  )
-  MessageCommand(
-    CommandDefinition(bot),
-    CommandHandler(command_interaction, bot, success, failure),
-  )
+  ChatInputCommandTree(CommandDefinition(bot), List(CommandTreeNode(bot)))
+  UserCommand(CommandDefinition(bot), CommandHandler(bot))
+  MessageCommand(CommandDefinition(bot), CommandHandler(bot))
 }
 
-pub fn is_valid(command: ApplicationCommand(_, _, _, _, _, _, _)) -> Bool {
+pub fn is_valid(command: ApplicationCommand(_)) -> Bool {
   case command {
     ChatInputCommand(def, ..) | ChatInputCommandTree(def, ..) ->
       is_valid_definition(def:) |> bool.and(!string.is_empty(def.description))
@@ -99,53 +67,25 @@ pub fn new_definition(
 
 pub fn chat_input_command(
   def def: CommandDefinition(bot),
-  params params: List(ParamDefinition(_, bot, _, _)),
-  handler handler: ParamsCommandHandler(_, bot, _, _),
+  params params: List(ParamDefinition(bot, _)),
+  handler handler: ParamsCommandHandler(bot),
 ) {
   ChatInputCommand(def, params, handler)
 }
 
 pub fn chat_input_tree_commands(
   def def: CommandDefinition(bot),
-  commands sub_commands: List(CommandTreeNode(_, _, bot, _, _, _, _)),
+  commands sub_commands: List(CommandTreeNode(bot)),
 ) {
   ChatInputCommandTree(def, sub_commands)
 }
 
-pub opaque type CommandTreeNode(
-  command_interaction,
-  autocomplete_interaction,
-  bot,
-  autocomplete_success,
-  autocomplete_failure,
-  success,
-  failure,
-) {
-  TreeNode(
-    NodeDefinition,
-    List(
-      CommandTreeNode(
-        command_interaction,
-        autocomplete_interaction,
-        bot,
-        autocomplete_success,
-        autocomplete_failure,
-        success,
-        failure,
-      ),
-    ),
-  )
+pub opaque type CommandTreeNode(bot) {
+  TreeNode(NodeDefinition, List(CommandTreeNode(bot)))
   TreeLeaf(
     NodeDefinition,
-    List(
-      ParamDefinition(
-        autocomplete_interaction,
-        bot,
-        autocomplete_success,
-        autocomplete_failure,
-      ),
-    ),
-    ParamsCommandHandler(command_interaction, bot, success, failure),
+    List(ParamDefinition(bot, response.Autocomplete)),
+    ParamsCommandHandler(bot),
   )
 }
 
@@ -164,35 +104,37 @@ pub fn new_node_definition(name name: String, desc description: String) {
 
 pub fn tree_node(
   def def: NodeDefinition,
-  commands sub_commands: List(CommandTreeNode(_, _, _, _, _, _, _)),
+  commands sub_commands: List(CommandTreeNode(_)),
 ) {
   TreeNode(def, sub_commands)
 }
 
 pub fn tree_leaf(
   def def: NodeDefinition,
-  params params: List(ParamDefinition(_, bot, _, _)),
-  handler handler: ParamsCommandHandler(_, bot, _, _),
+  params params: List(ParamDefinition(bot, _)),
+  handler handler: ParamsCommandHandler(bot),
 ) {
   TreeLeaf(def, params, handler)
 }
 
 pub fn user_command(
   def def: CommandDefinition(bot),
-  handler handler: CommandHandler(_, bot, _, _),
+  handler handler: CommandHandler(bot),
 ) {
   UserCommand(def, handler)
 }
 
 pub fn message_command(
   def def: CommandDefinition(bot),
-  handler handler: CommandHandler(_, bot, _, _),
+  handler handler: CommandHandler(bot),
 ) {
   MessageCommand(def, handler)
 }
 
-pub type CommandHandler(interaction, bot, success, failure) =
-  fn(interaction, bot) -> Result(success, failure)
+pub type CommandHandler(bot) =
+  fn(interaction.ApplicationCommand, bot) ->
+    Result(response.ApplicationCommand, response.Failure)
 
-pub type ParamsCommandHandler(interaction, bot, success, failure) =
-  fn(interaction, Dict(String, Param), bot) -> Result(success, failure)
+pub type ParamsCommandHandler(bot) =
+  fn(interaction.ApplicationCommand, Dict(String, Param), bot) ->
+    Result(response.ApplicationCommand, response.Failure)

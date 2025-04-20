@@ -1,8 +1,10 @@
-import application_command_autocomplete.{type AutocompleteHandler}
+import discord/entities/choice.{type Choice}
+import discord/entities/interaction
 import gleam/dict.{type Dict}
 import gleam/float
 import gleam/int
 import gleam/option.{type Option}
+import response
 
 pub const min_len: Int = 0
 
@@ -54,24 +56,20 @@ pub fn required(base: Base, req required: Bool) {
   Base(..base, required:)
 }
 
-pub opaque type ParamDefinition(autocomplete, bot, success, failure) {
+pub opaque type ParamDefinition(bot, response) {
   StringDefinition(
     Base,
-    choices: List(ParamChoice(String)),
+    choices: List(Choice(String)),
     min_length: Option(Int),
     max_length: Option(Int),
-    autocomplete: Option(
-      AutocompleteHandler(autocomplete, Param, bot, success, failure),
-    ),
+    autocomplete: Option(AutocompleteHandler(bot)),
   )
   IntegerDefinition(
     Base,
-    choices: List(ParamChoice(Int)),
+    choices: List(Choice(Int)),
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: Option(
-      AutocompleteHandler(autocomplete, Param, bot, success, failure),
-    ),
+    autocomplete: Option(AutocompleteHandler(bot)),
   )
   BooleanDefinition(Base)
   UserDefinition(Base)
@@ -80,25 +78,21 @@ pub opaque type ParamDefinition(autocomplete, bot, success, failure) {
   MentionableDefinition(Base)
   NumberDefinition(
     Base,
-    choices: List(ParamChoice(Float)),
+    choices: List(Choice(Float)),
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: Option(
-      AutocompleteHandler(autocomplete, Param, bot, success, failure),
-    ),
+    autocomplete: Option(AutocompleteHandler(bot)),
   )
   AttachmentDefinition(Base)
 }
 
-pub opaque type StringBuilder(autocomplete, bot, success, failure) {
+pub opaque type StringBuilder(bot, response) {
   StringBuilder(
     Base,
-    choices: List(ParamChoice(String)),
+    choices: List(Choice(String)),
     min_length: Option(Int),
     max_length: Option(Int),
-    autocomplete: Option(
-      AutocompleteHandler(autocomplete, Param, bot, success, failure),
-    ),
+    autocomplete: Option(AutocompleteHandler(bot)),
   )
 }
 
@@ -107,47 +101,45 @@ pub fn string_builder(base: Base) {
 }
 
 pub fn string_choices(
-  builder: StringBuilder(_, _, _, _),
-  choices: List(ParamChoice(String)),
+  builder: StringBuilder(_, _),
+  choices: List(Choice(String)),
 ) {
   StringBuilder(..builder, choices:)
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn string_min_length(builder: StringBuilder(_, _, _, _), min_length: Int) {
+pub fn string_min_length(builder: StringBuilder(_, _), min_length: Int) {
   let min_length = int.clamp(min_length, min_len, max_len)
   StringBuilder(..builder, min_length: option.Some(min_length))
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn string_max_length(builder: StringBuilder(_, _, _, _), max_length: Int) {
+pub fn string_max_length(builder: StringBuilder(_, _), max_length: Int) {
   let max_length = int.clamp(max_length, min_len, max_len)
   StringBuilder(..builder, max_length: option.Some(max_length))
 }
 
-pub fn string_def(builder: StringBuilder(_, _, _, _)) {
+pub fn string_def(builder: StringBuilder(_, _)) {
   let StringBuilder(base, choices, min_length, max_length, autocomplete) =
     builder
   StringDefinition(base, choices:, min_length:, max_length:, autocomplete:)
 }
 
 pub fn string_with_autocomplete(
-  builder: StringBuilder(autocomplete, bot, _, _),
-  handler: AutocompleteHandler(autocomplete, Param, bot, _, _),
+  builder: StringBuilder(bot, response),
+  handler: AutocompleteHandler(bot),
 ) {
   StringBuilder(..builder, autocomplete: option.Some(handler))
   |> string_def()
 }
 
-pub opaque type IntegerBuilder(autocomplete, bot, success, failure) {
+pub opaque type IntegerBuilder(bot, response) {
   IntegerBuilder(
     Base,
-    choices: List(ParamChoice(Int)),
+    choices: List(Choice(Int)),
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: Option(
-      AutocompleteHandler(autocomplete, Param, bot, success, failure),
-    ),
+    autocomplete: Option(AutocompleteHandler(bot)),
   )
 }
 
@@ -156,33 +148,33 @@ pub fn integer_builder(base: Base) {
 }
 
 pub fn integer_choices(
-  builder: IntegerBuilder(_, _, _, _),
-  choices: List(ParamChoice(Int)),
+  builder: IntegerBuilder(_, _),
+  choices: List(Choice(Int)),
 ) {
   IntegerBuilder(..builder, choices:)
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn integer_min_value(builder: IntegerBuilder(_, _, _, _), min_value: Int) {
+pub fn integer_min_value(builder: IntegerBuilder(_, _), min_value: Int) {
   let min_value = int.clamp(min_value, min_int, max_int)
   IntegerBuilder(..builder, min_value: option.Some(min_value))
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn integer_max_value(builder: IntegerBuilder(_, _, _, _), max_value: Int) {
+pub fn integer_max_value(builder: IntegerBuilder(_, _), max_value: Int) {
   let max_value = int.clamp(max_value, min_int, max_int)
   IntegerBuilder(..builder, max_value: option.Some(max_value))
 }
 
-pub fn integer_def(builder: IntegerBuilder(_, _, _, _)) {
+pub fn integer_def(builder: IntegerBuilder(_, _)) {
   let IntegerBuilder(base, choices, min_value, max_value, autocomplete) =
     builder
   IntegerDefinition(base, choices:, min_value:, max_value:, autocomplete:)
 }
 
 pub fn integer_with_autocomplete(
-  builder: IntegerBuilder(autocomplete, bot, success, failure),
-  handler: AutocompleteHandler(autocomplete, Param, bot, success, failure),
+  builder: IntegerBuilder(bot, _),
+  handler: AutocompleteHandler(bot),
 ) {
   IntegerBuilder(..builder, autocomplete: option.Some(handler))
   |> integer_def()
@@ -208,15 +200,13 @@ pub fn mentionable_def(base: Base) {
   MentionableDefinition(base)
 }
 
-pub opaque type NumberBuilder(autocomplete, bot, success, failure) {
+pub opaque type NumberBuilder(bot, response) {
   NumberBuilder(
     Base,
-    choices: List(ParamChoice(Float)),
+    choices: List(Choice(Float)),
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: Option(
-      AutocompleteHandler(autocomplete, Param, bot, success, failure),
-    ),
+    autocomplete: Option(AutocompleteHandler(bot)),
   )
 }
 
@@ -225,32 +215,32 @@ pub fn number_builder(base: Base) {
 }
 
 pub fn number_choices(
-  builder: NumberBuilder(_, _, _, _),
-  choices: List(ParamChoice(Float)),
+  builder: NumberBuilder(_, _),
+  choices: List(Choice(Float)),
 ) {
   NumberBuilder(..builder, choices:)
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn number_min_value(builder: NumberBuilder(_, _, _, _), min_value: Float) {
+pub fn number_min_value(builder: NumberBuilder(_, _), min_value: Float) {
   let min_value = float.clamp(min_value, min_number, max_number)
   NumberBuilder(..builder, min_value: option.Some(min_value))
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn number_max_value(builder: NumberBuilder(_, _, _, _), max_value: Float) {
+pub fn number_max_value(builder: NumberBuilder(_, _), max_value: Float) {
   let max_value = float.clamp(max_value, min_number, max_number)
   NumberBuilder(..builder, max_value: option.Some(max_value))
 }
 
-pub fn number_def(builder: NumberBuilder(_, _, _, _)) {
+pub fn number_def(builder: NumberBuilder(_, _)) {
   let NumberBuilder(base, choices, min_value, max_value, autocomplete) = builder
   NumberDefinition(base, choices:, min_value:, max_value:, autocomplete:)
 }
 
 pub fn number_with_autocomplete(
-  builder: NumberBuilder(autocomplete, bot, success, failure),
-  handler: AutocompleteHandler(autocomplete, Param, bot, success, failure),
+  builder: NumberBuilder(bot, response),
+  handler: AutocompleteHandler(bot),
 ) {
   NumberBuilder(..builder, autocomplete: option.Some(handler))
   |> number_def()
@@ -260,17 +250,9 @@ pub fn attachment_def(base: Base) {
   AttachmentDefinition(base)
 }
 
-pub type ParamChoice(t) {
-  ParamChoice(
-    name: String,
-    name_localizations: List(#(String, String)),
-    value: t,
-  )
-}
-
-pub fn new_choice(name: String, value: t) -> ParamChoice(t) {
-  ParamChoice(name:, name_localizations: [], value:)
-}
+pub type AutocompleteHandler(bot) =
+  fn(interaction.Autocomplete, Dict(String, Param), bot) ->
+    response.Autocomplete
 
 pub type Param {
   String(name: String, value: String, focused: Bool)
