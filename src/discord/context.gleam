@@ -1,4 +1,5 @@
-/// TODO
 pub type Context {
-  Placeholder
+  Guild
+  BotDM
+  PrivateChannel
 }
