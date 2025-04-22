@@ -1,9 +1,12 @@
 import discord/entities/choice.{type Choice}
 import discord/entities/interaction
+import discord/entities/resolved.{type Resolved}
 import gleam/dict.{type Dict}
+import gleam/dynamic/decode
 import gleam/float
 import gleam/int
 import gleam/option.{type Option}
+import gleam/result
 import response
 
 pub const min_len: Int = 0
@@ -254,6 +257,24 @@ pub type AutocompleteHandler(bot) =
   fn(interaction.Autocomplete, Dict(String, Param), bot) ->
     response.Autocomplete
 
+const string_variant = 3
+
+const integer_variant = 4
+
+const boolean_variant = 5
+
+const user_variant = 6
+
+const channel_variant = 7
+
+const role_variant = 8
+
+const mentionable_variant = 9
+
+const number_variant = 10
+
+const attachment_variant = 11
+
 pub type Param {
   String(name: String, value: String, focused: Bool)
   Integer(name: String, value: Int, focused: Bool)
@@ -264,6 +285,61 @@ pub type Param {
   Mentionable(name: String, value: String)
   Number(name: String, value: Float, focused: Bool)
   Attachment(name: String, value: String)
+}
+
+pub fn param_decoder() -> decode.Decoder(Param) {
+  use variant <- decode.field("type", decode.int)
+  case variant {
+    variant if variant == string_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(String(name:, value:, focused:))
+    }
+    variant if variant == integer_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.int)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(Integer(name:, value:, focused:))
+    }
+    variant if variant == boolean_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.bool)
+      decode.success(Boolean(name:, value:))
+    }
+    variant if variant == user_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(User(name:, value:))
+    }
+    variant if variant == channel_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(Channel(name:, value:))
+    }
+    variant if variant == role_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(Role(name:, value:))
+    }
+    variant if variant == mentionable_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(Mentionable(name:, value:))
+    }
+    variant if variant == number_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.float)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(Number(name:, value:, focused:))
+    }
+    variant if variant == attachment_variant -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(Attachment(name:, value:))
+    }
+    _ -> decode.failure(String("", "", False), "Param")
+  }
 }
 
 pub fn get_string(
@@ -306,6 +382,28 @@ pub fn get_user(
   }
 }
 
+pub fn get_resolved_user(
+  params params: Dict(String, Param),
+  name name: String,
+  resolved resolved: Resolved,
+) -> Result(_, Nil) {
+  use users <- result.try(option.to_result(resolved.users, Nil))
+  use user_id <- result.try(get_user(params:, name:))
+
+  dict.get(users, user_id)
+}
+
+pub fn get_resolved_member(
+  params params: Dict(String, Param),
+  name name: String,
+  resolved resolved: Resolved,
+) -> Result(_, Nil) {
+  use members <- result.try(option.to_result(resolved.members, Nil))
+  use user_id <- result.try(get_user(params:, name:))
+
+  dict.get(members, user_id)
+}
+
 pub fn get_channel(
   params params: Dict(String, Param),
   name name: String,
@@ -314,6 +412,17 @@ pub fn get_channel(
     Ok(Channel(value: v, ..)) -> Ok(v)
     _ -> Error(Nil)
   }
+}
+
+pub fn get_resolved_channel(
+  params params: Dict(String, Param),
+  name name: String,
+  resolved resolved: Resolved,
+) -> Result(_, Nil) {
+  use channels <- result.try(option.to_result(resolved.channels, Nil))
+  use channel_id <- result.try(get_channel(params:, name:))
+
+  dict.get(channels, channel_id)
 }
 
 pub fn get_role(
@@ -326,6 +435,17 @@ pub fn get_role(
   }
 }
 
+pub fn get_resolved_role(
+  params params: Dict(String, Param),
+  name name: String,
+  resolved resolved: Resolved,
+) -> Result(_, Nil) {
+  use roles <- result.try(option.to_result(resolved.roles, Nil))
+  use role_id <- result.try(get_role(params:, name:))
+
+  dict.get(roles, role_id)
+}
+
 pub fn get_mentionable(
   params params: Dict(String, Param),
   name name: String,
@@ -334,6 +454,25 @@ pub fn get_mentionable(
     Ok(Mentionable(value: v, ..)) -> Ok(v)
     _ -> Error(Nil)
   }
+}
+
+pub fn get_resolved_mentionable(
+  params params: Dict(String, Param),
+  name name: String,
+  resolved resolved: Resolved,
+) -> Result(_, Nil) {
+  use mentionable_id <- result.try(get_mentionable(params:, name:))
+
+  let user = {
+    use users <- result.try(option.to_result(resolved.users, Nil))
+    dict.get(users, mentionable_id)
+  }
+  let role = {
+    use roles <- result.try(option.to_result(resolved.roles, Nil))
+    dict.get(roles, mentionable_id)
+  }
+
+  Ok(#(user, role))
 }
 
 pub fn get_number(
@@ -354,4 +493,15 @@ pub fn get_attachment(
     Ok(Attachment(value: v, ..)) -> Ok(v)
     _ -> Error(Nil)
   }
+}
+
+pub fn get_resolved_attachment(
+  params params: Dict(String, Param),
+  name name: String,
+  resolved resolved: Resolved,
+) -> Result(_, Nil) {
+  use attachments <- result.try(option.to_result(resolved.attachments, Nil))
+  use attachment_id <- result.try(get_attachment(params:, name:))
+
+  dict.get(attachments, attachment_id)
 }
