@@ -65,8 +65,9 @@ pub fn command_tree() -> application_command.ApplicationCommand(_) {
 
     let params = [user_param]
     use _i, params, _bot <- application_command.tree_leaf(def:, params:)
+    let resolved = todo as "i.data.resolved"
     let assert Ok(_user) =
-      param.get_resolved_user(params:, name: "user", resolved: todo)
+      param.get_resolved_user(params:, name: "user", resolved:)
 
     todo as "Command logic"
   }
@@ -85,8 +86,9 @@ pub fn command_tree() -> application_command.ApplicationCommand(_) {
     let params = [channel_param]
 
     use _i, params, _bot <- application_command.tree_leaf(def:, params:)
+    let resolved = todo as "i.data.resolved"
     let assert Ok(_channel) =
-      param.get_resolved_channel(params:, name: "channel", resolved: todo)
+      param.get_resolved_channel(params:, name: "channel", resolved:)
 
     todo as "Command logic"
   }
