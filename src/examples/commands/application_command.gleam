@@ -71,6 +71,7 @@ fn user_leaf() {
   }
 
   let params = [user_param]
+
   use _i, params, _bot <- application_command.tree_leaf(def:, params:)
   let resolved = todo as "i.data.resolved"
   let assert Ok(_user) =
@@ -91,6 +92,7 @@ fn channel_leaf() {
     |> param.required(True)
     |> param.channel_def()
   }
+
   let params = [channel_param]
 
   use _i, params, _bot <- application_command.tree_leaf(def:, params:)
