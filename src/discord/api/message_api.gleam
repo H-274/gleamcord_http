@@ -1,25 +1,64 @@
 //// Helper functions to create HTTP requests to the Discord message API
+//// TODO replace the generic types with proper entities when they exist
 
 import discord/api/api
 import gleam/http
 import gleam/http/request.{type Request}
+import gleam/int
+import gleam/option.{type Option}
 import gleam/string
 import gleam/uri
+
+/// TODO: Potentially extract to separate module
+pub type RelativePosition {
+  Around
+  Before
+  After
+}
+
+fn position_to_string(position: RelativePosition) {
+  case position {
+    Around -> "around"
+    Before -> "before"
+    After -> "after"
+  }
+}
+
+pub type GetMessagesQuery {
+  GetMessagesQuery(
+    position: Option(#(RelativePosition, String)),
+    limit: Option(Int),
+  )
+}
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#get-channel-messages
 pub fn get_channel_messages(
   auth_string: String,
   channel_id: String,
-  set_query set_query: fn(Request(_)) -> Request(_),
+  query query: Option(GetMessagesQuery),
 ) -> Request(BitArray) {
   let endpoint =
     string.join([api.base_url, "channels", channel_id, "messages"], "/")
+
+  let query_params = case query {
+    option.Some(query) -> {
+      let params = case query.position {
+        option.Some(#(pos, message)) -> [#(position_to_string(pos), message)]
+        _ -> []
+      }
+      case query.limit {
+        option.Some(limit) -> [#("limit", int.to_string(limit)), ..params]
+        _ -> params
+      }
+    }
+    _ -> []
+  }
 
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Get)
   |> request.set_header("Authorization", auth_string)
-  |> set_query()
+  |> request.set_query(query_params)
   |> request.set_body(<<>>)
 }
 
@@ -179,6 +218,14 @@ pub fn delete_user_reaction(
   |> request.set_body(<<>>)
 }
 
+pub type GetReactionsQuery {
+  GetReactionsQuery(
+    type_: Option(Int),
+    after: Option(String),
+    limit: Option(Int),
+  )
+}
+
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#get-reactions
 /// 
 /// The `emoji` parameter is formated as follows: `name:id`
@@ -187,7 +234,7 @@ pub fn get_reactions(
   channel_id: String,
   id message_id: String,
   emoji emoji: String,
-  set_query set_query: fn(Request(_)) -> Request(_),
+  query query: Option(GetReactionsQuery),
 ) -> Request(BitArray) {
   let endpoint =
     string.join(
@@ -203,11 +250,29 @@ pub fn get_reactions(
       "/",
     )
 
+  let query_params = case query {
+    option.Some(query) -> {
+      let query_params = case query.type_ {
+        option.Some(type_) -> [#("type", int.to_string(type_))]
+        _ -> []
+      }
+      let query_params = case query.after {
+        option.Some(user) -> [#("after", user), ..query_params]
+        _ -> query_params
+      }
+      case query.limit {
+        option.Some(limit) -> [#("limit", int.to_string(limit)), ..query_params]
+        _ -> query_params
+      }
+    }
+    _ -> []
+  }
+
   let assert Ok(req) = request.to(endpoint)
   req
   |> request.set_method(http.Get)
   |> request.set_header("Authorization", auth_string)
-  |> set_query()
+  |> request.set_query(query_params)
   |> request.set_body(<<>>)
 }
 
