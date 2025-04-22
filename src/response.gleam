@@ -10,4 +10,5 @@ pub type Autocomplete {
 
 pub type MessageComponent
 
+/// TODO: Work under assumption that the bot should only respond or throw?
 pub type Failure

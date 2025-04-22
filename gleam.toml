@@ -1,4 +1,4 @@
-name = "discord_framework"
+name = "gleamcord_http"
 version = "1.0.0"
 
 target = "erlang"
@@ -14,7 +14,7 @@ target = "erlang"
 # For a full reference of all the available options, you can have a look at
 # https://gleam.run/writing-gleam/gleam-toml/.
 
-internal_modules = ["discord_framework/internal"]
+internal_modules = ["gleamcord_http/internal"]
 
 gleam = ">= 1.7.0"
 

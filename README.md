@@ -1,21 +1,21 @@
-# discord_framework
+# gleamcord_http
 
-[![Package Version](https://img.shields.io/hexpm/v/discord_framework)](https://hex.pm/packages/discord_framework)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/discord_framework/)
+[![Package Version](https://img.shields.io/hexpm/v/gleamcord_http)](https://hex.pm/packages/gleamcord_http)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gleamcord_http/)
 
 ```sh
-gleam add discord_framework@1
+gleam add gleamcord_http@1
 ```
 
 ```gleam
-import discord_framework
+import gleamcord_http
 
 pub fn main() {
   // TODO: An example of the project in use
 }
 ```
 
-Further documentation can be found at <https://hexdocs.pm/discord_framework>.
+Further documentation can be found at <https://hexdocs.pm/gleamcord_http>.
 
 ## Development
 
