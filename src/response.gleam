@@ -8,4 +8,6 @@ pub type Autocomplete {
   NumberChoices(List(Choice(Float)))
 }
 
+pub type MessageComponent
+
 pub type Failure

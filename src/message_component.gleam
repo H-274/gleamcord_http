@@ -1,10 +1,12 @@
+import discord/entities/interaction
 import gleam/option.{type Option}
+import response
 
-pub type ActionRow(component_interaction, bot, success, failure) =
-  List(MessageComponent(component_interaction, bot, success, failure))
+pub type ActionRow(bot) =
+  List(MessageComponent(bot))
 
-pub opaque type MessageComponent(component_interaction, bot, success, failure) {
-  Button(ButtonComponent(component_interaction, bot, success, failure))
+pub opaque type MessageComponent(bot) {
+  Button(ButtonComponent(bot))
   StringSelect
   TextInput
   UserSelect
@@ -13,27 +15,11 @@ pub opaque type MessageComponent(component_interaction, bot, success, failure) {
   ChannelSelect
 }
 
-pub opaque type ButtonComponent(component_interaction, bot, success, failure) {
-  PrimaryButton(
-    Definition,
-    disabled: Bool,
-    handler: ButtonHandler(component_interaction, bot, success, failure),
-  )
-  SecondaryButton(
-    Definition,
-    disabled: Bool,
-    handler: ButtonHandler(component_interaction, bot, success, failure),
-  )
-  SuccessButton(
-    Definition,
-    disabled: Bool,
-    handler: ButtonHandler(component_interaction, bot, success, failure),
-  )
-  DangerButton(
-    Definition,
-    disabled: Bool,
-    handler: ButtonHandler(component_interaction, bot, success, failure),
-  )
+pub opaque type ButtonComponent(bot) {
+  PrimaryButton(Definition, disabled: Bool, handler: ButtonHandler(bot))
+  SecondaryButton(Definition, disabled: Bool, handler: ButtonHandler(bot))
+  SuccessButton(Definition, disabled: Bool, handler: ButtonHandler(bot))
+  DangerButton(Definition, disabled: Bool, handler: ButtonHandler(bot))
   LinkButton(label: String, url: String, disabled: Bool)
   PremiumButton(sku_id: String, disabled: Bool)
 }
@@ -53,7 +39,7 @@ pub fn styled_button_emoji(def def: Definition, emoji emoji: Nil) {
 pub fn primary_button(
   def def: Definition,
   disabled disabled: Bool,
-  handler handler: ButtonHandler(_, _, _, _),
+  handler handler: ButtonHandler(_),
 ) {
   Button(PrimaryButton(def, disabled:, handler:))
 }
@@ -61,7 +47,7 @@ pub fn primary_button(
 pub fn secondary_button(
   def def: Definition,
   disabled disabled: Bool,
-  handler handler: ButtonHandler(_, _, _, _),
+  handler handler: ButtonHandler(_),
 ) {
   Button(SecondaryButton(def, disabled:, handler:))
 }
@@ -69,7 +55,7 @@ pub fn secondary_button(
 pub fn success_button(
   def def: Definition,
   disabled disabled: Bool,
-  handler handler: ButtonHandler(_, _, _, _),
+  handler handler: ButtonHandler(_),
 ) {
   Button(SuccessButton(def, disabled:, handler:))
 }
@@ -77,7 +63,7 @@ pub fn success_button(
 pub fn danger_button(
   def def: Definition,
   disabled disabled: Bool,
-  handler handler: ButtonHandler(_, _, _, _),
+  handler handler: ButtonHandler(_),
 ) {
   Button(DangerButton(def, disabled:, handler:))
 }
@@ -94,8 +80,9 @@ pub fn premium_button(sku sku_id: String, disabled disabled: Bool) {
   Button(PremiumButton(sku_id:, disabled:))
 }
 
-pub type ButtonHandler(interaction, bot, success, failure) =
-  fn(interaction, bot) -> Result(success, failure)
+pub type ButtonHandler(bot) =
+  fn(interaction.MessageComponent, bot) ->
+    Result(response.MessageComponent, response.Failure)
 
 pub type StringSelectComponent
 
