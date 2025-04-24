@@ -7,7 +7,6 @@ import gleam/float
 import gleam/int
 import gleam/option.{type Option}
 import gleam/result
-import response
 
 pub const min_len: Int = 0
 
@@ -59,7 +58,7 @@ pub fn required(base: Base, req required: Bool) {
   Base(..base, required:)
 }
 
-pub opaque type ParamDefinition(bot, response) {
+pub opaque type ParamDefinition(bot) {
   StringDefinition(
     Base,
     choices: List(Choice(String)),
@@ -89,7 +88,7 @@ pub opaque type ParamDefinition(bot, response) {
   AttachmentDefinition(Base)
 }
 
-pub opaque type StringBuilder(bot, response) {
+pub opaque type StringBuilder(bot) {
   StringBuilder(
     Base,
     choices: List(Choice(String)),
@@ -103,40 +102,37 @@ pub fn string_builder(base: Base) {
   StringBuilder(base, [], option.None, option.None, option.None)
 }
 
-pub fn string_choices(
-  builder: StringBuilder(_, _),
-  choices: List(Choice(String)),
-) {
+pub fn string_choices(builder: StringBuilder(_), choices: List(Choice(String))) {
   StringBuilder(..builder, choices:)
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn string_min_length(builder: StringBuilder(_, _), min_length: Int) {
+pub fn string_min_length(builder: StringBuilder(_), min_length: Int) {
   let min_length = int.clamp(min_length, min_len, max_len)
   StringBuilder(..builder, min_length: option.Some(min_length))
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn string_max_length(builder: StringBuilder(_, _), max_length: Int) {
+pub fn string_max_length(builder: StringBuilder(_), max_length: Int) {
   let max_length = int.clamp(max_length, min_len, max_len)
   StringBuilder(..builder, max_length: option.Some(max_length))
 }
 
-pub fn string_def(builder: StringBuilder(_, _)) {
+pub fn string_def(builder: StringBuilder(_)) {
   let StringBuilder(base, choices, min_length, max_length, autocomplete) =
     builder
   StringDefinition(base, choices:, min_length:, max_length:, autocomplete:)
 }
 
 pub fn string_with_autocomplete(
-  builder: StringBuilder(bot, response),
+  builder: StringBuilder(bot),
   handler: AutocompleteHandler(bot),
 ) {
   StringBuilder(..builder, autocomplete: option.Some(handler))
   |> string_def()
 }
 
-pub opaque type IntegerBuilder(bot, response) {
+pub opaque type IntegerBuilder(bot) {
   IntegerBuilder(
     Base,
     choices: List(Choice(Int)),
@@ -150,33 +146,30 @@ pub fn integer_builder(base: Base) {
   IntegerBuilder(base, [], option.None, option.None, option.None)
 }
 
-pub fn integer_choices(
-  builder: IntegerBuilder(_, _),
-  choices: List(Choice(Int)),
-) {
+pub fn integer_choices(builder: IntegerBuilder(_), choices: List(Choice(Int))) {
   IntegerBuilder(..builder, choices:)
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn integer_min_value(builder: IntegerBuilder(_, _), min_value: Int) {
+pub fn integer_min_value(builder: IntegerBuilder(_), min_value: Int) {
   let min_value = int.clamp(min_value, min_int, max_int)
   IntegerBuilder(..builder, min_value: option.Some(min_value))
 }
 
 /// The value will be clamped between the allowed min and max
-pub fn integer_max_value(builder: IntegerBuilder(_, _), max_value: Int) {
+pub fn integer_max_value(builder: IntegerBuilder(_), max_value: Int) {
   let max_value = int.clamp(max_value, min_int, max_int)
   IntegerBuilder(..builder, max_value: option.Some(max_value))
 }
 
-pub fn integer_def(builder: IntegerBuilder(_, _)) {
+pub fn integer_def(builder: IntegerBuilder(_)) {
   let IntegerBuilder(base, choices, min_value, max_value, autocomplete) =
     builder
   IntegerDefinition(base, choices:, min_value:, max_value:, autocomplete:)
 }
 
 pub fn integer_with_autocomplete(
-  builder: IntegerBuilder(bot, _),
+  builder: IntegerBuilder(bot),
   handler: AutocompleteHandler(bot),
 ) {
   IntegerBuilder(..builder, autocomplete: option.Some(handler))
@@ -254,8 +247,13 @@ pub fn attachment_def(base: Base) {
 }
 
 pub type AutocompleteHandler(bot) =
-  fn(interaction.Autocomplete, Dict(String, Param), bot) ->
-    response.Autocomplete
+  fn(interaction.Autocomplete, Dict(String, Param), bot) -> AutocompleteResponse
+
+pub type AutocompleteResponse {
+  StringChoices(List(Choice(String)))
+  IntegerChoices(List(Choice(Int)))
+  NumberChoices(List(Choice(Float)))
+}
 
 const string_variant = 3
 

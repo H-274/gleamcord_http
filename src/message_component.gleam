@@ -1,5 +1,8 @@
 import discord/entities/interaction
+import discord/entities/message
 import gleam/option.{type Option}
+import gleam/otp/task
+import modal
 import response
 
 pub type ActionRow(bot) =
@@ -81,8 +84,30 @@ pub fn premium_button(sku sku_id: String, disabled disabled: Bool) {
 }
 
 pub type ButtonHandler(bot) =
-  fn(interaction.MessageComponent, bot) ->
-    Result(response.MessageComponent, response.Failure)
+  fn(interaction.MessageComponent, bot) -> ComponentResponse
+
+pub opaque type ComponentResponse {
+  UpdateMessage(response.UpdateMessage)
+  DeferredUpdateMessage(response.DeferredUpdateMessage)
+  Modal(response.Modal)
+}
+
+pub fn update_message(message) {
+  UpdateMessage(response.UpdateMessage(message))
+}
+
+pub fn show_modal(modal: modal.Modal) {
+  Modal(response.Modal(modal))
+}
+
+/// TODO
+pub fn deferred_update_message(
+  _i: interaction.MessageComponent,
+  _bot,
+  deferred,
+) -> ComponentResponse {
+  DeferredUpdateMessage(response.DeferredUpdateMessage(deferred))
+}
 
 pub type StringSelectComponent
 

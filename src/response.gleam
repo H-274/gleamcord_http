@@ -1,14 +1,24 @@
-import discord/entities/choice.{type Choice}
+import discord/entities/message
+import modal
 
-pub type ApplicationCommand
+pub type Pong
 
-pub type Autocomplete {
-  StringChoices(List(Choice(String)))
-  IntegerChoices(List(Choice(Int)))
-  NumberChoices(List(Choice(Float)))
+pub type MessageWithSource {
+  MessageWithSource(message.Message)
 }
 
-pub type MessageComponent
+pub type DeferredMessageWithSource {
+  DeferredMessageWithSource(fn() -> message.Message)
+}
 
-/// TODO: Work under assumption that the bot should only respond or throw?
-pub type Failure
+pub type UpdateMessage {
+  UpdateMessage(message.Message)
+}
+
+pub type DeferredUpdateMessage {
+  DeferredUpdateMessage(fn() -> message.Message)
+}
+
+pub type Modal {
+  Modal(modal.Modal)
+}

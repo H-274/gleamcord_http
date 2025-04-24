@@ -3,10 +3,11 @@ import application_command_param as param
 import discord/entities/choice
 import discord/entities/context.{Guild}
 import discord/entities/integration_type.{GuildInstall}
+import discord/entities/message
+import gleam/erlang/process
 import gleam/list
 import gleam/result
 import gleam/string
-import response
 
 const cities = ["New York", "New Mexico", "Tokyo", "Toronto"]
 
@@ -22,9 +23,13 @@ pub fn simple_command() -> application_command.ApplicationCommand(_) {
   let params = [city_param()]
 
   use _i, params, _bot <- application_command.chat_input_command(def, params)
-  let _city = result.unwrap(param.get_string(params:, name: "city"), "world")
+  let city = result.unwrap(param.get_string(params:, name: "city"), "world")
 
-  todo as "Command logic"
+  use <- application_command.deferred_message_with_source()
+
+  process.sleep(1000)
+
+  message.Message("Hello " <> city)
 }
 
 fn city_param() {
@@ -41,7 +46,7 @@ fn city_param() {
 
   list.filter(cities, string.starts_with(_, input))
   |> list.map(fn(city) { choice.new(city, city) })
-  |> response.StringChoices()
+  |> param.StringChoices
 }
 
 pub fn command_tree() -> application_command.ApplicationCommand(_) {
