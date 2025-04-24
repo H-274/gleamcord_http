@@ -144,7 +144,7 @@ pub opaque type CommandResponse {
   Modal(response.Modal)
 }
 
-pub fn message_with_source(message) {
+pub fn reply_with_message(message) {
   MessageWithSource(response.MessageWithSource(message))
 }
 
@@ -153,10 +153,6 @@ pub fn show_modal(modal) {
 }
 
 /// TODO
-pub fn deferred_message_with_source(
-  _i: interaction.ApplicationCommand,
-  _bot,
-  message,
-) {
+pub fn deferred_message_reply(_i: interaction.ApplicationCommand, _bot, message) {
   DeferredMessageWithSource(response.DeferredMessageWithSource(message))
 }

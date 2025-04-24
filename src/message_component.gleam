@@ -101,7 +101,7 @@ pub fn show_modal(modal: modal.Modal) {
 }
 
 /// TODO
-pub fn deferred_update_message(
+pub fn deferred_message_update(
   _i: interaction.MessageComponent,
   _bot,
   deferred,
