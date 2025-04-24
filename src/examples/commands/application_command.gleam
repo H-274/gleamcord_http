@@ -22,11 +22,10 @@ pub fn simple_command() -> application_command.ApplicationCommand(_) {
 
   let params = [city_param()]
 
-  use i, params, bot <- application_command.chat_input_command(def, params)
+  use i, params, bot <- application_command.chat_input_command(def:, params:)
   let city = result.unwrap(param.get_string(params:, name: "city"), "world")
 
   use <- application_command.deferred_message_reply(i, bot)
-
   process.sleep(1000)
 
   message.Message("Hello " <> city)
