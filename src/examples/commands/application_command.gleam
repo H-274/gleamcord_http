@@ -9,8 +9,6 @@ import gleam/list
 import gleam/result
 import gleam/string
 
-const cities = ["New York", "New Mexico", "Tokyo", "Toronto"]
-
 pub fn simple_command() -> application_command.ApplicationCommand(_) {
   let def =
     application_command.new_definition(
@@ -30,6 +28,8 @@ pub fn simple_command() -> application_command.ApplicationCommand(_) {
 
   message.Message("Hello " <> city)
 }
+
+const cities = ["New York", "New Mexico", "Tokyo", "Toronto"]
 
 fn city_param() {
   let name = "city"
