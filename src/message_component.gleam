@@ -1,7 +1,5 @@
 import discord/entities/interaction
-import discord/entities/message
 import gleam/option.{type Option}
-import gleam/otp/task
 import modal
 import response
 
