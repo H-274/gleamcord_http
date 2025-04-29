@@ -1,6 +1,19 @@
 import discord/entities/message
 import modal
 
+pub type Response {
+  PongResponse(Pong)
+  MessageWithSourceResponse(MessageWithSource)
+  DeferredMessageWithSourceResponse(DeferredMessageWithSource)
+  UpdateMessageResponse(UpdateMessage)
+  DeferredUpdateMessageResponse(DeferredUpdateMessage)
+  ModalResponse(Modal)
+}
+
+pub fn json(response: Response) {
+  todo
+}
+
 pub type Pong
 
 pub type MessageWithSource {

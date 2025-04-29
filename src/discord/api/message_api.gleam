@@ -2,9 +2,12 @@
 //// TODO replace the generic types with proper entities when they exist
 
 import discord/api/api
+import discord/entities/message.{type Message}
+import gleam/bit_array
 import gleam/http
 import gleam/http/request.{type Request}
 import gleam/int
+import gleam/json
 import gleam/option.{type Option}
 import gleam/string
 import gleam/uri
@@ -85,8 +88,7 @@ pub fn get_channel_message(
 pub fn create_message(
   auth_string: String,
   channel_id: String,
-  message message: message,
-  set_body set_body: fn(Request(_), message) -> Request(BitArray),
+  message message: Message,
 ) -> Request(BitArray) {
   let endpoint =
     string.join([api.base_url, "channels", channel_id, "messages"], "/")
@@ -95,7 +97,11 @@ pub fn create_message(
   req
   |> request.set_method(http.Post)
   |> request.set_header("Authorization", auth_string)
-  |> set_body(message)
+  |> request.set_body(
+    message.json(message)
+    |> json.to_string()
+    |> bit_array.from_string(),
+  )
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#crosspost-message
@@ -333,14 +339,11 @@ pub fn delete_all_reactions_for_emoji(
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#edit-message
-/// 
-/// TODO: Also in need of support for file attachments
 pub fn edit_message(
   auth_string: String,
   channel_id: String,
   id message_id: String,
-  message message: message,
-  set_body set_body: fn(Request(_), message) -> Request(BitArray),
+  message message: Message,
 ) -> Request(BitArray) {
   let endpoint =
     string.join(
@@ -352,7 +355,11 @@ pub fn edit_message(
   req
   |> request.set_method(http.Patch)
   |> request.set_header("Authorization", auth_string)
-  |> set_body(message)
+  |> request.set_body(
+    message.json(message)
+    |> json.to_string()
+    |> bit_array.from_string(),
+  )
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/resources/message#delete-message
@@ -379,7 +386,6 @@ pub fn bulk_delete_messages(
   auth_string: String,
   channel_id: String,
   ids message_id_list: List(String),
-  set_body set_body: fn(Request(_), List(String)) -> Request(BitArray),
 ) -> Request(BitArray) {
   let endpoint =
     string.join(
@@ -391,5 +397,9 @@ pub fn bulk_delete_messages(
   req
   |> request.set_method(http.Post)
   |> request.set_header("Authorization", auth_string)
-  |> set_body(message_id_list)
+  |> request.set_body(
+    json.object([#("messages", json.array(message_id_list, json.string))])
+    |> json.to_string()
+    |> bit_array.from_string(),
+  )
 }

@@ -20,10 +20,10 @@ pub fn simple_command() -> application_command.ApplicationCommand(_) {
 
   let params = [city_param()]
 
-  use i, params, bot <- application_command.chat_input_command(def:, params:)
+  use _i, params, _bot <- application_command.chat_input_command(def:, params:)
   let city = result.unwrap(param.get_string(params:, name: "city"), "world")
 
-  use <- application_command.deferred_message_reply(i, bot)
+  use <- application_command.deferred_message_reply()
   process.sleep(1000)
 
   message.Message("Hello " <> city)
@@ -43,7 +43,11 @@ fn city_param() {
   use _i, params, _bot <- param.string_with_autocomplete(builder)
   let assert Ok(input) = param.get_string(params:, name:)
 
-  list.filter(cities, string.starts_with(_, input))
+  {
+    use city <- list.filter(cities)
+    string.lowercase(city)
+    |> string.starts_with(string.lowercase(input))
+  }
   |> list.map(fn(city) { choice.new(city, city) })
   |> param.StringChoices
 }

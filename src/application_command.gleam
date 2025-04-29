@@ -153,6 +153,6 @@ pub fn show_modal(modal) {
 }
 
 /// TODO
-pub fn deferred_message_reply(_i: interaction.ApplicationCommand, _bot, message) {
+pub fn deferred_message_reply(message) {
   DeferredMessageWithSource(response.DeferredMessageWithSource(message))
 }
