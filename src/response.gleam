@@ -1,4 +1,5 @@
 import discord/entities/message
+import gleam/json.{type Json}
 import modal
 
 pub type Response {
@@ -10,7 +11,7 @@ pub type Response {
   ModalResponse(Modal)
 }
 
-pub fn json(response: Response) {
+pub fn json(response: Response) -> Json {
   todo
 }
 

@@ -35,7 +35,11 @@ pub fn create_response(
   |> request.set_method(http.Post)
   |> request.set_query([#("with_response", bool.to_string(with_callback))])
   |> request.set_header("Authorization", auth_string)
-  |> request.set_body(response.json(response) |> bit_array.from_string())
+  |> request.set_body(
+    response.json(response)
+    |> json.to_string()
+    |> bit_array.from_string(),
+  )
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response
@@ -88,7 +92,11 @@ pub fn edit_original_response(
   req
   |> request.set_method(http.Patch)
   |> request.set_header("Authorization", auth_string)
-  |> request.set_body(response.json(response) |> bit_array.from_string())
+  |> request.set_body(
+    response.json(response)
+    |> json.to_string()
+    |> bit_array.from_string(),
+  )
 }
 
 /// Endpoint documentation: https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response
