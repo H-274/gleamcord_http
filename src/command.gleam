@@ -2,7 +2,7 @@ import entities/integration.{type Integration}
 import entities/interaction_context.{type InteractionContext}
 import entities/locale.{type Locale}
 
-pub type Command {
+pub opaque type Command {
   User(UserCommand, Execute)
   Message(MessageCommand, Execute)
   Text(TextCommand, Execute)
