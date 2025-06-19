@@ -5,7 +5,7 @@ import entities/locale.{type Locale}
 pub opaque type Command {
   User(UserCommand, Execute)
   Message(MessageCommand, Execute)
-  Text(TextCommand, Execute)
+  Text(TextCommand)
 }
 
 pub type UserCommand {
