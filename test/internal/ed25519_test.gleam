@@ -1,4 +1,4 @@
-import gleeunit/should
+
 import internal/ed25519
 
 const valid_message = "ed25519_test"
@@ -17,9 +17,8 @@ pub fn bad_key_verify_test() {
     ed25519.verify(msg: valid_message, sig: valid_signature, key: bad_key)
 
   // Then
-  res
-  |> should.be_error()
-  |> should.equal(expected)
+  let assert Error(value) = res
+  assert value == expected
 }
 
 pub fn bad_base_16_key_verify_test() {
@@ -32,9 +31,8 @@ pub fn bad_base_16_key_verify_test() {
     ed25519.verify(msg: valid_message, sig: valid_signature, key: bad_key)
 
   // Then
-  res
-  |> should.be_error()
-  |> should.equal(expected)
+  let assert Error(value) = res
+  assert value == expected
 }
 
 pub fn bad_signature_verify_test() {
@@ -47,9 +45,8 @@ pub fn bad_signature_verify_test() {
     ed25519.verify(msg: valid_message, sig: bad_signature, key: valid_key)
 
   // Then
-  res
-  |> should.be_error()
-  |> should.equal(expected)
+  let assert Error(value) = res
+  assert value == expected
 }
 
 pub fn bad_base_16_signature_verify_test() {
@@ -62,9 +59,8 @@ pub fn bad_base_16_signature_verify_test() {
     ed25519.verify(msg: valid_message, sig: bad_signature, key: valid_key)
 
   // Then
-  res
-  |> should.be_error()
-  |> should.equal(expected)
+  let assert Error(value) = res
+  assert value == expected
 }
 
 pub fn altered_message_verify_test() {
@@ -77,9 +73,8 @@ pub fn altered_message_verify_test() {
     ed25519.verify(msg: altered_message, sig: valid_signature, key: valid_key)
 
   // Then
-  res
-  |> should.be_ok()
-  |> should.equal(expected)
+  let assert Ok(value) = res
+  assert value == expected
 }
 
 pub fn altered_signature_verify_test() {
@@ -93,9 +88,8 @@ pub fn altered_signature_verify_test() {
     ed25519.verify(msg: valid_message, sig: altered_signature, key: valid_key)
 
   // Then
-  res
-  |> should.be_ok()
-  |> should.equal(expected)
+  let assert Ok(value) = res
+  assert value == expected
 }
 
 pub fn altered_public_key_verify_test() {
@@ -113,9 +107,8 @@ pub fn altered_public_key_verify_test() {
     )
 
   // Then
-  res
-  |> should.be_ok()
-  |> should.equal(expected)
+  let assert Ok(value) = res
+  assert value == expected
 }
 
 pub fn valid_message_verify_test() {
@@ -127,7 +120,6 @@ pub fn valid_message_verify_test() {
     ed25519.verify(msg: valid_message, sig: valid_signature, key: valid_key)
 
   // Then
-  res
-  |> should.be_ok()
-  |> should.equal(expected)
+  let assert Ok(value) = res
+  assert value == expected
 }
