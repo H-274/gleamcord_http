@@ -1,4 +1,3 @@
-
 import internal/ed25519
 
 const valid_message = "ed25519_test"
