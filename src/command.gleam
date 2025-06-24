@@ -22,12 +22,16 @@ pub type UserCommand {
   )
 }
 
-pub fn user_command(name: String) {
+pub fn user_command(
+  name name: String,
+  integrations integration_types: List(Integration),
+  contexts contexts: List(InteractionContext),
+) {
   UserCommand(
     name:,
     name_locales: [],
-    integration_types: [],
-    contexts: [],
+    integration_types:,
+    contexts:,
     nsfw: False,
   )
 }
@@ -37,17 +41,6 @@ pub fn user_name_locales(
   name_locales: List(#(Locale, String)),
 ) {
   UserCommand(..command, name_locales:)
-}
-
-pub fn user_integration_types(
-  command: UserCommand,
-  integration_types: List(Integration),
-) {
-  UserCommand(..command, integration_types:)
-}
-
-pub fn user_contexts(command: UserCommand, contexts: List(InteractionContext)) {
-  UserCommand(..command, contexts:)
 }
 
 pub fn user_nsfw(command: UserCommand, nsfw: Bool) {
@@ -68,12 +61,16 @@ pub type MessageCommand {
   )
 }
 
-pub fn message_command(name: String) {
+pub fn message_command(
+  name name: String,
+  integrations integration_types: List(Integration),
+  contexts contexts: List(InteractionContext),
+) {
   MessageCommand(
     name:,
     name_locales: [],
-    integration_types: [],
-    contexts: [],
+    integration_types:,
+    contexts:,
     nsfw: False,
   )
 }
@@ -83,20 +80,6 @@ pub fn message_name_locales(
   name_locales: List(#(Locale, String)),
 ) {
   MessageCommand(..command, name_locales:)
-}
-
-pub fn message_integration_types(
-  command: MessageCommand,
-  integration_types: List(Integration),
-) {
-  MessageCommand(..command, integration_types:)
-}
-
-pub fn message_contexts(
-  command: MessageCommand,
-  contexts: List(InteractionContext),
-) {
-  MessageCommand(..command, contexts:)
 }
 
 pub fn message_nsfw(command: MessageCommand, nsfw: Bool) {
@@ -123,8 +106,8 @@ pub opaque type TextCommand {
 
 pub fn text_command(
   name name: String,
-  desc description: String,
-  integ_types integration_types: List(Integration),
+  description description: String,
+  integrations integration_types: List(Integration),
   contexts contexts: List(InteractionContext),
 ) {
   TextCommand(
