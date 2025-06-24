@@ -8,7 +8,6 @@ pub opaque type Command {
   User(UserCommand, UserExecute)
   Message(MessageCommand, MessageExecute)
   Text(TextCommand, TextExecute)
-  Group
 }
 
 pub type UserCommand {
