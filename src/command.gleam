@@ -8,8 +8,7 @@ pub opaque type Command {
   User(UserCommand, UserExecute)
   Message(MessageCommand, MessageExecute)
   Text(TextCommand, TextExecute)
-  DeepGroup(DeepCommandGroup)
-  Group(CommandGroup)
+  Group
 }
 
 pub type UserCommand {
@@ -154,62 +153,6 @@ pub fn text_nsfw(command: TextCommand, nsfw: Bool) {
 
 pub fn text_execute(command: TextCommand, execute: TextExecute) {
   Text(command, execute)
-}
-
-pub fn text_group_member(command: TextCommand, execute: TextExecute) {
-  #(command, execute)
-}
-
-pub type DeepCommandGroup {
-  DeepCommandGroup(
-    name: String,
-    name_locales: List(#(Locale, String)),
-    subcommand_groups: List(CommandGroup),
-  )
-}
-
-pub fn deep_command_group(name: String) {
-  DeepCommandGroup(name:, name_locales: [], subcommand_groups: [])
-}
-
-pub fn deep_command_group_name_locales(
-  deep_group: DeepCommandGroup,
-  name_locales: List(#(Locale, String)),
-) {
-  DeepCommandGroup(..deep_group, name_locales:)
-}
-
-pub fn deep_command_group_subcommand_groups(
-  deep_group: DeepCommandGroup,
-  subcommand_groups: List(CommandGroup),
-) {
-  DeepGroup(DeepCommandGroup(..deep_group, subcommand_groups:))
-}
-
-pub opaque type CommandGroup {
-  CommandGroup(
-    name: String,
-    name_locales: List(#(Locale, String)),
-    subcommands: List(#(TextCommand, TextExecute)),
-  )
-}
-
-pub fn command_group(name: String) {
-  CommandGroup(name:, name_locales: [], subcommands: [])
-}
-
-pub fn command_group_name_locales(
-  group: CommandGroup,
-  name_locales: List(#(Locale, String)),
-) {
-  CommandGroup(..group, name_locales:)
-}
-
-pub fn command_group_subcommands(
-  group: CommandGroup,
-  subcommands: List(#(TextCommand, TextExecute)),
-) {
-  Group(CommandGroup(..group, subcommands:))
 }
 
 pub type Option {
