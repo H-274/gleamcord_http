@@ -1,3 +1,5 @@
+//// https://discord.com/developers/docs/interactions/application-commands#application-commands
+
 import entities/integration.{type Integration}
 import entities/interaction_context.{type InteractionContext}
 import entities/locale.{type Locale}
