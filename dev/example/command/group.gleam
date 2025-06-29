@@ -36,9 +36,10 @@ pub fn primary_command() {
 
 /// Will be called when the slash command `primary secondary command<num>` is used
 pub fn secondary_command(num: Int) {
+  let num = int.to_string(num)
   let handle = fn(handler) {
     text.command(
-      name: "command" <> int.to_string(num),
+      name: "command" <> num,
       description: "secondary command",
       options: [],
       integ_types: [integration.GuildInstall],
@@ -49,5 +50,5 @@ pub fn secondary_command(num: Int) {
 
   use <- handle()
 
-  "Executed secondary command " <> int.to_string(num)
+  "Executed secondary command " <> num
 }
