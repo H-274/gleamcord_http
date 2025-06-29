@@ -21,11 +21,11 @@ pub fn group_name_locales(group: Group, name_locales: List(#(Locale, String))) {
   Group(..group, name_locales:)
 }
 
-pub fn subgroup_option(subgroup: Subgroup) {
+pub fn group_subgroup(subgroup: Subgroup) {
   type_utils.A(subgroup)
 }
 
-pub fn command_option(command: text.Command) {
+pub fn group_command(command: text.Command) {
   type_utils.B(command)
 }
 

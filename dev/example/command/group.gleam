@@ -6,19 +6,21 @@ import gleam/int
 
 pub fn example() {
   group.group(name: "primary", options: [
-    group.command_option(primary_command(1)),
-    group.command_option(primary_command(2)),
-    group.subgroup_option(
+    // Command that will be registered: `/primary command1`
+    group.group_command(primary_command(1)),
+    // Command that will be registered: `/primary command2`
+    group.group_command(primary_command(2)),
+    group.group_subgroup(
       group.subgroup(name: "secondary", commands: [
-        secondary_command(1),
-        secondary_command(2),
+        // Command that will be registered: `/primary secondary command3`
+        secondary_command(3),
+        // Command that will be registered: `/primary secondary command4`
+        secondary_command(4),
       ]),
     ),
   ])
 }
 
-/// Will be called when the slash command `primary command<num>` is used
-/// (So long as the command with the given num is registered)
 pub fn primary_command(num: Int) {
   let num = int.to_string(num)
   let handle = fn(handler) {
@@ -37,8 +39,6 @@ pub fn primary_command(num: Int) {
   "Executed primary command " <> num
 }
 
-/// Will be called when the slash command `primary secondary command<num>` is used
-/// (So long as the command with the given num is registered)
 pub fn secondary_command(num: Int) {
   let num = int.to_string(num)
   let handle = fn(handler) {
