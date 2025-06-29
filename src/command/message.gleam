@@ -2,8 +2,8 @@ import entities/integration.{type Integration}
 import entities/interaction_context.{type InteractionContext}
 import entities/locale.{type Locale}
 
-pub opaque type MessageCommand {
-  MessageCommand(
+pub opaque type Command {
+  Command(
     name: String,
     name_localizations: List(#(Locale, String)),
     default_member_permissions: String,
@@ -14,13 +14,13 @@ pub opaque type MessageCommand {
   )
 }
 
-pub fn message_command(
+pub fn command(
   name name: String,
   integs integrations: List(Integration),
   ctxs contexts: List(InteractionContext),
   handler handler: Handler,
 ) {
-  MessageCommand(
+  Command(
     name:,
     name_localizations: [],
     default_member_permissions: "",
@@ -32,21 +32,21 @@ pub fn message_command(
 }
 
 pub fn name_localizations(
-  command: MessageCommand,
+  command: Command,
   name_localizations: List(#(Locale, String)),
 ) {
-  MessageCommand(..command, name_localizations:)
+  Command(..command, name_localizations:)
 }
 
-pub fn nsfw(command: MessageCommand, nsfw: Bool) {
-  MessageCommand(..command, nsfw:)
+pub fn nsfw(command: Command, nsfw: Bool) {
+  Command(..command, nsfw:)
 }
 
 pub fn default_member_permissions(
-  command: MessageCommand,
+  command: Command,
   perms default_member_permissions: String,
 ) {
-  MessageCommand(..command, default_member_permissions:)
+  Command(..command, default_member_permissions:)
 }
 
 /// TODO

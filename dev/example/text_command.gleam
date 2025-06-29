@@ -1,11 +1,11 @@
+import command/text
 import entities/integration
 import entities/interaction_context
 import entities/locale
-import text_command
 
 pub fn example() {
   let handle = fn(handler) {
-    text_command.command(
+    text.command(
       name: "hello",
       description: "world",
       options: [],
@@ -13,8 +13,8 @@ pub fn example() {
       contexts: [interaction_context.Guild],
       handler:,
     )
-    |> text_command.name_locales([#(locale.French, "bonjour")])
-    |> text_command.description_locales([#(locale.French, "monde")])
+    |> text.name_locales([#(locale.French, "bonjour")])
+    |> text.description_locales([#(locale.French, "monde")])
   }
 
   use <- handle()
