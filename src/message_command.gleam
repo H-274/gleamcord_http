@@ -10,7 +10,7 @@ pub opaque type MessageCommand {
     integrations: List(Integration),
     contexts: List(InteractionContext),
     nsfw: Bool,
-    handler: UserCommandHandler,
+    handler: Handler,
   )
 }
 
@@ -18,7 +18,7 @@ pub fn message_command(
   name name: String,
   integs integrations: List(Integration),
   ctxs contexts: List(InteractionContext),
-  handler handler: UserCommandHandler,
+  handler handler: Handler,
 ) {
   MessageCommand(
     name:,
@@ -50,5 +50,5 @@ pub fn default_member_permissions(
 }
 
 /// TODO
-pub type UserCommandHandler =
+pub type Handler =
   fn() -> String
