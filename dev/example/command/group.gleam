@@ -1,17 +1,17 @@
-import command/group
+import command/group.{group, group_command, group_subgroup, subgroup}
 import command/text
 import entities/integration
 import entities/interaction_context
 import gleam/int
 
 pub fn example() {
-  group.group(name: "primary", options: [
+  group(name: "primary", options: [
     // Command that will be registered: `/primary command1`
     primary_command(1),
     // Command that will be registered: `/primary command2`
     primary_command(2),
-    group.group_subgroup(
-      group.subgroup(name: "secondary", commands: [
+    group_subgroup(
+      subgroup(name: "secondary", commands: [
         // Command that will be registered: `/primary secondary command3`
         secondary_command(3),
         // Command that will be registered: `/primary secondary command4`
@@ -32,7 +32,7 @@ pub fn primary_command(num: Int) {
       contexts: [interaction_context.Guild],
       handler:,
     )
-    |> group.group_command()
+    |> group_command()
   }
 
   use <- handle()
