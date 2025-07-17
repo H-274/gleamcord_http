@@ -38,13 +38,12 @@ pub fn primary_command(num: Int) {
   }
 
   use <- handle()
-  let response = fn(content: String) {
-    message.Create(..message.create_default(), content:)
-    |> response.Message()
-  }
 
-  { "Executed primary command " <> num }
-  |> response()
+  message.Create(
+    ..message.create_default(),
+    content: "Executed primary command " <> num,
+  )
+  |> response.Message()
 }
 
 pub fn secondary_command(num: Int) {
@@ -61,11 +60,10 @@ pub fn secondary_command(num: Int) {
   }
 
   use <- handle()
-  let response = fn(content: String) {
-    message.Create(..message.create_default(), content:)
-    |> response.Message()
-  }
 
-  { "Executed secondary command " <> num }
-  |> response()
+  message.Create(
+    ..message.create_default(),
+    content: "Executed secondary command " <> num,
+  )
+  |> response.Message()
 }

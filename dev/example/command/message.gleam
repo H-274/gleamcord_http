@@ -17,11 +17,10 @@ pub fn example() {
   }
 
   use <- handle()
-  let response = fn(content: String) {
-    message_entity.Create(..message_entity.create_default(), content:)
-    |> response.Message()
-  }
 
-  "Hello, world!"
-  |> response()
+  message_entity.Create(
+    ..message_entity.create_default(),
+    content: "Hello, world!",
+  )
+  |> response.Message()
 }

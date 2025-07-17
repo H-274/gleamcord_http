@@ -17,11 +17,7 @@ pub fn example() {
   }
 
   use <- handle()
-  let response = fn(content: String) {
-    message.Create(..message.create_default(), content:)
-    |> response.Message()
-  }
 
-  "Hello, world!"
-  |> response()
+  message.Create(..message.create_default(), content: "Hello, world!")
+  |> response.Message()
 }
