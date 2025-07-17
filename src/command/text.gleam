@@ -1,3 +1,4 @@
+import command/response.{type Response}
 import entities/integration.{type Integration}
 import entities/interaction_context.{type InteractionContext}
 import entities/locale.{type Locale}
@@ -64,4 +65,4 @@ pub fn nsfw(command: Command, nsfw: Bool) {
 
 /// TODO
 pub type Handler =
-  fn() -> String
+  fn() -> Response

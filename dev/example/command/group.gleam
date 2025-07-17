@@ -1,7 +1,9 @@
 import command/group.{group, group_command, group_subgroup, subgroup}
+import command/response
 import command/text
 import entities/integration
 import entities/interaction_context
+import entities/message
 import gleam/int
 
 pub fn example() {
@@ -36,8 +38,13 @@ pub fn primary_command(num: Int) {
   }
 
   use <- handle()
+  let response = fn(content: String) {
+    message.Create(..message.create_default(), content:)
+    |> response.Message()
+  }
 
-  "Executed primary command " <> num
+  { "Executed primary command " <> num }
+  |> response()
 }
 
 pub fn secondary_command(num: Int) {
@@ -54,6 +61,11 @@ pub fn secondary_command(num: Int) {
   }
 
   use <- handle()
+  let response = fn(content: String) {
+    message.Create(..message.create_default(), content:)
+    |> response.Message()
+  }
 
-  "Executed secondary command " <> num
+  { "Executed secondary command " <> num }
+  |> response()
 }

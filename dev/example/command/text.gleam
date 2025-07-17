@@ -1,7 +1,9 @@
+import command/response
 import command/text
 import entities/integration
 import entities/interaction_context
 import entities/locale
+import entities/message
 
 pub fn example() {
   let handle = fn(handler) {
@@ -18,6 +20,11 @@ pub fn example() {
   }
 
   use <- handle()
+  let response = fn(content: String) {
+    message.Create(..message.create_default(), content:)
+    |> response.Message()
+  }
 
   "Hello, world"
+  |> response()
 }
