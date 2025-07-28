@@ -20,6 +20,10 @@ pub type Create {
   )
 }
 
+pub fn create_default() -> Create {
+  Create("", False, [], [], Nil, [], [], [], [], Nil)
+}
+
 pub type Edit {
   Edit(
     content: String,
@@ -40,10 +44,6 @@ pub type Edit {
     // TODO
     poll: Nil,
   )
-}
-
-pub fn create_default() -> Create {
-  Create("", False, [], [], Nil, [], [], [], [], Nil)
 }
 
 pub fn edit_default() -> Edit {
