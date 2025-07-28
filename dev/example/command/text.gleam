@@ -1,5 +1,4 @@
-import command/response
-import command/text
+import command/text_command.{text_command}
 import entities/integration
 import entities/interaction_context
 import entities/locale
@@ -7,7 +6,7 @@ import entities/message
 
 pub fn example() {
   let handle = fn(handler) {
-    text.command(
+    text_command(
       name: "hello",
       description: "world",
       options: [],
@@ -15,12 +14,12 @@ pub fn example() {
       contexts: [interaction_context.Guild],
       handler:,
     )
-    |> text.name_locales([#(locale.French, "bonjour")])
-    |> text.description_locales([#(locale.French, "monde")])
+    |> text_command.name_locales([#(locale.French, "bonjour")])
+    |> text_command.description_locales([#(locale.French, "monde")])
   }
 
   use <- handle()
 
   message.Create(..message.create_default(), content: "Hello, world")
-  |> response.Message()
+  |> text_command.MessageResponse()
 }

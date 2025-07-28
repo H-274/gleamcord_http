@@ -1,7 +1,7 @@
-import command/response.{type Response}
 import entities/integration.{type Integration}
 import entities/interaction_context.{type InteractionContext}
 import entities/locale.{type Locale}
+import entities/message
 
 pub opaque type Command {
   Command(
@@ -19,7 +19,7 @@ pub opaque type Command {
   )
 }
 
-pub fn command(
+pub fn text_command(
   name name: String,
   description description: String,
   options options: List(Nil),
@@ -66,3 +66,7 @@ pub fn nsfw(command: Command, nsfw: Bool) {
 /// TODO
 pub type Handler =
   fn() -> Response
+
+pub type Response {
+  MessageResponse(message.Create)
+}

@@ -1,7 +1,7 @@
-import command/response.{type Response}
 import entities/integration.{type Integration}
 import entities/interaction_context.{type InteractionContext}
 import entities/locale.{type Locale}
+import entities/message
 
 pub opaque type Command {
   Command(
@@ -15,7 +15,7 @@ pub opaque type Command {
   )
 }
 
-pub fn command(
+pub fn message_command(
   name name: String,
   integs integrations: List(Integration),
   ctxs contexts: List(InteractionContext),
@@ -53,3 +53,7 @@ pub fn default_member_permissions(
 /// TODO
 pub type Handler =
   fn() -> Response
+
+pub type Response {
+  MessageResponse(message.Create)
+}

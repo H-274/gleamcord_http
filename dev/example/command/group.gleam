@@ -1,6 +1,5 @@
 import command/group.{group, group_command, group_subgroup, subgroup}
-import command/response
-import command/text
+import command/text_command.{text_command}
 import entities/integration
 import entities/interaction_context
 import entities/message
@@ -26,7 +25,7 @@ pub fn example() {
 pub fn primary_command(num: Int) {
   let num = int.to_string(num)
   let handle = fn(handler) {
-    text.command(
+    text_command(
       name: "command" <> num,
       description: "primary command",
       options: [],
@@ -43,13 +42,13 @@ pub fn primary_command(num: Int) {
     ..message.create_default(),
     content: "Executed primary command " <> num,
   )
-  |> response.Message()
+  |> text_command.MessageResponse()
 }
 
 pub fn secondary_command(num: Int) {
   let num = int.to_string(num)
   let handle = fn(handler) {
-    text.command(
+    text_command(
       name: "command" <> num,
       description: "secondary command",
       options: [],
@@ -65,5 +64,5 @@ pub fn secondary_command(num: Int) {
     ..message.create_default(),
     content: "Executed secondary command " <> num,
   )
-  |> response.Message()
+  |> text_command.MessageResponse()
 }
