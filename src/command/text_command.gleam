@@ -1,3 +1,4 @@
+import command/command_option.{type CommandOption}
 import entities/component_message
 import entities/integration.{type Integration}
 import entities/interaction_context.{type InteractionContext}
@@ -11,8 +12,7 @@ pub opaque type Command {
     name_locales: List(#(Locale, String)),
     description: String,
     description_locales: List(#(Locale, String)),
-    // TODO Command options
-    options: List(Nil),
+    options: List(CommandOption),
     default_member_permissions: String,
     integration_types: List(Integration),
     contexts: List(InteractionContext),
@@ -24,7 +24,7 @@ pub opaque type Command {
 pub fn text_command(
   name name: String,
   description description: String,
-  options options: List(Nil),
+  options options: List(CommandOption),
   integ_types integration_types: List(Integration),
   contexts contexts: List(InteractionContext),
   handler handler: Handler,
