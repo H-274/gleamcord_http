@@ -35,7 +35,10 @@ pub type StringOption {
   )
 }
 
-pub fn default_string_option(name: String, description: String) -> StringOption {
+pub fn default_string_option(
+  name name: String,
+  desc description: String,
+) -> StringOption {
   StringCommandOption(
     name:,
     name_localizations: [],
@@ -64,8 +67,8 @@ pub type IntegerOption {
 }
 
 pub fn default_integer_option(
-  name: String,
-  description: String,
+  name name: String,
+  desc description: String,
 ) -> IntegerOption {
   IntegerCommandOption(
     name:,
@@ -91,8 +94,8 @@ pub type BooleanOption {
 }
 
 pub fn default_boolean_option(
-  name: String,
-  description: String,
+  name name: String,
+  desc description: String,
 ) -> BooleanOption {
   BooleanCommandOption(
     name:,
@@ -113,7 +116,10 @@ pub type UserOption {
   )
 }
 
-pub fn default_user_option(name: String, description: String) -> UserOption {
+pub fn default_user_option(
+  name name: String,
+  desc description: String,
+) -> UserOption {
   UserCommandOption(
     name:,
     name_localizations: [],
@@ -134,8 +140,8 @@ pub type ChannelOption {
 }
 
 pub fn default_channel_option(
-  name: String,
-  description: String,
+  name name: String,
+  desc description: String,
 ) -> ChannelOption {
   ChannelCommandOption(
     name:,
@@ -156,7 +162,7 @@ pub type RoleOption {
   )
 }
 
-pub fn default_role_option(name: String, description: String) {
+pub fn default_role_option(name name: String, desc description: String) {
   RoleCommandOption(
     name:,
     name_localizations: [],
@@ -177,8 +183,8 @@ pub type MentionableOption {
 }
 
 pub fn default_mentionable_option(
-  name: String,
-  description: String,
+  name name: String,
+  desc description: String,
 ) -> MentionableOption {
   MentionableCommandOption(
     name:,
@@ -203,7 +209,7 @@ pub type NumberOption {
   )
 }
 
-pub fn default_number_option(name: String, description: String) {
+pub fn default_number_option(name name: String, desc description: String) {
   NumberCommandOption(
     name:,
     name_localizations: [],
@@ -227,7 +233,7 @@ pub type AttachmentOption {
   )
 }
 
-pub fn default_attachment_option(name: String, description: String) {
+pub fn default_attachment_option(name name: String, desc description: String) {
   AttachmentCommandOption(
     name:,
     name_localizations: [],

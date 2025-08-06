@@ -20,10 +20,10 @@ pub fn string_option() {
   }
 
   let options = [
-    StringOption(default_string_option("name", "username")),
+    StringOption(default_string_option(name: "name", desc: "username")),
     StringOption(
       StringCommandOption(
-        ..default_string_option("age", "your age"),
+        ..default_string_option(name: "age", desc: "your age"),
         required: False,
         autocomplete: option.Some(age_autocomplete),
       ),
