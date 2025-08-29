@@ -12,10 +12,10 @@ pub fn string_option() {
     text_command(
       name: "hello",
       description: "greets user",
-      options: options,
+      options:,
       integ_types: [integration.GuildInstall],
       contexts: [interaction_context.Guild],
-      handler: handler,
+      handler:,
     )
   }
 
