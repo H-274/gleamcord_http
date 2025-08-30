@@ -1,5 +1,7 @@
 //// https://discord.com/developers/docs/reference#locales
 
+import gleam/dynamic/decode
+
 pub type Locale {
   Indonesian
   Danish
@@ -107,5 +109,14 @@ pub fn from_string(locale: String) -> Result(Locale, Nil) {
     "zh-TW" -> Ok(ChineseTW)
     "ko" -> Ok(Korean)
     _ -> Error(Nil)
+  }
+}
+
+pub fn decoder() {
+  use locale_string <- decode.then(decode.string)
+
+  case from_string(locale_string) {
+    Ok(locale) -> decode.success(locale)
+    _ -> decode.failure(Indonesian, "locale.Locale")
   }
 }

@@ -3,6 +3,7 @@ import command/command_option.{
 }
 import command/text_command.{text_command}
 import entities/integration
+import entities/interaction.{Interaction}
 import entities/interaction_context
 import entities/message
 import gleam/option
@@ -18,7 +19,6 @@ pub fn string_option() {
       handler:,
     )
   }
-
   let options = [
     StringOption(default_string_option(name: "name", desc: "username")),
     StringOption(
@@ -30,9 +30,17 @@ pub fn string_option() {
     ),
   ]
 
-  use _i, _bot <- handle(options)
+  use i, _bot <- handle(options)
+  let Interaction(
+    id: _id,
+    application_id: _app_id,
+    token: _token,
+    data: _data,
+    ..,
+  ) = i
 
   // TODO
+
   message.Create(..message.create_default(), content: "Hello, user")
   |> text_command.MessageResponse()
 }

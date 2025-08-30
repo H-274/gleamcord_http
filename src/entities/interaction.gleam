@@ -1,3 +1,4 @@
+import entities/locale.{type Locale}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
@@ -18,8 +19,8 @@ pub type Interaction {
     version: Int,
     message: Option(Dynamic),
     app_permissions: String,
-    locale: Option(String),
-    guild_locale: Option(String),
+    locale: Option(Locale),
+    guild_locale: Option(Locale),
     entitlements: List(Dynamic),
     authorizing_integration_owners: List(Dynamic),
     context: Option(Dynamic),
@@ -77,12 +78,12 @@ pub fn decoder() -> decode.Decoder(Interaction) {
   use locale <- decode.optional_field(
     "locale",
     option.None,
-    decode.optional(decode.string),
+    decode.optional(locale.decoder()),
   )
   use guild_locale <- decode.optional_field(
     "guild_locale",
     option.None,
-    decode.optional(decode.string),
+    decode.optional(locale.decoder()),
   )
   use entitlements <- decode.field("entitlements", decode.list(decode.dynamic))
   use authorizing_integration_owners <- decode.field(
@@ -130,6 +131,7 @@ pub type Type {
 
 fn type_decoder() {
   use type_string <- decode.then(decode.int)
+
   case type_string {
     1 -> decode.success(Ping)
     2 -> decode.success(ApplicationCommand)
