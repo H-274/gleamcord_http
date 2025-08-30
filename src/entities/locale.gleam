@@ -117,6 +117,6 @@ pub fn decoder() {
 
   case from_string(locale_string) {
     Ok(locale) -> decode.success(locale)
-    _ -> decode.failure(Indonesian, "locale.Locale")
+    _ -> decode.failure(Indonesian, "entities/locale.Locale")
   }
 }
