@@ -30,7 +30,7 @@ pub fn string_option() {
     ),
   ]
 
-  use <- handle(options)
+  use _i, _bot <- handle(options)
 
   // TODO
   message.Create(..message.create_default(), content: "Hello, user")

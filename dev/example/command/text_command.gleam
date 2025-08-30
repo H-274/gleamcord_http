@@ -18,7 +18,7 @@ pub fn standalone() {
     |> text_command.description_locales([#(locale.French, "monde")])
   }
 
-  use <- handle()
+  use _i, _bot <- handle()
 
   message.Create(..message.create_default(), content: "Hello, world")
   |> text_command.MessageResponse()

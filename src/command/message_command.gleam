@@ -1,9 +1,10 @@
 import entities/integration.{type Integration}
+import entities/interaction.{type Interaction}
 import entities/interaction_context.{type InteractionContext}
 import entities/locale.{type Locale}
 import entities/message
 
-pub opaque type Command {
+pub opaque type Command(bot) {
   Command(
     name: String,
     name_localizations: List(#(Locale, String)),
@@ -11,7 +12,7 @@ pub opaque type Command {
     integrations: List(Integration),
     contexts: List(InteractionContext),
     nsfw: Bool,
-    handler: Handler,
+    handler: Handler(bot),
   )
 }
 
@@ -19,7 +20,7 @@ pub fn message_command(
   name name: String,
   integs integrations: List(Integration),
   ctxs contexts: List(InteractionContext),
-  handler handler: Handler,
+  handler handler: Handler(bot),
 ) {
   Command(
     name:,
@@ -33,26 +34,26 @@ pub fn message_command(
 }
 
 pub fn name_localizations(
-  command: Command,
+  command: Command(bot),
   name_localizations: List(#(Locale, String)),
 ) {
   Command(..command, name_localizations:)
 }
 
-pub fn nsfw(command: Command, nsfw: Bool) {
+pub fn nsfw(command: Command(bot), nsfw: Bool) {
   Command(..command, nsfw:)
 }
 
 pub fn default_member_permissions(
-  command: Command,
+  command: Command(bot),
   perms default_member_permissions: String,
 ) {
   Command(..command, default_member_permissions:)
 }
 
 /// TODO
-pub type Handler =
-  fn() -> Response
+pub type Handler(bot) =
+  fn(Interaction, bot) -> Response
 
 pub type Response {
   MessageResponse(message.Create)

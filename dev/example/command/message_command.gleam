@@ -15,7 +15,7 @@ pub fn example() {
     |> message_command.name_localizations([#(locale.French, "bonjour_monde")])
   }
 
-  use <- handle()
+  use _i, _bot <- handle()
 
   message_entity.Create(
     ..message_entity.create_default(),
