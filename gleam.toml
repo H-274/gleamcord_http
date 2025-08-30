@@ -16,7 +16,7 @@ repository = { type = "github", user = "H-274", repo = "gleamcord_http" }
 
 internal_modules = ["gleamcord_http/internal"]
 
-gleam = ">= 1.11.0"
+gleam = ">= 1.12.0"
 
 [dependencies]
 gleam_stdlib = ">= 0.60.0 and < 1.0.0"
