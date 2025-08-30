@@ -28,7 +28,7 @@ pub fn text_command(
   options options: List(CommandOption),
   integ_types integration_types: List(Integration),
   contexts contexts: List(InteractionContext),
-  handler handler: Handler(bot),
+  handler handler: Handler(_),
 ) {
   Command(
     name:,
@@ -44,28 +44,25 @@ pub fn text_command(
   )
 }
 
-pub fn name_locales(
-  command: Command(bot),
-  name_locales: List(#(Locale, String)),
-) {
+pub fn name_locales(command: Command(_), name_locales: List(#(Locale, String))) {
   Command(..command, name_locales:)
 }
 
 pub fn description_locales(
-  command: Command(bot),
+  command: Command(_),
   description_locales: List(#(Locale, String)),
 ) {
   Command(..command, description_locales:)
 }
 
 pub fn default_member_permissions(
-  command: Command(bot),
+  command: Command(_),
   default_member_permissions: String,
 ) {
   Command(..command, default_member_permissions:)
 }
 
-pub fn nsfw(command: Command(bot), nsfw: Bool) {
+pub fn nsfw(command: Command(_), nsfw: Bool) {
   Command(..command, nsfw:)
 }
 
@@ -94,17 +91,17 @@ pub fn group(
 }
 
 pub fn group_name_locales(
-  group: Group(bot),
+  group: Group(_),
   name_locales: List(#(Locale, String)),
 ) {
   Group(..group, name_locales:)
 }
 
-pub fn group_subgroup(subgroup: Subgroup(bot)) {
+pub fn group_subgroup(subgroup: Subgroup(_)) {
   type_utils.A(subgroup)
 }
 
-pub fn group_command(command: Command(bot)) {
+pub fn group_command(command: Command(_)) {
   type_utils.B(command)
 }
 
@@ -116,12 +113,12 @@ pub opaque type Subgroup(bot) {
   )
 }
 
-pub fn subgroup(name name: String, commands commands: List(Command(bot))) {
+pub fn subgroup(name name: String, commands commands: List(Command(_))) {
   Subgroup(name:, name_locales: [], commands:)
 }
 
 pub fn subgroup_name_locales(
-  sub_group: Subgroup(bot),
+  sub_group: Subgroup(_),
   name_locales: List(#(Locale, String)),
 ) {
   Subgroup(..sub_group, name_locales:)

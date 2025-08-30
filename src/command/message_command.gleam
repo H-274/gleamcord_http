@@ -20,7 +20,7 @@ pub fn message_command(
   name name: String,
   integs integrations: List(Integration),
   ctxs contexts: List(InteractionContext),
-  handler handler: Handler(bot),
+  handler handler: Handler(_),
 ) {
   Command(
     name:,
@@ -34,18 +34,18 @@ pub fn message_command(
 }
 
 pub fn name_localizations(
-  command: Command(bot),
+  command: Command(_),
   name_localizations: List(#(Locale, String)),
 ) {
   Command(..command, name_localizations:)
 }
 
-pub fn nsfw(command: Command(bot), nsfw: Bool) {
+pub fn nsfw(command: Command(_), nsfw: Bool) {
   Command(..command, nsfw:)
 }
 
 pub fn default_member_permissions(
-  command: Command(bot),
+  command: Command(_),
   perms default_member_permissions: String,
 ) {
   Command(..command, default_member_permissions:)
