@@ -14,8 +14,8 @@ pub fn standalone() {
       contexts: [interaction_context.Guild],
       handler:,
     )
-    |> text_command.name_locales([#(locale.French, "bonjour")])
-    |> text_command.description_locales([#(locale.French, "monde")])
+    |> text_command.name_locales([#(locale.french, "bonjour")])
+    |> text_command.description_locales([#(locale.french, "monde")])
   }
 
   use _i, _bot <- handle()

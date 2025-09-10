@@ -12,7 +12,7 @@ pub fn example() {
       ctxs: [interaction_context.Guild],
       handler:,
     )
-    |> message_command.name_localizations([#(locale.French, "bonjour_monde")])
+    |> message_command.name_localizations([#(locale.french, "bonjour_monde")])
   }
 
   use _i, _bot <- handle()

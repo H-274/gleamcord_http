@@ -1,13 +1,12 @@
 import entities/integration.{type Integration}
 import entities/interaction.{type Interaction}
 import entities/interaction_context.{type InteractionContext}
-import entities/locale.{type Locale}
 import entities/message
 
 pub opaque type Command(bot) {
   Command(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     default_member_permissions: String,
     integrations: List(Integration),
     contexts: List(InteractionContext),
@@ -35,7 +34,7 @@ pub fn message_command(
 
 pub fn name_localizations(
   command: Command(_),
-  name_localizations: List(#(Locale, String)),
+  name_localizations: List(#(String, String)),
 ) {
   Command(..command, name_localizations:)
 }

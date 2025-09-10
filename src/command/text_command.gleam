@@ -3,16 +3,15 @@ import entities/component_message
 import entities/integration.{type Integration}
 import entities/interaction.{type Interaction}
 import entities/interaction_context.{type InteractionContext}
-import entities/locale.{type Locale}
 import entities/message
 import internal/type_utils
 
 pub opaque type Command(bot) {
   Command(
     name: String,
-    name_locales: List(#(Locale, String)),
+    name_locales: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     options: List(CommandOption),
     default_member_permissions: String,
     integration_types: List(Integration),
@@ -44,13 +43,13 @@ pub fn text_command(
   )
 }
 
-pub fn name_locales(command: Command(_), name_locales: List(#(Locale, String))) {
+pub fn name_locales(command: Command(_), name_locales: List(#(String, String))) {
   Command(..command, name_locales:)
 }
 
 pub fn description_locales(
   command: Command(_),
-  description_locales: List(#(Locale, String)),
+  description_locales: List(#(String, String)),
 ) {
   Command(..command, description_locales:)
 }
@@ -78,7 +77,7 @@ pub type Response {
 pub opaque type Group(bot) {
   Group(
     name: String,
-    name_locales: List(#(Locale, String)),
+    name_locales: List(#(String, String)),
     options: List(type_utils.Or(Subgroup(bot), Command(bot))),
   )
 }
@@ -92,7 +91,7 @@ pub fn group(
 
 pub fn group_name_locales(
   group: Group(_),
-  name_locales: List(#(Locale, String)),
+  name_locales: List(#(String, String)),
 ) {
   Group(..group, name_locales:)
 }
@@ -108,7 +107,7 @@ pub fn group_command(command: Command(_)) {
 pub opaque type Subgroup(bot) {
   Subgroup(
     name: String,
-    name_locales: List(#(Locale, String)),
+    name_locales: List(#(String, String)),
     commands: List(Command(bot)),
   )
 }
@@ -119,7 +118,7 @@ pub fn subgroup(name name: String, commands commands: List(Command(_))) {
 
 pub fn subgroup_name_locales(
   sub_group: Subgroup(_),
-  name_locales: List(#(Locale, String)),
+  name_locales: List(#(String, String)),
 ) {
   Subgroup(..sub_group, name_locales:)
 }

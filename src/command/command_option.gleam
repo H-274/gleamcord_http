@@ -1,4 +1,3 @@
-import entities/locale.{type Locale}
 import gleam/option.{type Option}
 
 pub const integer_min_value = -9_007_199_254_740_991
@@ -24,9 +23,9 @@ pub type CommandOption {
 pub type StringOption {
   StringCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
     choices: List(Nil),
     min_length: Int,
@@ -55,9 +54,9 @@ pub fn default_string_option(
 pub type IntegerOption {
   IntegerCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
     choices: List(Nil),
     min_value: Int,
@@ -86,9 +85,9 @@ pub fn default_integer_option(
 pub type BooleanOption {
   BooleanCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
   )
 }
@@ -109,9 +108,9 @@ pub fn default_boolean_option(
 pub type UserOption {
   UserCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
   )
 }
@@ -132,9 +131,9 @@ pub fn default_user_option(
 pub type ChannelOption {
   ChannelCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
   )
 }
@@ -155,9 +154,9 @@ pub fn default_channel_option(
 pub type RoleOption {
   RoleCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
   )
 }
@@ -175,9 +174,9 @@ pub fn default_role_option(name name: String, desc description: String) {
 pub type MentionableOption {
   MentionableCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
   )
 }
@@ -198,9 +197,9 @@ pub fn default_mentionable_option(
 pub type NumberOption {
   NumberCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
     choices: List(Nil),
     min_value: Float,
@@ -226,9 +225,9 @@ pub fn default_number_option(name name: String, desc description: String) {
 pub type AttachmentOption {
   AttachmentCommandOption(
     name: String,
-    name_localizations: List(#(Locale, String)),
+    name_localizations: List(#(String, String)),
     description: String,
-    description_locales: List(#(Locale, String)),
+    description_locales: List(#(String, String)),
     required: Bool,
   )
 }
