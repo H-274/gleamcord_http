@@ -21,7 +21,7 @@ pub opaque type Command(bot) {
   )
 }
 
-pub fn text_command(
+pub fn new(
   name name: String,
   description description: String,
   options options: List(CommandOption),
@@ -38,6 +38,66 @@ pub fn text_command(
     default_member_permissions: "",
     integration_types:,
     contexts:,
+    nsfw: False,
+    handler:,
+  )
+}
+
+pub fn guild_new(
+  name name: String,
+  description description: String,
+  options options: List(CommandOption),
+  handler handler: Handler(_),
+) {
+  Command(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    options:,
+    default_member_permissions: "",
+    integration_types: [integration.GuildInstall],
+    contexts: [interaction_context.Guild],
+    nsfw: False,
+    handler:,
+  )
+}
+
+pub fn user_new(
+  name name: String,
+  description description: String,
+  options options: List(CommandOption),
+  handler handler: Handler(_),
+) {
+  Command(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    options:,
+    default_member_permissions: "",
+    integration_types: [integration.UserInstall],
+    contexts: [interaction_context.BotDM],
+    nsfw: False,
+    handler:,
+  )
+}
+
+pub fn private_new(
+  name name: String,
+  description description: String,
+  options options: List(CommandOption),
+  handler handler: Handler(_),
+) {
+  Command(
+    name:,
+    name_locales: [],
+    description:,
+    description_locales: [],
+    options:,
+    default_member_permissions: "",
+    integration_types: [integration.UserInstall],
+    contexts: [interaction_context.BotDM, interaction_context.PrivateChannel],
     nsfw: False,
     handler:,
   )

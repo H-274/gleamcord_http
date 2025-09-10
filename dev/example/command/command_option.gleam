@@ -1,44 +1,28 @@
-import command/command_option.{
-  StringCommandOption, StringOption, default_string_option,
-}
-import command/text_command.{text_command}
-import entities/integration
-import entities/interaction.{Interaction}
-import entities/interaction_context
+import command/command_option.{StringCommandOption, StringOption, string_option}
+import command/text_command
 import entities/message
 import gleam/option
 
-pub fn string_option() {
-  let handle = fn(options, handler) {
-    text_command(
+pub fn string_option_example() {
+  let handle = fn(handler) {
+    text_command.private_new(
       name: "hello",
       description: "greets user",
-      options:,
-      integ_types: [integration.GuildInstall],
-      contexts: [interaction_context.Guild],
+      options: [
+        StringOption(string_option(name: "name", desc: "username")),
+        StringOption(
+          StringCommandOption(
+            ..string_option(name: "age", desc: "your age"),
+            required: False,
+            autocomplete: option.Some(age_autocomplete),
+          ),
+        ),
+      ],
       handler:,
     )
   }
-  let options = [
-    StringOption(default_string_option(name: "name", desc: "username")),
-    StringOption(
-      StringCommandOption(
-        ..default_string_option(name: "age", desc: "your age"),
-        required: False,
-        autocomplete: option.Some(age_autocomplete),
-      ),
-    ),
-  ]
 
-  use i, _bot <- handle(options)
-  let Interaction(
-    id: _id,
-    application_id: _app_id,
-    token: _token,
-    data: _data,
-    ..,
-  ) = i
-
+  use _i, _bot <- handle()
   // TODO
 
   message.Create(..message.create_default(), content: "Hello, user")

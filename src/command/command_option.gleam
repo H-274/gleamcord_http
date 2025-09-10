@@ -34,7 +34,7 @@ pub type StringOption {
   )
 }
 
-pub fn default_string_option(
+pub fn string_option(
   name name: String,
   desc description: String,
 ) -> StringOption {
@@ -65,7 +65,7 @@ pub type IntegerOption {
   )
 }
 
-pub fn default_integer_option(
+pub fn integer_option(
   name name: String,
   desc description: String,
 ) -> IntegerOption {
@@ -92,7 +92,7 @@ pub type BooleanOption {
   )
 }
 
-pub fn default_boolean_option(
+pub fn boolean_option(
   name name: String,
   desc description: String,
 ) -> BooleanOption {
@@ -115,10 +115,7 @@ pub type UserOption {
   )
 }
 
-pub fn default_user_option(
-  name name: String,
-  desc description: String,
-) -> UserOption {
+pub fn user_option(name name: String, desc description: String) -> UserOption {
   UserCommandOption(
     name:,
     name_localizations: [],
@@ -138,7 +135,7 @@ pub type ChannelOption {
   )
 }
 
-pub fn default_channel_option(
+pub fn channel_option(
   name name: String,
   desc description: String,
 ) -> ChannelOption {
@@ -161,7 +158,7 @@ pub type RoleOption {
   )
 }
 
-pub fn default_role_option(name name: String, desc description: String) {
+pub fn role_option(name name: String, desc description: String) {
   RoleCommandOption(
     name:,
     name_localizations: [],
@@ -181,7 +178,7 @@ pub type MentionableOption {
   )
 }
 
-pub fn default_mentionable_option(
+pub fn mentionable_option(
   name name: String,
   desc description: String,
 ) -> MentionableOption {
@@ -208,7 +205,7 @@ pub type NumberOption {
   )
 }
 
-pub fn default_number_option(name name: String, desc description: String) {
+pub fn number_option(name name: String, desc description: String) {
   NumberCommandOption(
     name:,
     name_localizations: [],
@@ -232,7 +229,7 @@ pub type AttachmentOption {
   )
 }
 
-pub fn default_attachment_option(name name: String, desc description: String) {
+pub fn attachment_option(name name: String, desc description: String) {
   AttachmentCommandOption(
     name:,
     name_localizations: [],

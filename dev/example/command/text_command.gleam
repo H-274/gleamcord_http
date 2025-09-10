@@ -1,17 +1,13 @@
-import command/text_command.{text_command}
-import entities/integration
-import entities/interaction_context
+import command/text_command
 import entities/locale
 import entities/message
 
-pub fn standalone() {
+pub fn standalone_example() {
   let handle = fn(handler) {
-    text_command(
+    text_command.user_new(
       name: "hello",
       description: "world",
       options: [],
-      integ_types: [integration.GuildInstall],
-      contexts: [interaction_context.Guild],
       handler:,
     )
     |> text_command.name_locales([#(locale.french, "bonjour")])
@@ -24,14 +20,14 @@ pub fn standalone() {
   |> text_command.MessageResponse()
 }
 
-pub fn group() {
+pub fn group_example() {
   text_command.group(name: "primary", options: [
     // Resulting command: /primary hello
-    text_command.group_command(standalone()),
+    text_command.group_command(standalone_example()),
     text_command.group_subgroup(
       text_command.subgroup(name: "secondary", commands: [
         // Resulting command: /primary secondary hello
-        standalone(),
+        standalone_example(),
       ]),
     ),
   ])

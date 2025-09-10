@@ -13,7 +13,7 @@ pub fn bot() {
   let auth = bot.Auth(application_id:, public_key:, bot_token:)
   let _bot =
     bot.new(auth:)
-    |> bot.text_commands([text_command.standalone()])
+    |> bot.text_commands([text_command.standalone_example()])
     |> bot.user_commands([user_command.example()])
     |> bot.message_commands([message_command.example()])
 }
