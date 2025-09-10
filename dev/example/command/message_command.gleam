@@ -8,8 +8,8 @@ pub fn example() {
   let handle = fn(handler) {
     message_command(
       name: "hello_world",
-      integs: [integration.GuildInstall],
-      ctxs: [interaction_context.Guild],
+      integrations: [integration.GuildInstall],
+      contexts: [interaction_context.Guild],
       handler:,
     )
     |> message_command.name_localizations([#(locale.french, "bonjour_monde")])

@@ -17,8 +17,8 @@ pub opaque type Command(bot) {
 
 pub fn message_command(
   name name: String,
-  integs integrations: List(Integration),
-  ctxs contexts: List(InteractionContext),
+  integrations integrations: List(Integration),
+  contexts contexts: List(InteractionContext),
   handler handler: Handler(_),
 ) {
   Command(
