@@ -2,6 +2,8 @@ name: test
 
 on:
   push:
+    paths:
+      - "**.gleam"
     branches:
       - master
       - main
@@ -20,4 +22,4 @@ jobs:
           # elixir-version: "1.15.4"
       - run: gleam deps download
       - run: gleam test -t erlang
-      - run: gleam format --check src test
+      - run: gleam format --check src dev test
