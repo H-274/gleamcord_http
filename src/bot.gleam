@@ -2,7 +2,7 @@ import command/message_command
 import command/text_command
 import command/user_command
 
-pub opaque type Bot {
+pub type Bot {
   Bot(
     auth: Auth,
     text_commands: List(text_command.Command(Bot)),

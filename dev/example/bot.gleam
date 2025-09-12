@@ -3,13 +3,11 @@ import example/command/message_command
 import example/command/text_command
 import example/command/user_command
 
-const application_id = "your_application_id"
+pub fn bot_example() {
+  let application_id = "your_application_id"
+  let public_key = "your_public_key"
+  let bot_token = "your_bot_token"
 
-const public_key = "your_public_key"
-
-const bot_token = "your_bot_token"
-
-pub fn bot() {
   let auth = bot.Auth(application_id:, public_key:, bot_token:)
   let _bot =
     bot.new(auth:)
