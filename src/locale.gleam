@@ -1,63 +1,176 @@
-pub const indonesian = "id"
+import gleam/dynamic/decode
 
-pub const danish = "da"
+pub type Locale {
+  Indonesian
+  Danish
+  German
+  EnglishUk
+  EnglishUs
+  Spanish
+  SpanishLatam
+  French
+  Croatian
+  Italian
+  Lituanian
+  Hungarian
+  Dutch
+  Norwegian
+  Polish
+  Portuguese
+  Romanian
+  Finnish
+  Swedish
+  Vietnamese
+  Turkish
+  Czech
+  Greek
+  Bulgarian
+  Russian
+  Ukranian
+  Hindi
+  Thai
+  ChineseCh
+  Japanese
+  ChineseTw
+  Korean
+}
 
-pub const german = "de"
+const indonesian = "id"
 
-pub const english_uk = "en-GB"
+const danish = "da"
 
-pub const english_us = "en-US"
+const german = "de"
 
-pub const spanish = "es-ES"
+const english_uk = "en-GB"
 
-pub const spanish_latam = "es-419"
+const english_us = "en-US"
 
-pub const french = "fr"
+const spanish = "es-ES"
 
-pub const croatian = "hr"
+const spanish_latam = "es-419"
 
-pub const italian = "it"
+const french = "fr"
 
-pub const lithuanian = "lt"
+const croatian = "hr"
 
-pub const hungarian = "hu"
+const italian = "it"
 
-pub const dutch = "nl"
+const lithuanian = "lt"
 
-pub const norwegian = "no"
+const hungarian = "hu"
 
-pub const polish = "pl"
+const dutch = "nl"
 
-pub const portuguese = "pt-BR"
+const norwegian = "no"
 
-pub const romanian = "ro"
+const polish = "pl"
 
-pub const finnish = "fi"
+const portuguese = "pt-BR"
 
-pub const swedish = "sv-SE"
+const romanian = "ro"
 
-pub const vietnamese = "vi"
+const finnish = "fi"
 
-pub const turkish = "tr"
+const swedish = "sv-SE"
 
-pub const czech = "cs"
+const vietnamese = "vi"
 
-pub const greek = "el"
+const turkish = "tr"
 
-pub const bulgarian = "bg"
+const czech = "cs"
 
-pub const russian = "ru"
+const greek = "el"
 
-pub const ukranian = "uk"
+const bulgarian = "bg"
 
-pub const hindi = "hi"
+const russian = "ru"
 
-pub const thai = "th"
+const ukranian = "uk"
 
-pub const chinese_ch = "zh-CN"
+const hindi = "hi"
 
-pub const japanese = "ja"
+const thai = "th"
 
-pub const chinese_tw = "zh-TW"
+const chinese_ch = "zh-CN"
 
-pub const korean = "ko"
+const japanese = "ja"
+
+const chinese_tw = "zh-TW"
+
+const korean = "ko"
+
+pub fn string(locale: Locale) {
+  case locale {
+    Indonesian -> indonesian
+    Danish -> danish
+    German -> german
+    EnglishUk -> english_uk
+    EnglishUs -> english_us
+    Spanish -> spanish
+    SpanishLatam -> spanish_latam
+    French -> french
+    Croatian -> croatian
+    Italian -> italian
+    Lituanian -> lithuanian
+    Hungarian -> hungarian
+    Dutch -> dutch
+    Norwegian -> norwegian
+    Polish -> polish
+    Portuguese -> portuguese
+    Romanian -> romanian
+    Finnish -> finnish
+    Swedish -> swedish
+    Vietnamese -> vietnamese
+    Turkish -> turkish
+    Czech -> czech
+    Greek -> greek
+    Bulgarian -> bulgarian
+    Russian -> russian
+    Ukranian -> ukranian
+    Hindi -> hindi
+    Thai -> thai
+    ChineseCh -> chinese_ch
+    Japanese -> japanese
+    ChineseTw -> chinese_tw
+    Korean -> korean
+  }
+}
+
+pub fn decoder() -> decode.Decoder(Locale) {
+  use string <- decode.then(decode.string)
+  case string {
+    s if s == indonesian -> decode.success(Indonesian)
+    s if s == danish -> decode.success(Danish)
+    s if s == german -> decode.success(German)
+    s if s == english_uk -> decode.success(EnglishUk)
+    s if s == english_us -> decode.success(EnglishUs)
+    s if s == spanish -> decode.success(Spanish)
+    s if s == spanish_latam -> decode.success(SpanishLatam)
+    s if s == french -> decode.success(French)
+    s if s == croatian -> decode.success(Croatian)
+    s if s == italian -> decode.success(Italian)
+    s if s == lithuanian -> decode.success(Lituanian)
+    s if s == hungarian -> decode.success(Hungarian)
+    s if s == dutch -> decode.success(Dutch)
+    s if s == norwegian -> decode.success(Norwegian)
+    s if s == polish -> decode.success(Polish)
+    s if s == portuguese -> decode.success(Portuguese)
+    s if s == romanian -> decode.success(Romanian)
+    s if s == finnish -> decode.success(Finnish)
+    s if s == swedish -> decode.success(Swedish)
+    s if s == vietnamese -> decode.success(Vietnamese)
+    s if s == turkish -> decode.success(Turkish)
+    s if s == czech -> decode.success(Czech)
+    s if s == greek -> decode.success(Greek)
+    s if s == bulgarian -> decode.success(Bulgarian)
+    s if s == russian -> decode.success(Russian)
+    s if s == ukranian -> decode.success(Ukranian)
+    s if s == hindi -> decode.success(Hindi)
+    s if s == thai -> decode.success(Thai)
+    s if s == chinese_ch -> decode.success(ChineseCh)
+    s if s == japanese -> decode.success(Japanese)
+    s if s == chinese_tw -> decode.success(ChineseTw)
+    s if s == korean -> decode.success(Korean)
+    _ -> decode.failure(Indonesian, "Locale")
+  }
+}
