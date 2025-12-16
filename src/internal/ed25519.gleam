@@ -27,7 +27,6 @@ pub fn verify(
     when: bit_array.byte_size(public_key) != 32,
     return: Error(BadPublicKey),
   )
-
   use signature <- result.try(
     bit_array.base16_decode(signature)
     |> result.replace_error(BadSignature),
@@ -38,6 +37,5 @@ pub fn verify(
   )
 
   let message = bit_array.from_string(message)
-
   Ok(verify_message(msg: message, sig: signature, key: public_key))
 }
