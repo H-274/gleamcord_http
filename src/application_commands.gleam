@@ -2,40 +2,20 @@
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
 
 import gleam/dynamic
-import internal/type_utils
 
-pub opaque type AplicationCommand {
-  ChatInputCommand(
+/// TODO: Replace signature types with signature values
+/// unless we want a builder to make the signatures
+pub type AplicationCommand {
+  ChatInput(
     signature: ChatInputSignature,
-    handler_or_subcommands: type_utils.Or(
-      ChatInputHandler,
-      List(#(ChatInputSignature, ChatInputHandler)),
-    ),
+    handler_or_subcommands: ChatInputHandler,
   )
-  UserCommand(signature: UserSignature, handler: UserHandler)
-  MessageCommand(signature: MessageSignature, handler: MessageHandler)
-}
-
-pub fn chat_input(signature: ChatInputSignature, handler: ChatInputHandler) {
-  ChatInputCommand(signature:, handler_or_subcommands: type_utils.A(handler))
-}
-
-pub fn chat_input_group(
-  signature: ChatInputSignature,
-  subcommands: List(#(ChatInputSignature, ChatInputHandler)),
-) {
-  ChatInputCommand(
-    signature:,
-    handler_or_subcommands: type_utils.B(subcommands),
+  ChatInputGroup(
+    signature: ChatInputSignature,
+    subcommands: List(#(ChatInputSignature, ChatInputHandler)),
   )
-}
-
-pub fn user(signature: UserSignature, handler: UserHandler) {
-  UserCommand(signature:, handler:)
-}
-
-pub fn message(signature: MessageSignature, handler: MessageHandler) {
-  MessageCommand(signature:, handler:)
+  User(signature: UserSignature, handler: UserHandler)
+  Message(signature: MessageSignature, handler: MessageHandler)
 }
 
 pub type ChatInputSignature {

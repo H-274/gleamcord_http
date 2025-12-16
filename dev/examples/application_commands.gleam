@@ -1,12 +1,10 @@
-import application_commands.{ChatInputSignature}
+import application_commands.{ChatInputSignature} as command
 import gleam/dynamic.{type Dynamic}
 import gleam/io
 
 pub fn chat_input() {
-  application_commands.chat_input(ChatInputSignature, command_handler)
-}
-
-pub fn command_handler(i: String, opts: Dynamic) -> String {
+  let with_command = command.ChatInput(ChatInputSignature, _)
+  use i: String, opts: Dynamic <- with_command()
   io.println(i)
   io.println(dynamic.classify(opts))
 
@@ -14,14 +12,14 @@ pub fn command_handler(i: String, opts: Dynamic) -> String {
 }
 
 pub fn chat_input_group() {
-  application_commands.chat_input_group(ChatInputSignature, [
-    #(ChatInputSignature, subcommand_handler),
+  command.ChatInputGroup(ChatInputSignature, [
+    #(ChatInputSignature, {
+      fn(i: String, opts: Dynamic) -> String {
+        io.println(i)
+        io.println(dynamic.classify(opts))
+
+        "Hello World!"
+      }
+    }),
   ])
-}
-
-pub fn subcommand_handler(i: String, opts: Dynamic) -> String {
-  io.println(i)
-  io.println(dynamic.classify(opts))
-
-  "Hello World!"
 }
