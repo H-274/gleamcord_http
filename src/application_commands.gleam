@@ -1,15 +1,12 @@
 //// Based on:
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
 
-import gleam/dynamic
+import gleam/dict.{type Dict}
 
 /// TODO: Replace signature types with signature values
 /// unless we want a builder to make the signatures
 pub type AplicationCommand {
-  ChatInput(
-    signature: ChatInputSignature,
-    handler_or_subcommands: ChatInputHandler,
-  )
+  ChatInput(signature: ChatInputSignature, handler: ChatInputHandler)
   ChatInputGroup(
     signature: ChatInputSignature,
     subcommands: List(#(ChatInputSignature, ChatInputHandler)),
@@ -23,7 +20,19 @@ pub type ChatInputSignature {
 }
 
 pub type ChatInputHandler =
-  fn(String, dynamic.Dynamic) -> String
+  fn(String, Dict(String, ChatInputOptionValue)) -> String
+
+pub type ChatInputOptionValue {
+  StringValue(value: String)
+  IntegerValue(value: Int)
+  BooleanValue(value: Bool)
+  UserValue(value: Int)
+  ChannelValue(value: Int)
+  RoleValue(value: Int)
+  MentionableValue(value: Int)
+  NumberValue(value: Float)
+  AttachmentValue(value: Int)
+}
 
 pub type UserSignature {
   UserSignature
