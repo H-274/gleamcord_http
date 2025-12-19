@@ -5,7 +5,9 @@ import gleam/string
 
 pub fn chat_input() {
   // --- /hello <string>
-  let signature = command.signature("hello", "greets a name")
+  let signature =
+    command.signature("hello", "greets a name")
+    |> command.set_options([Nil])
 
   use _i, opts <- command.chat_input(signature:)
   let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
@@ -15,7 +17,9 @@ pub fn chat_input() {
 
 pub fn something() {
   // --- /hello <string>
-  let signature = command.signature("hello", "greets a name")
+  let signature =
+    command.signature("hello", "greets a name")
+    |> command.set_options([Nil])
 
   use _i, opts <- command.chat_input(signature:)
   let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
