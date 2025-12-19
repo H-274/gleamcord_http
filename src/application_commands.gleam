@@ -4,8 +4,6 @@
 import gleam/dict.{type Dict}
 import internal/type_utils
 
-/// TODO: Replace signature types with signature values
-/// unless we want a builder to make the signatures
 pub opaque type AplicationCommand {
   ChatInput(signature: Signature, handler: ChatInputHandler)
   ChatInputGroup(
