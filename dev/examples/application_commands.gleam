@@ -6,9 +6,18 @@ import gleam/string
 pub fn chat_input() {
   // --- /hello <string>
   let signature = command.signature("hello", "greets a name")
-  let with_command = command.chat_input(signature:, handler: _)
 
-  use _i, opts <- with_command()
+  use _i, opts <- command.chat_input(signature:, handler: _)
+  let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
+
+  "Hello " <> name <> "!"
+}
+
+pub fn something() {
+  // --- /hello <string>
+  let signature = command.signature("hello", "greets a name")
+
+  use _i, opts <- command.chat_input(signature:)
   let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
 
   "Hello " <> name <> "!"
@@ -34,9 +43,8 @@ fn times_subcommand() {
   let signature =
     command.signature("times", "greets the world a number of times")
     |> command.set_options([Nil])
-  let with_command = command.subcommand(signature:, handler: _)
 
-  use _i, opts <- with_command()
+  use _i, opts <- command.subcommand(signature:, handler: _)
   let assert Ok(command.IntegerValue(times)) = dict.get(opts, "times")
 
   list.repeat("Hello World!", times:)
@@ -45,9 +53,8 @@ fn times_subcommand() {
 
 fn caps_subcommand() {
   let signature = command.signature("caps", "greets the world in all caps")
-  let with_command = command.subcommand(signature:, handler: _)
 
-  use _i, _opts <- with_command()
+  use _i, _opts <- command.subcommand(signature:, handler: _)
 
   string.uppercase("Hello World!")
 }
@@ -56,9 +63,8 @@ fn name_subcommand() {
   let signature =
     command.signature("name", "greet a name")
     |> command.set_options([Nil])
-  let with_command = command.subcommand(signature:, handler: _)
 
-  use _i, opts <- with_command()
+  use _i, opts <- command.subcommand(signature:, handler: _)
   let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
 
   "Hello " <> name <> "!"
