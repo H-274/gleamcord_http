@@ -1,5 +1,6 @@
 import application_commands.{type ChatInputOptionValue, ChatInputSignature} as command
 import gleam/dict.{type Dict}
+import gleam/string
 
 pub fn chat_input() {
   let with_command = command.chat_input(ChatInputSignature, _)
@@ -15,16 +16,20 @@ pub fn chat_input_group() {
     command.subcommand_group(ChatInputSignature, [
       command.subcommand(ChatInputSignature, fn(_i, opts) {
         let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
+        let assert Ok(command.IntegerValue(times)) = dict.get(opts, "times")
 
-        "Hello " <> name <> "!"
+        string.repeat("Hello " <> name <> "!", times:)
       }),
     ]),
   )
   |> command.add_subcommand(
-    command.subcommand(ChatInputSignature, fn(_i, opts) {
-      let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
+    command.subcommand(
+      ChatInputSignature,
+      fn(_i: Nil, opts: Dict(String, ChatInputOptionValue)) -> String {
+        let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
 
-      "Hello " <> name <> "!"
-    }),
+        "Hello " <> name <> "!"
+      },
+    ),
   )
 }
