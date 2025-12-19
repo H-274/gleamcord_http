@@ -1,20 +1,13 @@
-import application_commands.{ChatInputSignature} as command
+import application_commands as command
 import gleam/dict
+import gleam/list
 import gleam/string
 
 pub fn chat_input() {
   // --- /hello <string>
-  let signature =
-    ChatInputSignature(
-      name: "hello",
-      description: "greets a name",
-      options: [Nil],
-      permissions: Nil,
-      integration_types: [],
-      contexts: [],
-      nsfw: False,
-    )
+  let signature = command.signature("hello", "greets a name")
   let with_command = command.chat_input(signature:, handler: _)
+
   use _i, opts <- with_command()
   let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
 
@@ -27,6 +20,8 @@ pub fn chat_input_group() {
     command.subcommand_group("world", "greet the world", [
       // --- /hello world times <int>
       times_subcommand(),
+      // --- /hello world caps
+      caps_subcommand(),
     ]),
   )
   |> command.add_subcommand(
@@ -37,34 +32,32 @@ pub fn chat_input_group() {
 
 fn times_subcommand() {
   let signature =
-    ChatInputSignature(
-      name: "times",
-      description: "greets the world a number of times",
-      options: [Nil],
-      permissions: Nil,
-      integration_types: [],
-      contexts: [],
-      nsfw: False,
-    )
+    command.signature("times", "greets the world a number of times")
+    |> command.set_options([Nil])
   let with_command = command.subcommand(signature:, handler: _)
+
   use _i, opts <- with_command()
   let assert Ok(command.IntegerValue(times)) = dict.get(opts, "times")
 
-  string.repeat("Hello World!", times:)
+  list.repeat("Hello World!", times:)
+  |> string.join("\n")
+}
+
+fn caps_subcommand() {
+  let signature = command.signature("caps", "greets the world in all caps")
+  let with_command = command.subcommand(signature:, handler: _)
+
+  use _i, _opts <- with_command()
+
+  string.uppercase("Hello World!")
 }
 
 fn name_subcommand() {
   let signature =
-    ChatInputSignature(
-      name: "name",
-      description: "greet a name",
-      options: [Nil],
-      permissions: Nil,
-      integration_types: [],
-      contexts: [],
-      nsfw: False,
-    )
+    command.signature("name", "greet a name")
+    |> command.set_options([Nil])
   let with_command = command.subcommand(signature:, handler: _)
+
   use _i, opts <- with_command()
   let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
 

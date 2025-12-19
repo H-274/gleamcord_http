@@ -7,7 +7,7 @@ import internal/type_utils
 /// TODO: Replace signature types with signature values
 /// unless we want a builder to make the signatures
 pub opaque type AplicationCommand {
-  ChatInput(signature: ChatInputSignature, handler: ChatInputHandler)
+  ChatInput(signature: Signature, handler: ChatInputHandler)
   ChatInputGroup(
     name: String,
     description: String,
@@ -15,12 +15,12 @@ pub opaque type AplicationCommand {
       type_utils.Or(ChatInputSubcommandGroup, ChatInputSubcommand),
     ),
   )
-  User(signature: UserSignature, handler: UserHandler)
-  Message(signature: MessageSignature, handler: MessageHandler)
+  User(signature: Signature, handler: UserHandler)
+  Message(signature: Signature, handler: MessageHandler)
 }
 
 pub fn chat_input(
-  signature signature: ChatInputSignature,
+  signature signature: Signature,
   handler handler: ChatInputHandler,
 ) {
   ChatInput(signature:, handler:)
@@ -58,15 +58,15 @@ pub fn add_subcommand(
   }
 }
 
-pub fn user(signature: UserSignature, handler: UserHandler) {
+pub fn user(signature: Signature, handler: UserHandler) {
   User(signature:, handler:)
 }
 
-pub fn message(signature: MessageSignature, handler: MessageHandler) {
+pub fn message(signature: Signature, handler: MessageHandler) {
   Message(signature:, handler:)
 }
 
-pub type ChatInputSubcommandGroup {
+pub opaque type ChatInputSubcommandGroup {
   ChatInputSubcommandGroup(
     name: String,
     description: String,
@@ -83,18 +83,18 @@ pub fn subcommand_group(
 }
 
 pub opaque type ChatInputSubcommand {
-  ChatInputSubcommand(signature: ChatInputSignature, handler: ChatInputHandler)
+  ChatInputSubcommand(signature: Signature, handler: ChatInputHandler)
 }
 
 pub fn subcommand(
-  signature signature: ChatInputSignature,
+  signature signature: Signature,
   handler handler: ChatInputHandler,
 ) {
   ChatInputSubcommand(signature:, handler:)
 }
 
-pub type ChatInputSignature {
-  ChatInputSignature(
+pub opaque type Signature {
+  Signature(
     name: String,
     description: String,
     options: List(Nil),
@@ -103,6 +103,38 @@ pub type ChatInputSignature {
     contexts: List(Nil),
     nsfw: Bool,
   )
+}
+
+pub fn signature(name: String, description: String) {
+  Signature(
+    name:,
+    description:,
+    options: [],
+    permissions: Nil,
+    integration_types: [Nil],
+    contexts: [Nil, Nil],
+    nsfw: False,
+  )
+}
+
+pub fn set_options(signature: Signature, options: List(Nil)) {
+  Signature(..signature, options:)
+}
+
+pub fn set_permissions(signature: Signature, permissions: Nil) {
+  Signature(..signature, permissions:)
+}
+
+pub fn set_integration_types(signature: Signature, integration_types: List(Nil)) {
+  Signature(..signature, integration_types:)
+}
+
+pub fn set_contexts(signature: Signature, contexts: List(Nil)) {
+  Signature(..signature, contexts:)
+}
+
+pub fn set_nsfw(signature: Signature, nsfw: Bool) {
+  Signature(..signature, nsfw:)
 }
 
 pub type ChatInputHandler =
@@ -120,31 +152,8 @@ pub type ChatInputOptionValue {
   AttachmentValue(value: Int)
 }
 
-pub type UserSignature {
-  UserSignature(
-    name: String,
-    description: String,
-    permissions: Nil,
-    integration_types: List(Nil),
-    contexts: List(Nil),
-    nsfw: Bool,
-  )
-}
-
 pub type UserHandler {
   UserHandler
-}
-
-pub type MessageSignature {
-  MessageSignature(
-    name: String,
-    description: String,
-    options: List(Nil),
-    permissions: Nil,
-    integration_types: List(Nil),
-    contexts: List(Nil),
-    nsfw: Bool,
-  )
 }
 
 pub type MessageHandler {
