@@ -9,7 +9,8 @@ import internal/type_utils
 pub opaque type AplicationCommand {
   ChatInput(signature: ChatInputSignature, handler: ChatInputHandler)
   ChatInputGroup(
-    signature: ChatInputSignature,
+    name: String,
+    description: String,
     subcommands: List(
       type_utils.Or(ChatInputSubcommandGroup, ChatInputSubcommand),
     ),
@@ -18,12 +19,15 @@ pub opaque type AplicationCommand {
   Message(signature: MessageSignature, handler: MessageHandler)
 }
 
-pub fn chat_input(signature: ChatInputSignature, handler: ChatInputHandler) {
+pub fn chat_input(
+  signature signature: ChatInputSignature,
+  handler handler: ChatInputHandler,
+) {
   ChatInput(signature:, handler:)
 }
 
-pub fn chat_input_group(signature: ChatInputSignature) {
-  ChatInputGroup(signature:, subcommands: [])
+pub fn chat_input_group(name: String, description: String) {
+  ChatInputGroup(name:, description:, subcommands: [])
 }
 
 pub fn add_subcommand_group(
@@ -31,7 +35,7 @@ pub fn add_subcommand_group(
   subcommand_group: ChatInputSubcommandGroup,
 ) {
   case command {
-    ChatInputGroup(_, subcommands) ->
+    ChatInputGroup(_, _, subcommands) ->
       ChatInputGroup(..command, subcommands: [
         type_utils.A(subcommand_group),
         ..subcommands
@@ -45,7 +49,7 @@ pub fn add_subcommand(
   subcommand: ChatInputSubcommand,
 ) {
   case command {
-    ChatInputGroup(_, subcommands) ->
+    ChatInputGroup(_, _, subcommands) ->
       ChatInputGroup(..command, subcommands: [
         type_utils.B(subcommand),
         ..subcommands
@@ -64,28 +68,41 @@ pub fn message(signature: MessageSignature, handler: MessageHandler) {
 
 pub type ChatInputSubcommandGroup {
   ChatInputSubcommandGroup(
-    signature: ChatInputSignature,
+    name: String,
+    description: String,
     subcommands: List(ChatInputSubcommand),
   )
 }
 
 pub fn subcommand_group(
-  signature: ChatInputSignature,
+  name: String,
+  description: String,
   subcommands: List(ChatInputSubcommand),
 ) {
-  ChatInputSubcommandGroup(signature:, subcommands:)
+  ChatInputSubcommandGroup(name:, description:, subcommands:)
 }
 
 pub opaque type ChatInputSubcommand {
   ChatInputSubcommand(signature: ChatInputSignature, handler: ChatInputHandler)
 }
 
-pub fn subcommand(signature: ChatInputSignature, handler: ChatInputHandler) {
+pub fn subcommand(
+  signature signature: ChatInputSignature,
+  handler handler: ChatInputHandler,
+) {
   ChatInputSubcommand(signature:, handler:)
 }
 
 pub type ChatInputSignature {
-  ChatInputSignature
+  ChatInputSignature(
+    name: String,
+    description: String,
+    options: List(Nil),
+    permissions: Nil,
+    integration_types: List(Nil),
+    contexts: List(Nil),
+    nsfw: Bool,
+  )
 }
 
 pub type ChatInputHandler =
@@ -104,7 +121,14 @@ pub type ChatInputOptionValue {
 }
 
 pub type UserSignature {
-  UserSignature
+  UserSignature(
+    name: String,
+    description: String,
+    permissions: Nil,
+    integration_types: List(Nil),
+    contexts: List(Nil),
+    nsfw: Bool,
+  )
 }
 
 pub type UserHandler {
@@ -112,7 +136,15 @@ pub type UserHandler {
 }
 
 pub type MessageSignature {
-  MessageSignature
+  MessageSignature(
+    name: String,
+    description: String,
+    options: List(Nil),
+    permissions: Nil,
+    integration_types: List(Nil),
+    contexts: List(Nil),
+    nsfw: Bool,
+  )
 }
 
 pub type MessageHandler {
