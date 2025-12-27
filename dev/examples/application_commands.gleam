@@ -15,18 +15,6 @@ pub fn chat_input() {
   "Hello " <> name <> "!"
 }
 
-pub fn something() {
-  // --- /hello <string>
-  let signature =
-    command.signature("hello", "greets a name")
-    |> command.set_options([Nil])
-
-  use _i, opts <- command.chat_input(signature:)
-  let assert Ok(StrVal(name)) = dict.get(opts, "name")
-
-  "Hello " <> name <> "!"
-}
-
 pub fn chat_input_group() {
   command.chat_input_group("hello", "greeting commands")
   |> command.add_subcommand_group(
