@@ -50,7 +50,7 @@ fn times_subcommand() {
 
   let times = case times_opt {
     Ok(IntVal(val)) -> val
-    _ -> 1
+    _ -> 2
   }
 
   list.repeat("Hello World!", times:)
