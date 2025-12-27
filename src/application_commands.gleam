@@ -116,8 +116,10 @@ pub fn signature(name: String, description: String) {
   )
 }
 
+/// According to https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
 const min_string_length = 0
 
+/// According to https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
 const min_string_lenth = 6000
 
 /// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER
