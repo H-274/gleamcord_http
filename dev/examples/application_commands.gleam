@@ -1,4 +1,4 @@
-import application_commands as command
+import application_commands.{IntegerValue as IntVal, StringValue as StrVal} as command
 import gleam/dict
 import gleam/list
 import gleam/string
@@ -10,7 +10,7 @@ pub fn chat_input() {
     |> command.set_options([Nil])
 
   use _i, opts <- command.chat_input(signature:)
-  let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
+  let assert Ok(StrVal(name)) = dict.get(opts, "name")
 
   "Hello " <> name <> "!"
 }
@@ -22,7 +22,7 @@ pub fn something() {
     |> command.set_options([Nil])
 
   use _i, opts <- command.chat_input(signature:)
-  let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
+  let assert Ok(StrVal(name)) = dict.get(opts, "name")
 
   "Hello " <> name <> "!"
 }
@@ -49,9 +49,14 @@ fn times_subcommand() {
     |> command.set_options([Nil])
 
   use _i, opts <- command.subcommand(signature:)
-  let assert Ok(command.IntegerValue(times)) = dict.get(opts, "times")
+  let times_opt = dict.get(opts, "times")
 
-  list.repeat("Hello World!", times:)
+  let times = case times_opt {
+    Ok(IntVal(val)) -> val
+    _ -> 1
+  }
+
+  list.repeat("Hello World!", times)
   |> string.join("\n")
 }
 
@@ -69,7 +74,7 @@ fn name_subcommand() {
     |> command.set_options([Nil])
 
   use _i, opts <- command.subcommand(signature:)
-  let assert Ok(command.StringValue(name)) = dict.get(opts, "name")
+  let assert Ok(StrVal(name)) = dict.get(opts, "name")
 
   "Hello " <> name <> "!"
 }
