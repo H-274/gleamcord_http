@@ -2,6 +2,7 @@
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
 
 import gleam/dict.{type Dict}
+import gleam/list
 import gleam/option.{type Option}
 import internal/type_utils
 
@@ -482,6 +483,8 @@ pub fn number_max_value(option: CommandOption, max_value: Float) {
 }
 
 pub fn set_options(signature: Signature, options: List(CommandOption)) {
+  assert list.length(options) <= 25
+
   Signature(..signature, options:)
 }
 
