@@ -7,7 +7,11 @@ pub fn chat_input() {
   // --- /hello <string>
   let signature =
     command.signature("hello", "greets a name")
-    |> command.set_options([Nil])
+    |> command.set_options([
+      command.string_option(name: "name", desc: "name to greet")
+      |> command.min_length(1)
+      |> command.max_length(64),
+    ])
 
   use _i, opts <- command.chat_input(signature:)
   let assert Ok(StrVal(name)) = dict.get(opts, "name")
@@ -34,7 +38,11 @@ pub fn chat_input_group() {
 fn times_subcommand() {
   let signature =
     command.signature("times", "greets the world a number of times")
-    |> command.set_options([Nil])
+    |> command.set_options([
+      command.integer_option(name: "times", desc: "times to say hello")
+      |> command.integer_min_value(1)
+      |> command.integer_max_value(5),
+    ])
 
   use _i, opts <- command.subcommand(signature:)
   let times_opt = dict.get(opts, "times")
@@ -59,7 +67,11 @@ fn caps_subcommand(hello_world) {
 fn name_subcommand() {
   let signature =
     command.signature("name", "greet a name")
-    |> command.set_options([Nil])
+    |> command.set_options([
+      command.string_option(name: "name", desc: "name to greet")
+      |> command.min_length(1)
+      |> command.max_length(64),
+    ])
 
   use _i, opts <- command.subcommand(signature:)
   let assert Ok(StrVal(name)) = dict.get(opts, "name")
