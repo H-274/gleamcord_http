@@ -6,7 +6,7 @@ import gleam/string
 pub fn chat_input() {
   // --- /hello <string>
   let signature =
-    command.signature("hello", "greets a name")
+    command.signature(name: "hello", desc: "greets a name")
     |> command.set_options([
       command.string_option(name: "name", desc: "name to greet")
       |> command.min_length(1)
@@ -20,9 +20,9 @@ pub fn chat_input() {
 }
 
 pub fn chat_input_group() {
-  command.chat_input_group("hello", "greeting commands")
+  command.chat_input_group(name: "hello", desc: "greeting commands")
   |> command.add_subcommand_group(
-    command.subcommand_group("world", "greet the world", [
+    command.subcommand_group(name: "world", desc: "greet the world", sub: [
       // --- /hello world times [int]
       times_subcommand(),
       // --- /hello world caps
@@ -37,7 +37,7 @@ pub fn chat_input_group() {
 
 fn times_subcommand() {
   let signature =
-    command.signature("times", "greets the world a number of times")
+    command.signature(name: "times", desc: "greets the world a number of times")
     |> command.set_options([
       command.integer_option(name: "times", desc: "times to say hello")
       |> command.integer_min_value(1)
@@ -52,12 +52,13 @@ fn times_subcommand() {
     _ -> 1
   }
 
-  list.repeat("Hello World!", times)
+  list.repeat("Hello World!", times:)
   |> string.join("\n")
 }
 
 fn caps_subcommand(hello_world) {
-  let signature = command.signature("caps", "greets the world in all caps")
+  let signature =
+    command.signature(name: "caps", desc: "greets the world in all caps")
 
   use _i, _opts <- command.subcommand(signature:)
 
@@ -66,7 +67,7 @@ fn caps_subcommand(hello_world) {
 
 fn name_subcommand() {
   let signature =
-    command.signature("name", "greet a name")
+    command.signature(name: "name", desc: "greet a name")
     |> command.set_options([
       command.string_option(name: "name", desc: "name to greet")
       |> command.min_length(1)

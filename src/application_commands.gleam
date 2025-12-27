@@ -26,7 +26,7 @@ pub fn chat_input(
   ChatInput(signature:, handler:)
 }
 
-pub fn chat_input_group(name: String, description: String) {
+pub fn chat_input_group(name name: String, desc description: String) {
   ChatInputGroup(name:, description:, subcommands: [])
 }
 
@@ -58,11 +58,11 @@ pub fn add_subcommand(
   }
 }
 
-pub fn user(signature: Signature, handler: UserHandler) {
+pub fn user(signature signature: Signature, handler handler: UserHandler) {
   User(signature:, handler:)
 }
 
-pub fn message(signature: Signature, handler: MessageHandler) {
+pub fn message(signature signature: Signature, handler handler: MessageHandler) {
   Message(signature:, handler:)
 }
 
@@ -75,9 +75,9 @@ pub opaque type ChatInputSubcommandGroup {
 }
 
 pub fn subcommand_group(
-  name: String,
-  description: String,
-  subcommands: List(ChatInputSubcommand),
+  name name: String,
+  desc description: String,
+  sub subcommands: List(ChatInputSubcommand),
 ) {
   ChatInputSubcommandGroup(name:, description:, subcommands:)
 }
@@ -105,7 +105,7 @@ pub opaque type Signature {
   )
 }
 
-pub fn signature(name: String, description: String) {
+pub fn signature(name name: String, desc description: String) {
   Signature(
     name:,
     description:,
