@@ -22,7 +22,7 @@ pub fn chat_input_group() {
       // --- /hello world times [int]
       times_subcommand(),
       // --- /hello world caps
-      caps_subcommand(),
+      caps_subcommand("Hello World!"),
     ]),
   )
   |> command.add_subcommand(
@@ -48,12 +48,12 @@ fn times_subcommand() {
   |> string.join("\n")
 }
 
-fn caps_subcommand() {
+fn caps_subcommand(hello_world) {
   let signature = command.signature("caps", "greets the world in all caps")
 
   use _i, _opts <- command.subcommand(signature:)
 
-  string.uppercase("Hello World!")
+  string.uppercase(hello_world)
 }
 
 fn name_subcommand() {
