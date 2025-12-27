@@ -40,8 +40,9 @@ fn times_subcommand() {
     command.signature(name: "times", desc: "greets the world a number of times")
     |> command.set_options([
       command.integer_option(name: "times", desc: "times to say hello")
-      |> command.integer_min_value(1)
-      |> command.integer_max_value(5),
+      |> command.integer_min_value(2)
+      |> command.integer_max_value(5)
+      |> command.required(False),
     ])
 
   use _i, opts <- command.subcommand(signature:)
