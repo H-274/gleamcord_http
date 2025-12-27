@@ -19,7 +19,7 @@ pub fn chat_input_group() {
   command.chat_input_group("hello", "greeting commands")
   |> command.add_subcommand_group(
     command.subcommand_group("world", "greet the world", [
-      // --- /hello world times <int>
+      // --- /hello world times [int]
       times_subcommand(),
       // --- /hello world caps
       caps_subcommand(),
