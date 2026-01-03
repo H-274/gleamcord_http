@@ -12,54 +12,26 @@ pub fn chat_input() {
   "Pong!"
 }
 
-pub fn colour_picker() {
-  let signature =
-    command.signature(name: "colours", desc: "pick your fav. colour")
-  let opts = [
-    command.string_option(name: "colour", desc: "your fav colour")
-    |> command.string_choices([
-      #("Red", "#ff0000"),
-      #("Green", "#00ff00"),
-      #("Blue", "#0000ff"),
-      #("Other", "#7985e2"),
-    ]),
-  ]
-
-  use _i, opts <- command.chat_input(signature:, opts:)
-  let assert Ok(StrVal(colour)) = dict.get(opts, "colour")
-
-  "You picked the value: `" <> colour <> "` !"
-}
-
-pub fn words() {
-  let signature = command.signature(name: "words", desc: "write a word")
-  let opts = [
-    command.string_option(name: "word", desc: "any word")
-    |> command.string_autocomplete(fn(_i, val) {
-      ["timeline", "times", "tinker"]
-      |> list.filter(string.starts_with(_, string.lowercase(val)))
-      |> list.map(fn(x) { #(x, x) })
-    }),
-  ]
-
-  use _i, opts <- command.chat_input(signature:, opts:)
-  let assert Ok(StrVal(word)) = dict.get(opts, "word")
-
-  "You picked the word: `" <> word <> "` !"
-}
-
 pub fn chat_input_group() {
-  command.chat_input_group(name: "hello", desc: "greeting commands")
+  command.chat_input_group(name: "demo", desc: "demonstration commands")
   |> command.add_subcommand_group(
-    command.subcommand_group(name: "world", desc: "greet the world", sub: [
-      // --- /hello world times [int]
+    command.subcommand_group(name: "hello", desc: "greet the world", sub: [
+      // --- /demo hello times [int]
       times_subcommand(),
-      // --- /hello world caps
+      // --- /demo hello caps
       caps_subcommand("Hello World!"),
     ]),
   )
   |> command.add_subcommand(
-    // --- /hello name <string>
+    // --- /demo colours <Red|Green|Blue|Other>
+    colour_picker_subcommand(),
+  )
+  |> command.add_subcommand(
+    // --- /demo words <string>
+    words_subcommand(),
+  )
+  |> command.add_subcommand(
+    // --- /demo name <string>
     name_subcommand(),
   )
 }
@@ -91,6 +63,42 @@ fn caps_subcommand(hello_world) {
   use _i, _opts <- command.subcommand(signature:, opts: [])
 
   string.uppercase(hello_world)
+}
+
+fn colour_picker_subcommand() {
+  let signature =
+    command.signature(name: "colours", desc: "pick your fav. colour")
+  let opts = [
+    command.string_option(name: "colour", desc: "your fav colour")
+    |> command.string_choices([
+      #("Red", "#ff0000"),
+      #("Green", "#00ff00"),
+      #("Blue", "#0000ff"),
+      #("Other", "#7985e2"),
+    ]),
+  ]
+
+  use _i, opts <- command.subcommand(signature:, opts:)
+  let assert Ok(StrVal(colour)) = dict.get(opts, "colour")
+
+  "You picked the value: `" <> colour <> "` !"
+}
+
+fn words_subcommand() {
+  let signature = command.signature(name: "words", desc: "write a word")
+  let opts = [
+    command.string_option(name: "word", desc: "any word")
+    |> command.string_autocomplete(fn(_i, partial) {
+      ["timeline", "times", "tinker"]
+      |> list.filter(string.starts_with(_, string.lowercase(partial)))
+      |> list.map(fn(x) { #(x, x) })
+    }),
+  ]
+
+  use _i, opts <- command.subcommand(signature:, opts:)
+  let assert Ok(StrVal(word)) = dict.get(opts, "word")
+
+  "You picked the word: `" <> word <> "` !"
 }
 
 fn name_subcommand() {
