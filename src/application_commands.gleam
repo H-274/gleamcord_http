@@ -1,5 +1,7 @@
 //// Based on:
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
+//// 
+//// TODO: Investigate merging chat input command and chat input subcommands to allow easily changing a subcommand to a command and vice-versa
 
 import gleam/dict.{type Dict}
 import gleam/list
