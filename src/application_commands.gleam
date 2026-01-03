@@ -148,7 +148,7 @@ pub opaque type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    choices: Option(List(String)),
+    choices: Option(List(#(String, String))),
     min_length: Option(Int),
     max_length: Option(Int),
     autocomplete: Option(Nil),
@@ -157,7 +157,7 @@ pub opaque type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    choices: Option(List(Int)),
+    choices: Option(List(#(String, Int))),
     min_value: Option(Int),
     max_value: Option(Int),
     autocomplete: Option(Nil),
@@ -176,7 +176,7 @@ pub opaque type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    choices: Option(List(Float)),
+    choices: Option(List(#(String, Float))),
     min_value: Option(Float),
     max_value: Option(Float),
     autocomplete: Option(Nil),
@@ -290,7 +290,7 @@ pub fn max_length(option: CommandOption, max_length: Int) {
   }
 }
 
-pub fn string_choices(option: CommandOption, choices: List(String)) {
+pub fn string_choices(option: CommandOption, choices: List(#(String, String))) {
   assert !list.is_empty(choices) as "Choices cannot be empty"
 
   case option {
@@ -344,7 +344,7 @@ pub fn integer_max_value(option: CommandOption, max_value: Int) {
   }
 }
 
-pub fn integer_choices(option: CommandOption, choices: List(Int)) {
+pub fn integer_choices(option: CommandOption, choices: List(#(String, Int))) {
   assert !list.is_empty(choices) as "Choices cannot be empty"
 
   case option {
@@ -398,7 +398,7 @@ pub fn number_max_value(option: CommandOption, max_value: Float) {
   }
 }
 
-pub fn number_choices(option: CommandOption, choices: List(Float)) {
+pub fn number_choices(option: CommandOption, choices: List(#(String, Float))) {
   assert !list.is_empty(choices) as "Choices cannot be empty"
 
   case option {

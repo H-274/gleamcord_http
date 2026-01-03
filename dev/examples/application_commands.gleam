@@ -4,18 +4,31 @@ import gleam/list
 import gleam/string
 
 pub fn chat_input() {
-  // --- /hello <string>
-  let signature = command.signature(name: "hello", desc: "greets a name")
+  // --- /ping
+  let signature = command.signature(name: "ping", desc: "pongs")
+
+  use _i, _opts <- command.chat_input(signature:, opts: [])
+
+  "Pong!"
+}
+
+pub fn colour_picker() {
+  let signature =
+    command.signature(name: "colours", desc: "pick your fav. colour")
   let opts = [
-    command.string_option(name: "name", desc: "name to greet")
-    |> command.min_length(1)
-    |> command.max_length(64),
+    command.string_option(name: "colour", desc: "your fav colour")
+    |> command.string_choices([
+      #("Red", "#ff0000"),
+      #("Green", "#00ff00"),
+      #("Blue", "#0000ff"),
+      #("Other", "#7985e2"),
+    ]),
   ]
 
   use _i, opts <- command.chat_input(signature:, opts:)
-  let assert Ok(StrVal(name)) = dict.get(opts, "name")
+  let assert Ok(StrVal(colour)) = dict.get(opts, "colour")
 
-  "Hello " <> name <> "!"
+  "You picked the value: `" <> colour <> "` !"
 }
 
 pub fn chat_input_group() {
