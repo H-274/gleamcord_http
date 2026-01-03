@@ -45,9 +45,7 @@ fn times_subcommand() {
   ]
 
   use _i, opts <- command.subcommand(signature:, opts:)
-  let times_opt = dict.get(opts, "times")
-
-  let times = case times_opt {
+  let times = case dict.get(opts, "times") {
     Ok(IntVal(val)) -> val
     _ -> 2
   }
