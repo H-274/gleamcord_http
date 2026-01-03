@@ -31,6 +31,23 @@ pub fn colour_picker() {
   "You picked the value: `" <> colour <> "` !"
 }
 
+pub fn words() {
+  let signature = command.signature(name: "words", desc: "write a word")
+  let opts = [
+    command.string_option(name: "word", desc: "any word")
+    |> command.string_autocomplete(fn(_i, val) {
+      ["timeline", "times", "tinker"]
+      |> list.filter(string.starts_with(_, string.lowercase(val)))
+      |> list.map(fn(x) { #(x, x) })
+    }),
+  ]
+
+  use _i, opts <- command.chat_input(signature:, opts:)
+  let assert Ok(StrVal(word)) = dict.get(opts, "word")
+
+  "You picked the word: `" <> word <> "` !"
+}
+
 pub fn chat_input_group() {
   command.chat_input_group(name: "hello", desc: "greeting commands")
   |> command.add_subcommand_group(

@@ -151,7 +151,7 @@ pub opaque type CommandOption {
     choices: Option(List(#(String, String))),
     min_length: Option(Int),
     max_length: Option(Int),
-    autocomplete: Option(Nil),
+    autocomplete: Option(Autocomplete(String)),
   )
   IntegerOption(
     name: String,
@@ -160,7 +160,7 @@ pub opaque type CommandOption {
     choices: Option(List(#(String, Int))),
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: Option(Nil),
+    autocomplete: Option(Autocomplete(Int)),
   )
   BooleanOption(name: String, description: String, required: Bool)
   UserOption(name: String, description: String, required: Bool)
@@ -179,10 +179,13 @@ pub opaque type CommandOption {
     choices: Option(List(#(String, Float))),
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: Option(Nil),
+    autocomplete: Option(Autocomplete(Float)),
   )
   AttachmentOption(name: String, description: String, required: Bool)
 }
+
+pub type Autocomplete(val) =
+  fn(Nil, val) -> List(#(String, val))
 
 pub fn string_option(name name: String, desc description: String) {
   StringOption(
@@ -304,7 +307,10 @@ pub fn string_choices(option: CommandOption, choices: List(#(String, String))) {
   }
 }
 
-pub fn string_autocomplete(option: CommandOption, autocomplete: Nil) {
+pub fn string_autocomplete(
+  option: CommandOption,
+  autocomplete: Autocomplete(String),
+) {
   case option {
     StringOption(_, _, _, choices, _, _, _) -> {
       assert option.is_none(choices)
@@ -358,7 +364,10 @@ pub fn integer_choices(option: CommandOption, choices: List(#(String, Int))) {
   }
 }
 
-pub fn integer_autocomplete(option: CommandOption, autocomplete: Nil) {
+pub fn integer_autocomplete(
+  option: CommandOption,
+  autocomplete: Autocomplete(Int),
+) {
   case option {
     IntegerOption(_, _, _, choices, _, _, _) -> {
       assert option.is_none(choices)
@@ -412,7 +421,10 @@ pub fn number_choices(option: CommandOption, choices: List(#(String, Float))) {
   }
 }
 
-pub fn number_autocomplete(option: CommandOption, autocomplete: Nil) {
+pub fn number_autocomplete(
+  option: CommandOption,
+  autocomplete: Autocomplete(Float),
+) {
   case option {
     NumberOption(_, _, _, choices, _, _, _) -> {
       assert option.is_none(choices)
