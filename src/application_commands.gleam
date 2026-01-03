@@ -7,7 +7,11 @@ import gleam/option.{type Option}
 import internal/type_utils
 
 pub opaque type AplicationCommand {
-  ChatInput(signature: Signature, handler: ChatInputHandler)
+  ChatInput(
+    signature: Signature,
+    options: List(CommandOption),
+    handler: ChatInputHandler,
+  )
   ChatInputGroup(
     name: String,
     description: String,
@@ -21,9 +25,10 @@ pub opaque type AplicationCommand {
 
 pub fn chat_input(
   signature signature: Signature,
+  opts options: List(CommandOption),
   handler handler: ChatInputHandler,
 ) {
-  ChatInput(signature:, handler:)
+  ChatInput(signature:, options:, handler:)
 }
 
 pub fn chat_input_group(name name: String, desc description: String) {
@@ -83,21 +88,25 @@ pub fn subcommand_group(
 }
 
 pub opaque type ChatInputSubcommand {
-  ChatInputSubcommand(signature: Signature, handler: ChatInputHandler)
+  ChatInputSubcommand(
+    signature: Signature,
+    options: List(CommandOption),
+    handler: ChatInputHandler,
+  )
 }
 
 pub fn subcommand(
   signature signature: Signature,
+  opts options: List(CommandOption),
   handler handler: ChatInputHandler,
 ) {
-  ChatInputSubcommand(signature:, handler:)
+  ChatInputSubcommand(signature:, options:, handler:)
 }
 
 pub opaque type Signature {
   Signature(
     name: String,
     description: String,
-    options: List(CommandOption),
     permissions: Nil,
     integration_types: List(Nil),
     contexts: List(Nil),
@@ -109,7 +118,6 @@ pub fn signature(name name: String, desc description: String) {
   Signature(
     name:,
     description:,
-    options: [],
     permissions: Nil,
     integration_types: [Nil],
     contexts: [Nil, Nil],
@@ -414,13 +422,6 @@ pub fn number_autocomplete(option: CommandOption, autocomplete: Nil) {
 
     _ -> panic as "Expected `option` to be of value `NumberOption`"
   }
-}
-
-pub fn set_options(signature: Signature, options: List(CommandOption)) {
-  assert list.length(options) <= 25
-    as "A command can contain at most 25 options"
-
-  Signature(..signature, options:)
 }
 
 pub fn set_permissions(signature: Signature, permissions: Nil) {
