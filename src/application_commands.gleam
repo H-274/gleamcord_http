@@ -272,7 +272,7 @@ pub fn min_length(option: CommandOption, min_length: Int) {
     StringOption(_, _, _, _, _, _, _) ->
       StringOption(..option, min_length: option.Some(min_length))
 
-    _ -> panic as "Expected `option` to be of value `StringOption`"
+    _ -> panic as "Expected `option` to be of variant `StringOption`"
   }
 }
 
@@ -286,7 +286,7 @@ pub fn max_length(option: CommandOption, max_length: Int) {
     StringOption(_, _, _, _, _, _, _) ->
       StringOption(..option, max_length: option.Some(max_length))
 
-    _ -> panic as "Expected `option` to be of value `StringOption`"
+    _ -> panic as "Expected `option` to be of variant `StringOption`"
   }
 }
 
@@ -300,7 +300,7 @@ pub fn string_choices(option: CommandOption, choices: List(String)) {
       StringOption(..option, choices: option.Some(choices))
     }
 
-    _ -> panic as "Expected `option` to be of value `StringOption`"
+    _ -> panic as "Expected `option` to be of variant `StringOption`"
   }
 }
 
@@ -312,7 +312,7 @@ pub fn string_autocomplete(option: CommandOption, autocomplete: Nil) {
       StringOption(..option, autocomplete: option.Some(autocomplete))
     }
 
-    _ -> panic as "Expected `option` to be of value `StringOption`"
+    _ -> panic as "Expected `option` to be of variant `StringOption`"
   }
 }
 
@@ -326,7 +326,7 @@ pub fn integer_min_value(option: CommandOption, min_value: Int) {
     IntegerOption(_, _, _, _, _, _, _) ->
       IntegerOption(..option, min_value: option.Some(min_value))
 
-    _ -> panic as "Expected `option` to be of value `IntegerOption`"
+    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
   }
 }
 
@@ -340,7 +340,7 @@ pub fn integer_max_value(option: CommandOption, max_value: Int) {
     IntegerOption(_, _, _, _, _, _, _) ->
       IntegerOption(..option, max_value: option.Some(max_value))
 
-    _ -> panic as "Expected `option` to be of value `IntegerOption`"
+    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
   }
 }
 
@@ -354,7 +354,7 @@ pub fn integer_choices(option: CommandOption, choices: List(Int)) {
       IntegerOption(..option, choices: option.Some(choices))
     }
 
-    _ -> panic as "Expected `option` to be of value `IntegerOption`"
+    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
   }
 }
 
@@ -366,7 +366,7 @@ pub fn integer_autocomplete(option: CommandOption, autocomplete: Nil) {
       IntegerOption(..option, autocomplete: option.Some(autocomplete))
     }
 
-    _ -> panic as "Expected `option` to be of value `IntegerOption`"
+    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
   }
 }
 
@@ -380,7 +380,7 @@ pub fn number_min_value(option: CommandOption, min_value: Float) {
     NumberOption(_, _, _, _, _, _, _) ->
       NumberOption(..option, min_value: option.Some(min_value))
 
-    _ -> panic as "Expected `option` to be of value `NumberOption`"
+    _ -> panic as "Expected `option` to be of variant `NumberOption`"
   }
 }
 
@@ -394,7 +394,7 @@ pub fn number_max_value(option: CommandOption, max_value: Float) {
     NumberOption(_, _, _, _, _, _, _) ->
       NumberOption(..option, max_value: option.Some(max_value))
 
-    _ -> panic as "Expected `option` to be of value `NumberOption`"
+    _ -> panic as "Expected `option` to be of variant `NumberOption`"
   }
 }
 
@@ -408,7 +408,7 @@ pub fn number_choices(option: CommandOption, choices: List(Float)) {
       NumberOption(..option, choices: option.Some(choices))
     }
 
-    _ -> panic as "Expected `option` to be of value `NumberOption`"
+    _ -> panic as "Expected `option` to be of variant `NumberOption`"
   }
 }
 
@@ -420,7 +420,7 @@ pub fn number_autocomplete(option: CommandOption, autocomplete: Nil) {
       NumberOption(..option, autocomplete: option.Some(autocomplete))
     }
 
-    _ -> panic as "Expected `option` to be of value `NumberOption`"
+    _ -> panic as "Expected `option` to be of variant `NumberOption`"
   }
 }
 
