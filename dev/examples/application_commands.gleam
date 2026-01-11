@@ -2,6 +2,7 @@ import application_commands.{IntegerValue as IntVal, StringValue as StrVal} as c
 import gleam/dict
 import gleam/list
 import gleam/string
+import interaction
 
 pub fn chat_input() {
   // --- /ping
@@ -95,7 +96,8 @@ fn words_subcommand() {
     }),
   ]
 
-  use _i, opts <- command.subcommand(signature:, opts:)
+  use i, opts <- command.subcommand(signature:, opts:)
+  let assert interaction.ApplicationCommand(data: _data, ..) = i
   let assert Ok(StrVal(word)) = dict.get(opts, "word")
 
   "You picked the word: `" <> word <> "` !"

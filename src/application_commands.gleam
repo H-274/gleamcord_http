@@ -6,6 +6,7 @@
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option.{type Option}
+import interaction.{type Interaction}
 import internal/type_utils
 
 pub opaque type AplicationCommand {
@@ -42,7 +43,7 @@ pub fn add_subcommand_group(
   subcommand_group: ChatInputSubcommandGroup,
 ) {
   case command {
-    ChatInputGroup(_, _, subcommands) ->
+    ChatInputGroup(subcommands: subcommands, ..) ->
       ChatInputGroup(..command, subcommands: [
         type_utils.A(subcommand_group),
         ..subcommands
@@ -56,7 +57,7 @@ pub fn add_subcommand(
   subcommand: ChatInputSubcommand,
 ) {
   case command {
-    ChatInputGroup(_, _, subcommands) ->
+    ChatInputGroup(subcommands: subcommands, ..) ->
       ChatInputGroup(..command, subcommands: [
         type_utils.B(subcommand),
         ..subcommands
@@ -255,15 +256,15 @@ pub fn attachment_option(name name: String, desc description: String) {
 
 pub fn required(option: CommandOption, required: Bool) {
   case option {
-    StringOption(_, _, _, _, _, _, _) -> StringOption(..option, required:)
-    IntegerOption(_, _, _, _, _, _, _) -> IntegerOption(..option, required:)
-    BooleanOption(_, _, _) -> BooleanOption(..option, required:)
-    UserOption(_, _, _) -> UserOption(..option, required:)
-    ChannelOption(_, _, _, _) -> ChannelOption(..option, required:)
-    RoleOption(_, _, _) -> RoleOption(..option, required:)
-    MentionableOption(_, _, _) -> MentionableOption(..option, required:)
-    NumberOption(_, _, _, _, _, _, _) -> NumberOption(..option, required:)
-    AttachmentOption(_, _, _) -> AttachmentOption(..option, required:)
+    StringOption(..) -> StringOption(..option, required:)
+    IntegerOption(..) -> IntegerOption(..option, required:)
+    BooleanOption(..) -> BooleanOption(..option, required:)
+    UserOption(..) -> UserOption(..option, required:)
+    ChannelOption(..) -> ChannelOption(..option, required:)
+    RoleOption(..) -> RoleOption(..option, required:)
+    MentionableOption(..) -> MentionableOption(..option, required:)
+    NumberOption(..) -> NumberOption(..option, required:)
+    AttachmentOption(..) -> AttachmentOption(..option, required:)
   }
 }
 
@@ -274,7 +275,7 @@ pub fn min_length(option: CommandOption, min_length: Int) {
     as "`min_length` must be less than or equal to the maximum string length of 6000"
 
   case option {
-    StringOption(_, _, _, _, _, _, _) ->
+    StringOption(..) ->
       StringOption(..option, min_length: option.Some(min_length))
 
     _ -> panic as "Expected `option` to be of variant `StringOption`"
@@ -288,7 +289,7 @@ pub fn max_length(option: CommandOption, max_length: Int) {
     as "`max_length` must be smaller than or equal to the maximum string length of 6000"
 
   case option {
-    StringOption(_, _, _, _, _, _, _) ->
+    StringOption(..) ->
       StringOption(..option, max_length: option.Some(max_length))
 
     _ -> panic as "Expected `option` to be of variant `StringOption`"
@@ -299,7 +300,7 @@ pub fn string_choices(option: CommandOption, choices: List(#(String, String))) {
   assert !list.is_empty(choices) as "Choices cannot be empty"
 
   case option {
-    StringOption(_, _, _, _, _, _, autocomplete) -> {
+    StringOption(autocomplete: autocomplete, ..) -> {
       assert option.is_none(autocomplete)
         as "An option cannot have choices if it uses autocomplete"
       StringOption(..option, choices: option.Some(choices))
@@ -314,7 +315,7 @@ pub fn string_autocomplete(
   autocomplete: Autocomplete(String),
 ) {
   case option {
-    StringOption(_, _, _, choices, _, _, _) -> {
+    StringOption(choices: choices, ..) -> {
       assert option.is_none(choices)
         as "An option cannot have autocomplete if it uses choices"
       StringOption(..option, autocomplete: option.Some(autocomplete))
@@ -331,7 +332,7 @@ pub fn integer_min_value(option: CommandOption, min_value: Int) {
     as "`min_value` must be smaller than or equal to the maximum integer value of 9_007_199_254_740_991"
 
   case option {
-    IntegerOption(_, _, _, _, _, _, _) ->
+    IntegerOption(..) ->
       IntegerOption(..option, min_value: option.Some(min_value))
 
     _ -> panic as "Expected `option` to be of variant `IntegerOption`"
@@ -345,7 +346,7 @@ pub fn integer_max_value(option: CommandOption, max_value: Int) {
     as "`max_value` must be smaller than or equal to the maximum integer value of 9_007_199_254_740_991"
 
   case option {
-    IntegerOption(_, _, _, _, _, _, _) ->
+    IntegerOption(..) ->
       IntegerOption(..option, max_value: option.Some(max_value))
 
     _ -> panic as "Expected `option` to be of variant `IntegerOption`"
@@ -356,7 +357,7 @@ pub fn integer_choices(option: CommandOption, choices: List(#(String, Int))) {
   assert !list.is_empty(choices) as "Choices cannot be empty"
 
   case option {
-    IntegerOption(_, _, _, _, _, _, autocomplete) -> {
+    IntegerOption(autocomplete: autocomplete, ..) -> {
       assert option.is_none(autocomplete)
         as "An option cannot have choices if it uses autocomplete"
       IntegerOption(..option, choices: option.Some(choices))
@@ -371,7 +372,7 @@ pub fn integer_autocomplete(
   autocomplete: Autocomplete(Int),
 ) {
   case option {
-    IntegerOption(_, _, _, choices, _, _, _) -> {
+    IntegerOption(choices: choices, ..) -> {
       assert option.is_none(choices)
         as "An option cannot have autocomplete if it uses choices"
       IntegerOption(..option, autocomplete: option.Some(autocomplete))
@@ -388,7 +389,7 @@ pub fn number_min_value(option: CommandOption, min_value: Float) {
     as "`min_value` must be bigger than or equal to the minimum integer value of 1.7976931348623157e308"
 
   case option {
-    NumberOption(_, _, _, _, _, _, _) ->
+    NumberOption(..) ->
       NumberOption(..option, min_value: option.Some(min_value))
 
     _ -> panic as "Expected `option` to be of variant `NumberOption`"
@@ -402,7 +403,7 @@ pub fn number_max_value(option: CommandOption, max_value: Float) {
     as "`max_value` must be bigger than or equal to the minimum integer value of 1.7976931348623157e308"
 
   case option {
-    NumberOption(_, _, _, _, _, _, _) ->
+    NumberOption(..) ->
       NumberOption(..option, max_value: option.Some(max_value))
 
     _ -> panic as "Expected `option` to be of variant `NumberOption`"
@@ -413,7 +414,7 @@ pub fn number_choices(option: CommandOption, choices: List(#(String, Float))) {
   assert !list.is_empty(choices) as "Choices cannot be empty"
 
   case option {
-    NumberOption(_, _, _, _, _, _, autocomplete) -> {
+    NumberOption(autocomplete: autocomplete, ..) -> {
       assert option.is_none(autocomplete)
         as "An option cannot have choices if it uses autocomplete"
       NumberOption(..option, choices: option.Some(choices))
@@ -428,7 +429,7 @@ pub fn number_autocomplete(
   autocomplete: Autocomplete(Float),
 ) {
   case option {
-    NumberOption(_, _, _, choices, _, _, _) -> {
+    NumberOption(choices: choices, ..) -> {
       assert option.is_none(choices)
         as "An option cannot have autocomplete if it uses choices"
       NumberOption(..option, autocomplete: option.Some(autocomplete))
@@ -455,7 +456,7 @@ pub fn set_nsfw(signature: Signature, nsfw: Bool) {
 }
 
 pub type ChatInputHandler =
-  fn(Nil, Dict(String, ChatInputOptionValue)) -> String
+  fn(Interaction, Dict(String, ChatInputOptionValue)) -> String
 
 pub type ChatInputOptionValue {
   StringValue(value: String)
