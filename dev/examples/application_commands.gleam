@@ -49,7 +49,7 @@ fn times_subcommand() {
 
   use _i, opts <- command.subcommand(signature:, opts:)
   let times = case dict.get(opts, "times") {
-    Ok(IntVal(val)) -> val
+    Ok(IntVal(value:, ..)) -> value
     _ -> 2
   }
 
@@ -80,7 +80,7 @@ fn colour_picker_subcommand() {
   ]
 
   use _i, opts <- command.subcommand(signature:, opts:)
-  let assert Ok(StrVal(colour)) = dict.get(opts, "colour")
+  let assert Ok(StrVal(value: colour, ..)) = dict.get(opts, "colour")
 
   "You picked the value: `" <> colour <> "` !"
 }
@@ -98,7 +98,7 @@ fn words_subcommand() {
 
   use i, opts <- command.subcommand(signature:, opts:)
   let assert interaction.ApplicationCommand(data: _data, ..) = i
-  let assert Ok(StrVal(word)) = dict.get(opts, "word")
+  let assert Ok(StrVal(value: word, ..)) = dict.get(opts, "word")
 
   "You picked the word: `" <> word <> "` !"
 }
@@ -112,7 +112,7 @@ fn name_subcommand() {
   ]
 
   use _i, opts <- command.subcommand(signature:, opts:)
-  let assert Ok(StrVal(name)) = dict.get(opts, "name")
+  let assert Ok(StrVal(value: name, ..)) = dict.get(opts, "name")
 
   "Hello " <> name <> "!"
 }

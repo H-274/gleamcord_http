@@ -459,15 +459,15 @@ pub type ChatInputHandler =
   fn(Interaction, Dict(String, ChatInputOptionValue)) -> String
 
 pub type ChatInputOptionValue {
-  StringValue(value: String)
-  IntegerValue(value: Int)
-  BooleanValue(value: Bool)
-  UserValue(value: Int)
-  ChannelValue(value: Int)
-  RoleValue(value: Int)
-  MentionableValue(value: Int)
-  NumberValue(value: Float)
-  AttachmentValue(value: Int)
+  StringValue(name: String, value: String, focused: Bool)
+  IntegerValue(name: String, value: Int, focused: Bool)
+  BooleanValue(name: String, value: Bool, focused: Bool)
+  UserValue(name: String, value: Int, focused: Bool)
+  ChannelValue(name: String, value: Int, focused: Bool)
+  RoleValue(name: String, value: Int, focused: Bool)
+  MentionableValue(name: String, value: Int, focused: Bool)
+  NumberValue(name: String, value: Float, focused: Bool)
+  AttachmentValue(name: String, value: Int, focused: Bool)
 }
 
 pub type UserHandler {
