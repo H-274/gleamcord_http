@@ -149,12 +149,11 @@ pub fn modal_submit_decoder() -> decode.Decoder(ModalSubmit) {
   decode.success(ModalSubmit(custom_id:, components:, resolved:))
 }
 
-// TODO: Validate data structure
 pub type Resolved {
   Resolved(
     users: Option(List(#(String, Dynamic))),
     members: Option(List(#(String, Dynamic))),
-    guilds: Option(List(#(String, Dynamic))),
+    roles: Option(List(#(String, Dynamic))),
     channels: Option(List(#(String, Dynamic))),
     messages: Option(List(#(String, Dynamic))),
     attachments: Option(List(#(String, Dynamic))),
@@ -186,8 +185,8 @@ pub fn resolved_decoder() -> decode.Decoder(Resolved) {
       }),
     ),
   )
-  use guilds <- decode.optional_field(
-    "guilds",
+  use roles <- decode.optional_field(
+    "roles",
     option.None,
     decode.optional(
       decode.list({
@@ -237,7 +236,7 @@ pub fn resolved_decoder() -> decode.Decoder(Resolved) {
   decode.success(Resolved(
     users:,
     members:,
-    guilds:,
+    roles:,
     channels:,
     messages:,
     attachments:,
