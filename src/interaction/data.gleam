@@ -15,7 +15,6 @@ pub type ApplicationCommand {
     id: String,
     name: String,
     resolved: Option(Resolved),
-    options: List(Dynamic),
     guild_id: Option(String),
     target_id: Option(String),
   )
@@ -23,7 +22,6 @@ pub type ApplicationCommand {
     id: String,
     name: String,
     resolved: Option(Resolved),
-    options: List(Dynamic),
     guild_id: Option(String),
     target_id: Option(String),
   )
@@ -58,14 +56,12 @@ pub fn application_command_decoder() -> decode.Decoder(ApplicationCommand) {
         "resolved",
         decode.optional(resolved_decoder()),
       )
-      use options <- decode.field("options", decode.list(decode.dynamic))
       use guild_id <- decode.field("guild_id", decode.optional(decode.string))
       use target_id <- decode.field("target_id", decode.optional(decode.string))
       decode.success(UserApplicationCommand(
         id:,
         name:,
         resolved:,
-        options:,
         guild_id:,
         target_id:,
       ))
@@ -77,14 +73,12 @@ pub fn application_command_decoder() -> decode.Decoder(ApplicationCommand) {
         "resolved",
         decode.optional(resolved_decoder()),
       )
-      use options <- decode.field("options", decode.list(decode.dynamic))
       use guild_id <- decode.field("guild_id", decode.optional(decode.string))
       use target_id <- decode.field("target_id", decode.optional(decode.string))
       decode.success(MessageApplicationCommand(
         id:,
         name:,
         resolved:,
-        options:,
         guild_id:,
         target_id:,
       ))
@@ -104,30 +98,35 @@ pub fn application_command_decoder() -> decode.Decoder(ApplicationCommand) {
   }
 }
 
-// TODO: add missing variants
+// TODO: revisit asserting types and structure to avoid needing to pass on a dynamic type
 pub type MessageComponent {
   MessageComponent(
     custom_id: String,
     component_type: String,
+    values: Option(List(Dynamic)),
     resolved: Option(Dynamic),
   )
 }
 
 pub fn message_component_decoder() -> decode.Decoder(MessageComponent) {
-  use variant <- decode.field("type", decode.string)
-  case variant {
-    "message_component" -> {
-      use custom_id <- decode.field("custom_id", decode.string)
-      use component_type <- decode.field("component_type", decode.string)
-      use resolved <- decode.field("resolved", decode.optional(decode.dynamic))
-      decode.success(MessageComponent(custom_id:, component_type:, resolved:))
-    }
-    _ ->
-      decode.failure(
-        todo as "Zero value for MessageComponent",
-        "MessageComponent",
-      )
-  }
+  use custom_id <- decode.field("custom_id", decode.string)
+  use component_type <- decode.field("component_type", decode.string)
+  use values <- decode.optional_field(
+    "values",
+    option.None,
+    decode.optional(decode.list(decode.dynamic)),
+  )
+  use resolved <- decode.optional_field(
+    "resolved",
+    option.None,
+    decode.optional(decode.dynamic),
+  )
+  decode.success(MessageComponent(
+    custom_id:,
+    component_type:,
+    values:,
+    resolved:,
+  ))
 }
 
 pub type ModalSubmit {
