@@ -90,8 +90,10 @@ fn words_subcommand() {
   let opts = [
     command.string_option(name: "word", desc: "any word")
     |> command.string_autocomplete(fn(_i, partial) {
-      ["timeline", "times", "tinker"]
-      |> list.filter(string.starts_with(_, string.lowercase(partial)))
+      let case_adjusted_partial = string.capitalise(partial)
+
+      ["Timeline", "Times", "Tinker"]
+      |> list.filter(string.starts_with(_, case_adjusted_partial))
       |> list.map(fn(x) { #(x, x) })
     }),
   ]

@@ -188,7 +188,7 @@ pub opaque type CommandOption {
 }
 
 pub type Autocomplete(val) =
-  fn(Nil, val) -> List(#(String, val))
+  fn(Interaction, val) -> List(#(String, val))
 
 pub fn string_option(name name: String, desc description: String) {
   StringOption(
