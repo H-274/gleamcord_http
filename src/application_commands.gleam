@@ -146,24 +146,21 @@ const min_number_value = -1.7976931348623157e308
 /// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_VALUE
 const max_number_value = 1.7976931348623157e308
 
+/// According to https://docs.discord.com/developers/interactions/application-commands#application-command-object-application-command-option-structure
+const max_choice_count = 25
+
 pub opaque type CommandOption {
   StringOption(
     name: String,
     description: String,
     required: Bool,
-    choices: Option(List(#(String, String))),
-    min_length: Option(Int),
-    max_length: Option(Int),
-    autocomplete: Option(Autocomplete(String)),
+    details: StringOptionDetails,
   )
   IntegerOption(
     name: String,
     description: String,
     required: Bool,
-    choices: Option(List(#(String, Int))),
-    min_value: Option(Int),
-    max_value: Option(Int),
-    autocomplete: Option(Autocomplete(Int)),
+    details: IntegerOptionDetails,
   )
   BooleanOption(name: String, description: String, required: Bool)
   UserOption(name: String, description: String, required: Bool)
@@ -179,39 +176,96 @@ pub opaque type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    choices: Option(List(#(String, Float))),
-    min_value: Option(Float),
-    max_value: Option(Float),
-    autocomplete: Option(Autocomplete(Float)),
+    details: NumberOptionDetails,
   )
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
-pub type Autocomplete(val) =
-  fn(Interaction, val) -> List(#(String, val))
-
-pub fn string_option(name name: String, desc description: String) {
-  StringOption(
-    name:,
-    description:,
-    required: True,
-    choices: option.None,
-    min_length: option.None,
-    max_length: option.None,
-    autocomplete: option.None,
+pub type StringOptionDetails {
+  BasicStringOption
+  LengthStringOption(min_length: Option(Int), max_length: Option(Int))
+  ChoicesStringOption(choices: List(#(String, String)))
+  AutocompleteStringOption(
+    min_length: Option(Int),
+    max_length: Option(Int),
+    autocomplete: Autocomplete(String),
   )
 }
 
-pub fn integer_option(name name: String, desc description: String) {
-  IntegerOption(
-    name:,
-    description:,
-    required: True,
-    choices: option.None,
-    min_value: option.None,
-    max_value: option.None,
-    autocomplete: option.None,
+/// TODO: revisit min_len max_len branching to reduce code duplication 
+pub fn string_option(
+  name name: String,
+  desc description: String,
+  details details: StringOptionDetails,
+) -> CommandOption {
+  case details {
+    LengthStringOption(min_length:, max_length:)
+    | AutocompleteStringOption(min_length:, max_length:, ..) ->
+      case min_length, max_length {
+        option.Some(min_length), option.Some(max_length) -> {
+          assert min_length >= min_string_length
+          assert max_length <= max_string_length
+          StringOption(name:, description:, required: True, details:)
+        }
+        option.Some(min_length), _ -> {
+          assert min_length >= min_string_length
+          StringOption(name:, description:, required: True, details:)
+        }
+        _, option.Some(max_length) -> {
+          assert max_length <= max_string_length
+          StringOption(name:, description:, required: True, details:)
+        }
+        _, _ -> StringOption(name:, description:, required: True, details:)
+      }
+    ChoicesStringOption(choices:) -> {
+      assert list.length(choices) <= max_choice_count
+      StringOption(name:, description:, required: True, details:)
+    }
+    _ -> StringOption(name:, description:, required: True, details:)
+  }
+}
+
+pub type IntegerOptionDetails {
+  BasicIntegerOption
+  ValueIntegerOption(min_value: Option(Int), max_value: Option(Int))
+  ChoicesIntegerOption(choices: List(#(String, Int)))
+  AutocompleteIntegerOption(
+    min_value: Option(Int),
+    max_value: Option(Int),
+    autocomplete: Option(Autocomplete(Int)),
   )
+}
+
+pub fn integer_option(
+  name name: String,
+  desc description: String,
+  details details: IntegerOptionDetails,
+) -> CommandOption {
+  case details {
+    ValueIntegerOption(min_value:, max_value:)
+    | AutocompleteIntegerOption(min_value:, max_value:, ..) ->
+      case min_value, max_value {
+        option.Some(min_value), option.Some(max_value) -> {
+          assert min_value >= min_integer_value
+          assert max_value <= max_integer_value
+          IntegerOption(name:, description:, required: True, details:)
+        }
+        option.Some(min_value), _ -> {
+          assert min_value >= min_integer_value
+          IntegerOption(name:, description:, required: True, details:)
+        }
+        _, option.Some(max_value) -> {
+          assert max_value <= max_integer_value
+          IntegerOption(name:, description:, required: True, details:)
+        }
+        _, _ -> IntegerOption(name:, description:, required: True, details:)
+      }
+    ChoicesIntegerOption(choices:) -> {
+      assert list.length(choices) <= max_choice_count
+      IntegerOption(name:, description:, required: True, details:)
+    }
+    _ -> IntegerOption(name:, description:, required: True, details:)
+  }
 }
 
 pub fn boolean_option(name name: String, desc description: String) {
@@ -238,17 +292,51 @@ pub fn mentionable_option(name name: String, desc description: String) {
   MentionableOption(name:, description:, required: True)
 }
 
-pub fn number_option(name name: String, desc description: String) {
-  NumberOption(
-    name:,
-    description:,
-    required: True,
-    min_value: option.None,
-    max_value: option.None,
-    choices: option.None,
-    autocomplete: option.None,
+pub type NumberOptionDetails {
+  BasicNumberOption
+  ValueNumberOption(min_value: Option(Float), max_value: Option(Float))
+  ChoicesNumberOption(choices: List(#(String, Float)))
+  AutocompleteNumberOption(
+    min_value: Option(Float),
+    max_value: Option(Float),
+    autocomplete: Autocomplete(Float),
   )
 }
+
+pub fn number_option(
+  name name: String,
+  desc description: String,
+  details details: NumberOptionDetails,
+) {
+  case details {
+    ValueNumberOption(min_value:, max_value:)
+    | AutocompleteNumberOption(min_value:, max_value:, ..) ->
+      case min_value, max_value {
+        option.Some(min_value), option.Some(max_value) -> {
+          assert min_value >=. min_number_value
+          assert max_value <=. max_number_value
+          NumberOption(name:, description:, required: True, details:)
+        }
+        option.Some(min_value), _ -> {
+          assert min_value >=. min_number_value
+          NumberOption(name:, description:, required: True, details:)
+        }
+        _, option.Some(max_value) -> {
+          assert max_value <=. max_number_value
+          NumberOption(name:, description:, required: True, details:)
+        }
+        _, _ -> NumberOption(name:, description:, required: True, details:)
+      }
+    ChoicesNumberOption(choices:) -> {
+      assert list.length(choices) <= max_choice_count
+      NumberOption(name:, description:, required: True, details:)
+    }
+    _ -> NumberOption(name:, description:, required: True, details:)
+  }
+}
+
+pub type Autocomplete(val) =
+  fn(Interaction, val) -> List(#(String, val))
 
 pub fn attachment_option(name name: String, desc description: String) {
   AttachmentOption(name:, description:, required: True)
@@ -265,177 +353,6 @@ pub fn required(option: CommandOption, required: Bool) {
     MentionableOption(..) -> MentionableOption(..option, required:)
     NumberOption(..) -> NumberOption(..option, required:)
     AttachmentOption(..) -> AttachmentOption(..option, required:)
-  }
-}
-
-pub fn min_length(option: CommandOption, min_length: Int) {
-  assert min_string_length <= min_length
-    as "`min_length` must be bigger than or equal to the minimum string length of 0"
-  assert min_length <= max_string_length
-    as "`min_length` must be less than or equal to the maximum string length of 6000"
-
-  case option {
-    StringOption(..) ->
-      StringOption(..option, min_length: option.Some(min_length))
-
-    _ -> panic as "Expected `option` to be of variant `StringOption`"
-  }
-}
-
-pub fn max_length(option: CommandOption, max_length: Int) {
-  assert { min_string_length + 1 } <= max_length
-    as "`max_length` must be bigger than or equal to the minimum string length of 0, plus 1"
-  assert max_length <= max_string_length
-    as "`max_length` must be smaller than or equal to the maximum string length of 6000"
-
-  case option {
-    StringOption(..) ->
-      StringOption(..option, max_length: option.Some(max_length))
-
-    _ -> panic as "Expected `option` to be of variant `StringOption`"
-  }
-}
-
-pub fn string_choices(option: CommandOption, choices: List(#(String, String))) {
-  assert !list.is_empty(choices) as "Choices cannot be empty"
-
-  case option {
-    StringOption(autocomplete: autocomplete, ..) -> {
-      assert option.is_none(autocomplete)
-        as "An option cannot have choices if it uses autocomplete"
-      StringOption(..option, choices: option.Some(choices))
-    }
-
-    _ -> panic as "Expected `option` to be of variant `StringOption`"
-  }
-}
-
-pub fn string_autocomplete(
-  option: CommandOption,
-  autocomplete: Autocomplete(String),
-) {
-  case option {
-    StringOption(choices: choices, ..) -> {
-      assert option.is_none(choices)
-        as "An option cannot have autocomplete if it uses choices"
-      StringOption(..option, autocomplete: option.Some(autocomplete))
-    }
-
-    _ -> panic as "Expected `option` to be of variant `StringOption`"
-  }
-}
-
-pub fn integer_min_value(option: CommandOption, min_value: Int) {
-  assert min_integer_value <= min_value
-    as "`min_value` must be bigger than or equal to the minimum integer value of -9_007_199_254_740_991"
-  assert min_value <= max_integer_value
-    as "`min_value` must be smaller than or equal to the maximum integer value of 9_007_199_254_740_991"
-
-  case option {
-    IntegerOption(..) ->
-      IntegerOption(..option, min_value: option.Some(min_value))
-
-    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
-  }
-}
-
-pub fn integer_max_value(option: CommandOption, max_value: Int) {
-  assert min_integer_value <= max_value
-    as "`max_value` must be bigger than or equal to the minimum integer value of -9_007_199_254_740_991, plus 1"
-  assert max_value <= max_integer_value
-    as "`max_value` must be smaller than or equal to the maximum integer value of 9_007_199_254_740_991"
-
-  case option {
-    IntegerOption(..) ->
-      IntegerOption(..option, max_value: option.Some(max_value))
-
-    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
-  }
-}
-
-pub fn integer_choices(option: CommandOption, choices: List(#(String, Int))) {
-  assert !list.is_empty(choices) as "Choices cannot be empty"
-
-  case option {
-    IntegerOption(autocomplete: autocomplete, ..) -> {
-      assert option.is_none(autocomplete)
-        as "An option cannot have choices if it uses autocomplete"
-      IntegerOption(..option, choices: option.Some(choices))
-    }
-
-    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
-  }
-}
-
-pub fn integer_autocomplete(
-  option: CommandOption,
-  autocomplete: Autocomplete(Int),
-) {
-  case option {
-    IntegerOption(choices: choices, ..) -> {
-      assert option.is_none(choices)
-        as "An option cannot have autocomplete if it uses choices"
-      IntegerOption(..option, autocomplete: option.Some(autocomplete))
-    }
-
-    _ -> panic as "Expected `option` to be of variant `IntegerOption`"
-  }
-}
-
-pub fn number_min_value(option: CommandOption, min_value: Float) {
-  assert min_number_value <=. min_value
-    as "`min_value` must be bigger than or equal to the minimum integer value of -1.7976931348623157e308"
-  assert min_value <=. max_number_value
-    as "`min_value` must be bigger than or equal to the minimum integer value of 1.7976931348623157e308"
-
-  case option {
-    NumberOption(..) ->
-      NumberOption(..option, min_value: option.Some(min_value))
-
-    _ -> panic as "Expected `option` to be of variant `NumberOption`"
-  }
-}
-
-pub fn number_max_value(option: CommandOption, max_value: Float) {
-  assert min_number_value >=. max_value
-    as "`max_value` must be bigger than or equal to the minimum integer value of -1.7976931348623157e308, plus 1"
-  assert max_value <=. max_number_value
-    as "`max_value` must be bigger than or equal to the minimum integer value of 1.7976931348623157e308"
-
-  case option {
-    NumberOption(..) ->
-      NumberOption(..option, max_value: option.Some(max_value))
-
-    _ -> panic as "Expected `option` to be of variant `NumberOption`"
-  }
-}
-
-pub fn number_choices(option: CommandOption, choices: List(#(String, Float))) {
-  assert !list.is_empty(choices) as "Choices cannot be empty"
-
-  case option {
-    NumberOption(autocomplete: autocomplete, ..) -> {
-      assert option.is_none(autocomplete)
-        as "An option cannot have choices if it uses autocomplete"
-      NumberOption(..option, choices: option.Some(choices))
-    }
-
-    _ -> panic as "Expected `option` to be of variant `NumberOption`"
-  }
-}
-
-pub fn number_autocomplete(
-  option: CommandOption,
-  autocomplete: Autocomplete(Float),
-) {
-  case option {
-    NumberOption(choices: choices, ..) -> {
-      assert option.is_none(choices)
-        as "An option cannot have autocomplete if it uses choices"
-      NumberOption(..option, autocomplete: option.Some(autocomplete))
-    }
-
-    _ -> panic as "Expected `option` to be of variant `NumberOption`"
   }
 }
 

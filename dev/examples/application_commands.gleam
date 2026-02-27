@@ -1,6 +1,7 @@
 import application_commands.{IntegerValue as IntVal, StringValue as StrVal} as command
 import gleam/dict
 import gleam/list
+import gleam/option
 import gleam/string
 import interaction
 
@@ -41,9 +42,14 @@ fn times_subcommand() {
   let signature =
     command.signature(name: "times", desc: "greets the world a number of times")
   let opts = [
-    command.integer_option(name: "times", desc: "times to say hello")
-    |> command.integer_min_value(2)
-    |> command.integer_max_value(5)
+    command.integer_option(
+      name: "times",
+      desc: "times to say hello",
+      details: command.ValueIntegerOption(
+        min_value: option.Some(2),
+        max_value: option.Some(5),
+      ),
+    )
     |> command.required(False),
   ]
 
@@ -70,13 +76,16 @@ fn colour_picker_subcommand() {
   let signature =
     command.signature(name: "colours", desc: "pick your fav. colour")
   let opts = [
-    command.string_option(name: "colour", desc: "your fav colour")
-    |> command.string_choices([
-      #("Red", "#ff0000"),
-      #("Green", "#00ff00"),
-      #("Blue", "#0000ff"),
-      #("Other", "#7985e2"),
-    ]),
+    command.string_option(
+      name: "colour",
+      desc: "your fav colour",
+      details: command.ChoicesStringOption(choices: [
+        #("Red", "#ff0000"),
+        #("Green", "#00ff00"),
+        #("Blue", "#0000ff"),
+        #("Other", "#7985e2"),
+      ]),
+    ),
   ]
 
   use _i, opts <- command.subcommand(signature:, opts:)
@@ -88,14 +97,21 @@ fn colour_picker_subcommand() {
 fn words_subcommand() {
   let signature = command.signature(name: "words", desc: "write a word")
   let opts = [
-    command.string_option(name: "word", desc: "any word")
-    |> command.string_autocomplete(fn(_i, partial) {
-      let case_adjusted_partial = string.capitalise(partial)
+    command.string_option(
+      name: "word",
+      desc: "any word",
+      details: command.AutocompleteStringOption(
+        min_length: option.None,
+        max_length: option.None,
+        autocomplete: fn(_i, partial) {
+          let case_adjusted_partial = string.capitalise(partial)
 
-      ["Timeline", "Times", "Tinker"]
-      |> list.filter(string.starts_with(_, case_adjusted_partial))
-      |> list.map(fn(x) { #(x, x) })
-    }),
+          ["Timeline", "Times", "Tinker"]
+          |> list.filter(string.starts_with(_, case_adjusted_partial))
+          |> list.map(fn(x) { #(x, x) })
+        },
+      ),
+    ),
   ]
 
   use i, opts <- command.subcommand(signature:, opts:)
@@ -108,9 +124,14 @@ fn words_subcommand() {
 fn name_subcommand() {
   let signature = command.signature(name: "name", desc: "greet a name")
   let opts = [
-    command.string_option(name: "name", desc: "name to greet")
-    |> command.min_length(1)
-    |> command.max_length(64),
+    command.string_option(
+      name: "name",
+      desc: "name to greet",
+      details: command.LengthStringOption(
+        min_length: option.Some(1),
+        max_length: option.Some(64),
+      ),
+    ),
   ]
 
   use _i, opts <- command.subcommand(signature:, opts:)
