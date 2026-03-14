@@ -200,27 +200,24 @@ pub fn string_option(
 ) -> CommandOption {
   case details {
     LengthStringOption(min_length:, max_length:)
-    | AutocompleteStringOption(min_length:, max_length:, ..) ->
-      case min_length, max_length {
-        option.Some(min_length), option.Some(max_length) -> {
-          assert min_length >= min_string_length
-          assert max_length <= max_string_length
-          StringOption(name:, description:, required: True, details:)
-        }
-        option.Some(min_length), _ -> {
-          assert min_length >= min_string_length
-          StringOption(name:, description:, required: True, details:)
-        }
-        _, option.Some(max_length) -> {
-          assert max_length <= max_string_length
-          StringOption(name:, description:, required: True, details:)
-        }
-        _, _ -> StringOption(name:, description:, required: True, details:)
+    | AutocompleteStringOption(min_length:, max_length:, ..) -> {
+      case min_length {
+        option.Some(v) if v < min_string_length -> panic
+        _ -> Nil
       }
+      case max_length {
+        option.Some(v) if v > max_string_length -> panic
+        _ -> Nil
+      }
+
+      StringOption(name:, description:, required: True, details:)
+    }
+
     ChoicesStringOption(choices:) -> {
       assert list.length(choices) <= max_choice_count
       StringOption(name:, description:, required: True, details:)
     }
+
     _ -> StringOption(name:, description:, required: True, details:)
   }
 }
@@ -243,27 +240,24 @@ pub fn integer_option(
 ) -> CommandOption {
   case details {
     ValueIntegerOption(min_value:, max_value:)
-    | AutocompleteIntegerOption(min_value:, max_value:, ..) ->
-      case min_value, max_value {
-        option.Some(min_value), option.Some(max_value) -> {
-          assert min_value >= min_integer_value
-          assert max_value <= max_integer_value
-          IntegerOption(name:, description:, required: True, details:)
-        }
-        option.Some(min_value), _ -> {
-          assert min_value >= min_integer_value
-          IntegerOption(name:, description:, required: True, details:)
-        }
-        _, option.Some(max_value) -> {
-          assert max_value <= max_integer_value
-          IntegerOption(name:, description:, required: True, details:)
-        }
-        _, _ -> IntegerOption(name:, description:, required: True, details:)
+    | AutocompleteIntegerOption(min_value:, max_value:, ..) -> {
+      case min_value {
+        option.Some(v) if v < min_integer_value -> panic
+        _ -> Nil
       }
+      case max_value {
+        option.Some(v) if v > max_integer_value -> panic
+        _ -> Nil
+      }
+
+      IntegerOption(name:, description:, required: True, details:)
+    }
+
     ChoicesIntegerOption(choices:) -> {
       assert list.length(choices) <= max_choice_count
       IntegerOption(name:, description:, required: True, details:)
     }
+
     _ -> IntegerOption(name:, description:, required: True, details:)
   }
 }
@@ -310,27 +304,24 @@ pub fn number_option(
 ) {
   case details {
     ValueNumberOption(min_value:, max_value:)
-    | AutocompleteNumberOption(min_value:, max_value:, ..) ->
-      case min_value, max_value {
-        option.Some(min_value), option.Some(max_value) -> {
-          assert min_value >=. min_number_value
-          assert max_value <=. max_number_value
-          NumberOption(name:, description:, required: True, details:)
-        }
-        option.Some(min_value), _ -> {
-          assert min_value >=. min_number_value
-          NumberOption(name:, description:, required: True, details:)
-        }
-        _, option.Some(max_value) -> {
-          assert max_value <=. max_number_value
-          NumberOption(name:, description:, required: True, details:)
-        }
-        _, _ -> NumberOption(name:, description:, required: True, details:)
+    | AutocompleteNumberOption(min_value:, max_value:, ..) -> {
+      case min_value {
+        option.Some(v) if v <. min_number_value -> panic
+        _ -> Nil
       }
+      case max_value {
+        option.Some(v) if v >. max_number_value -> panic
+        _ -> Nil
+      }
+
+      NumberOption(name:, description:, required: True, details:)
+    }
+
     ChoicesNumberOption(choices:) -> {
       assert list.length(choices) <= max_choice_count
       NumberOption(name:, description:, required: True, details:)
     }
+
     _ -> NumberOption(name:, description:, required: True, details:)
   }
 }
