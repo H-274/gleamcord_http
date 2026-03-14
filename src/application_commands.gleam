@@ -202,10 +202,12 @@ pub fn string_option(
     LengthStringOption(min_length:, max_length:)
     | AutocompleteStringOption(min_length:, max_length:, ..) -> {
       case min_length {
+        // TODO: Add panic message
         option.Some(v) if v < min_string_length -> panic
         _ -> Nil
       }
       case max_length {
+        // TODO: Add panic message
         option.Some(v) if v > max_string_length -> panic
         _ -> Nil
       }
@@ -242,10 +244,12 @@ pub fn integer_option(
     ValueIntegerOption(min_value:, max_value:)
     | AutocompleteIntegerOption(min_value:, max_value:, ..) -> {
       case min_value {
+        // TODO: Add panic message
         option.Some(v) if v < min_integer_value -> panic
         _ -> Nil
       }
       case max_value {
+        // TODO: Add panic message
         option.Some(v) if v > max_integer_value -> panic
         _ -> Nil
       }
@@ -306,10 +310,12 @@ pub fn number_option(
     ValueNumberOption(min_value:, max_value:)
     | AutocompleteNumberOption(min_value:, max_value:, ..) -> {
       case min_value {
+        // TODO: Add panic message
         option.Some(v) if v <. min_number_value -> panic
         _ -> Nil
       }
       case max_value {
+        // TODO: Add panic message
         option.Some(v) if v >. max_number_value -> panic
         _ -> Nil
       }
