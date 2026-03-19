@@ -9,27 +9,27 @@ import gleam/option.{type Option}
 import interaction.{type Interaction}
 import internal/type_utils
 
-pub opaque type AplicationCommand {
+pub opaque type ApplicationCommand(state) {
   ChatInput(
     signature: Signature,
-    options: List(CommandOption),
-    handler: ChatInputHandler,
+    options: List(CommandOption(state)),
+    handler: ChatInputHandler(state),
   )
   ChatInputGroup(
     name: String,
     description: String,
     subcommands: List(
-      type_utils.Or(ChatInputSubcommandGroup, ChatInputSubcommand),
+      type_utils.Or(ChatInputSubcommandGroup(state), ChatInputSubcommand(state)),
     ),
   )
-  User(signature: Signature, handler: UserHandler)
-  Message(signature: Signature, handler: MessageHandler)
+  User(signature: Signature, handler: UserHandler(state))
+  Message(signature: Signature, handler: MessageHandler(state))
 }
 
 pub fn chat_input(
   signature signature: Signature,
-  opts options: List(CommandOption),
-  handler handler: ChatInputHandler,
+  opts options: List(CommandOption(state)),
+  handler handler: ChatInputHandler(_),
 ) {
   ChatInput(signature:, options:, handler:)
 }
@@ -39,8 +39,8 @@ pub fn chat_input_group(name name: String, desc description: String) {
 }
 
 pub fn add_subcommand_group(
-  command: AplicationCommand,
-  subcommand_group: ChatInputSubcommandGroup,
+  command: ApplicationCommand(state),
+  subcommand_group: ChatInputSubcommandGroup(state),
 ) {
   case command {
     ChatInputGroup(subcommands: subcommands, ..) ->
@@ -53,8 +53,8 @@ pub fn add_subcommand_group(
 }
 
 pub fn add_subcommand(
-  command: AplicationCommand,
-  subcommand: ChatInputSubcommand,
+  command: ApplicationCommand(state),
+  subcommand: ChatInputSubcommand(state),
 ) {
   case command {
     ChatInputGroup(subcommands: subcommands, ..) ->
@@ -66,42 +66,45 @@ pub fn add_subcommand(
   }
 }
 
-pub fn user(signature signature: Signature, handler handler: UserHandler) {
+pub fn user(signature signature: Signature, handler handler: UserHandler(_)) {
   User(signature:, handler:)
 }
 
-pub fn message(signature signature: Signature, handler handler: MessageHandler) {
+pub fn message(
+  signature signature: Signature,
+  handler handler: MessageHandler(_),
+) {
   Message(signature:, handler:)
 }
 
-pub opaque type ChatInputSubcommandGroup {
+pub opaque type ChatInputSubcommandGroup(state) {
   ChatInputSubcommandGroup(
     name: String,
     description: String,
-    subcommands: List(ChatInputSubcommand),
+    subcommands: List(ChatInputSubcommand(state)),
   )
 }
 
 pub fn subcommand_group(
   name name: String,
   desc description: String,
-  sub subcommands: List(ChatInputSubcommand),
+  sub subcommands: List(ChatInputSubcommand(_)),
 ) {
   ChatInputSubcommandGroup(name:, description:, subcommands:)
 }
 
-pub opaque type ChatInputSubcommand {
+pub opaque type ChatInputSubcommand(state) {
   ChatInputSubcommand(
     signature: Signature,
-    options: List(CommandOption),
-    handler: ChatInputHandler,
+    options: List(CommandOption(state)),
+    handler: ChatInputHandler(state),
   )
 }
 
 pub fn subcommand(
   signature signature: Signature,
-  opts options: List(CommandOption),
-  handler handler: ChatInputHandler,
+  opts options: List(CommandOption(state)),
+  handler handler: ChatInputHandler(state),
 ) {
   ChatInputSubcommand(signature:, options:, handler:)
 }
@@ -149,18 +152,18 @@ const max_number_value = 1.7976931348623157e308
 /// According to https://docs.discord.com/developers/interactions/application-commands#application-command-object-application-command-option-structure
 const max_choice_count = 25
 
-pub opaque type CommandOption {
+pub opaque type CommandOption(state) {
   StringOption(
     name: String,
     description: String,
     required: Bool,
-    details: StringOptionDetails,
+    details: StringOptionDetails(state),
   )
   IntegerOption(
     name: String,
     description: String,
     required: Bool,
-    details: IntegerOptionDetails,
+    details: IntegerOptionDetails(state),
   )
   BooleanOption(name: String, description: String, required: Bool)
   UserOption(name: String, description: String, required: Bool)
@@ -176,19 +179,19 @@ pub opaque type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    details: NumberOptionDetails,
+    details: NumberOptionDetails(state),
   )
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
-pub type StringOptionDetails {
+pub type StringOptionDetails(state) {
   BasicStringOption
   LengthStringOption(min_length: Option(Int), max_length: Option(Int))
   ChoicesStringOption(choices: List(#(String, String)))
   AutocompleteStringOption(
     min_length: Option(Int),
     max_length: Option(Int),
-    autocomplete: Autocomplete(String),
+    autocomplete: Autocomplete(state, String),
   )
 }
 
@@ -196,8 +199,8 @@ pub type StringOptionDetails {
 pub fn string_option(
   name name: String,
   desc description: String,
-  details details: StringOptionDetails,
-) -> CommandOption {
+  details details: StringOptionDetails(state),
+) -> CommandOption(state) {
   case details {
     LengthStringOption(min_length:, max_length:)
     | AutocompleteStringOption(min_length:, max_length:, ..) -> {
@@ -224,22 +227,22 @@ pub fn string_option(
   }
 }
 
-pub type IntegerOptionDetails {
+pub type IntegerOptionDetails(state) {
   BasicIntegerOption
   ValueIntegerOption(min_value: Option(Int), max_value: Option(Int))
   ChoicesIntegerOption(choices: List(#(String, Int)))
   AutocompleteIntegerOption(
     min_value: Option(Int),
     max_value: Option(Int),
-    autocomplete: Option(Autocomplete(Int)),
+    autocomplete: Option(Autocomplete(state, Int)),
   )
 }
 
 pub fn integer_option(
   name name: String,
   desc description: String,
-  details details: IntegerOptionDetails,
-) -> CommandOption {
+  details details: IntegerOptionDetails(state),
+) -> CommandOption(state) {
   case details {
     ValueIntegerOption(min_value:, max_value:)
     | AutocompleteIntegerOption(min_value:, max_value:, ..) -> {
@@ -290,21 +293,21 @@ pub fn mentionable_option(name name: String, desc description: String) {
   MentionableOption(name:, description:, required: True)
 }
 
-pub type NumberOptionDetails {
+pub type NumberOptionDetails(state) {
   BasicNumberOption
   ValueNumberOption(min_value: Option(Float), max_value: Option(Float))
   ChoicesNumberOption(choices: List(#(String, Float)))
   AutocompleteNumberOption(
     min_value: Option(Float),
     max_value: Option(Float),
-    autocomplete: Autocomplete(Float),
+    autocomplete: Autocomplete(state, Float),
   )
 }
 
 pub fn number_option(
   name name: String,
   desc description: String,
-  details details: NumberOptionDetails,
+  details details: NumberOptionDetails(_),
 ) {
   case details {
     ValueNumberOption(min_value:, max_value:)
@@ -332,14 +335,14 @@ pub fn number_option(
   }
 }
 
-pub type Autocomplete(val) =
-  fn(Interaction, val) -> List(#(String, val))
+pub type Autocomplete(state, val) =
+  fn(Interaction, state, val) -> List(#(String, val))
 
 pub fn attachment_option(name name: String, desc description: String) {
   AttachmentOption(name:, description:, required: True)
 }
 
-pub fn required(option: CommandOption, required: Bool) {
+pub fn required(option: CommandOption(_), required: Bool) {
   case option {
     StringOption(..) -> StringOption(..option, required:)
     IntegerOption(..) -> IntegerOption(..option, required:)
@@ -369,8 +372,8 @@ pub fn set_nsfw(signature: Signature, nsfw: Bool) {
   Signature(..signature, nsfw:)
 }
 
-pub type ChatInputHandler =
-  fn(Interaction, Dict(String, ChatInputOptionValue)) -> String
+pub type ChatInputHandler(state) =
+  fn(Interaction, state, Dict(String, ChatInputOptionValue)) -> String
 
 pub type ChatInputOptionValue {
   StringValue(name: String, value: String, focused: Bool)
@@ -384,10 +387,10 @@ pub type ChatInputOptionValue {
   AttachmentValue(name: String, value: Int, focused: Bool)
 }
 
-pub type UserHandler {
+pub type UserHandler(state) {
   UserHandler
 }
 
-pub type MessageHandler {
+pub type MessageHandler(state) {
   MessageHandler
 }
