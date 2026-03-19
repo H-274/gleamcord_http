@@ -394,3 +394,17 @@ pub type UserHandler(state) {
 pub type MessageHandler(state) {
   MessageHandler
 }
+
+pub fn find_handler(
+  commands: List(ApplicationCommand(_)),
+  i: Interaction,
+) -> Option(handler) {
+  todo
+}
+
+pub fn find_autocomplete_handler(
+  commands: List(ApplicationCommand(_)),
+  i: Interaction,
+) -> Option(handler) {
+  todo
+}

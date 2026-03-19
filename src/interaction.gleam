@@ -455,3 +455,7 @@ pub fn decoder() -> decode.Decoder(Interaction) {
       )
   }
 }
+
+pub type Response {
+  Pong
+}
