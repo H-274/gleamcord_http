@@ -9,7 +9,7 @@ pub fn chat_input() {
   // --- /ping
   let signature = command.signature(name: "ping", desc: "pongs")
 
-  use _i, _opts <- command.chat_input(signature:, opts: [])
+  use _i, _s, _opts <- command.chat_input(signature:, opts: [])
 
   "Pong!"
 }
@@ -53,7 +53,7 @@ fn times_subcommand() {
     |> command.required(False),
   ]
 
-  use _i, opts <- command.subcommand(signature:, opts:)
+  use _i, _s, opts <- command.subcommand(signature:, opts:)
   let times = case dict.get(opts, "times") {
     Ok(IntVal(value:, ..)) -> value
     _ -> 2
@@ -67,7 +67,7 @@ fn caps_subcommand(hello_world) {
   let signature =
     command.signature(name: "caps", desc: "greets the world in all caps")
 
-  use _i, _opts <- command.subcommand(signature:, opts: [])
+  use _i, _s, _opts <- command.subcommand(signature:, opts: [])
 
   string.uppercase(hello_world)
 }
@@ -88,7 +88,7 @@ fn colour_picker_subcommand() {
     ),
   ]
 
-  use _i, opts <- command.subcommand(signature:, opts:)
+  use _i, _s, opts <- command.subcommand(signature:, opts:)
   let assert Ok(StrVal(value: colour, ..)) = dict.get(opts, "colour")
 
   "You picked the value: `" <> colour <> "` !"
@@ -103,7 +103,7 @@ fn words_subcommand() {
       details: command.AutocompleteStringOption(
         min_length: option.None,
         max_length: option.None,
-        autocomplete: fn(_i, partial) {
+        autocomplete: fn(_i, _s, partial) {
           let case_adjusted_partial = string.capitalise(partial)
 
           ["Timeline", "Times", "Tinker"]
@@ -114,7 +114,7 @@ fn words_subcommand() {
     ),
   ]
 
-  use i, opts <- command.subcommand(signature:, opts:)
+  use i, _s, opts <- command.subcommand(signature:, opts:)
   let assert interaction.ApplicationCommand(data: _data, ..) = i
   let assert Ok(StrVal(value: word, ..)) = dict.get(opts, "word")
 
@@ -134,7 +134,7 @@ fn name_subcommand() {
     ),
   ]
 
-  use _i, opts <- command.subcommand(signature:, opts:)
+  use _i, _s, opts <- command.subcommand(signature:, opts:)
   let assert Ok(StrVal(value: name, ..)) = dict.get(opts, "name")
 
   "Hello " <> name <> "!"
