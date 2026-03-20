@@ -458,4 +458,8 @@ pub fn decoder() -> decode.Decoder(Interaction) {
 
 pub type Response {
   Pong
+  StringAutocomplete(List(#(String, String)))
+  IntegerAutocomplete(List(#(String, Int)))
+  NumberAutocomplete(List(#(String, Float)))
+  Message(String)
 }

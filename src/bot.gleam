@@ -26,13 +26,13 @@ pub fn handle_interaction(
     interaction.Ping(..) -> Ok(interaction.Pong)
     interaction.ApplicationCommand(..) ->
       case command.find_handler(bot.commands, i) {
-        Ok(_h) -> Ok(todo as "execute handler")
+        Ok(h) -> Ok(h(i, bot.state))
         _ -> Error(Nil)
       }
     interaction.MessageComponent(..) -> Ok(todo as "execute component")
     interaction.ApplicationCommandAutocomplete(..) ->
-      case command.find_autocomplete_handler(bot.commands, i) {
-        Ok(_h) -> Ok(todo as "execute handler")
+      case command.find_autocomplete(bot.commands, i) {
+        Ok(a) -> Ok(a(i, bot.state))
         _ -> Error(Nil)
       }
     interaction.ModalSubmit(..) -> Ok(todo as "handle submission")

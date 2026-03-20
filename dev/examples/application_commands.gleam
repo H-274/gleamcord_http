@@ -15,6 +15,7 @@ pub fn chat_input() {
   use _i, _s, _opts <- command.chat_input(signature:, opts: [])
 
   "Pong!"
+  |> interaction.Message
 }
 
 pub fn chat_input_group() {
@@ -64,6 +65,7 @@ fn times_subcommand() {
 
   list.repeat("Hello World!", times:)
   |> string.join("\n")
+  |> interaction.Message
 }
 
 fn caps_subcommand(hello_world) {
@@ -73,6 +75,7 @@ fn caps_subcommand(hello_world) {
   use _i, _s, _opts <- command.subcommand(signature:, opts: [])
 
   string.uppercase(hello_world)
+  |> interaction.Message
 }
 
 fn colour_picker_subcommand() {
@@ -94,7 +97,8 @@ fn colour_picker_subcommand() {
   use _i, _s, opts <- command.subcommand(signature:, opts:)
   let assert Ok(StrVal(value: colour, ..)) = dict.get(opts, "colour")
 
-  "You picked the value: `" <> colour <> "` !"
+  { "You picked the value: `" <> colour <> "` !" }
+  |> interaction.Message
 }
 
 fn words_subcommand() {
@@ -106,7 +110,7 @@ fn words_subcommand() {
       details: command.AutocompleteStringOption(
         min_length: option.None,
         max_length: option.None,
-        autocomplete: fn(_i, _s, partial) {
+        autocomplete: fn(_i, _s, _opts, partial) {
           let case_adjusted_partial = string.capitalise(partial)
 
           ["Timeline", "Times", "Tinker"]
@@ -121,7 +125,8 @@ fn words_subcommand() {
   let assert interaction.ApplicationCommand(data: _data, ..) = i
   let assert Ok(StrVal(value: word, ..)) = dict.get(opts, "word")
 
-  "You picked the word: `" <> word <> "` !"
+  { "You picked the word: `" <> word <> "` !" }
+  |> interaction.Message
 }
 
 fn name_subcommand() {
@@ -140,5 +145,6 @@ fn name_subcommand() {
   use _i, _s, opts <- command.subcommand(signature:, opts:)
   let assert Ok(StrVal(value: name, ..)) = dict.get(opts, "name")
 
-  "Hello " <> name <> "!"
+  { "Hello " <> name <> "!" }
+  |> interaction.Message
 }
