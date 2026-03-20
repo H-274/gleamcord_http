@@ -161,10 +161,11 @@ pub type MessageHandler(state) {
   MessageHandler
 }
 
-pub fn find_handler(
+pub fn execute_handler(
   commands: List(ApplicationCommand(state)),
+  state: state,
   i: Interaction,
-) -> Result(fn(Interaction, state) -> interaction.Response, Nil) {
+) -> Result(interaction.Response, Nil) {
   let assert interaction.ApplicationCommand(data:, ..) = i
   list.find_map(commands, fn(command) {
     case command, data {
@@ -175,8 +176,7 @@ pub fn find_handler(
         let assert type_utils.A(invoked_options) = data.options
         let invoked_options =
           invoked_options |> list.map(fn(o) { #(o.name, o) }) |> dict.from_list
-        fn(i, state) { handler(i, state, invoked_options) }
-        |> Ok
+        Ok(handler(i, state, invoked_options))
       }
       ChatInputGroup(name: group, subcommands:, ..),
         data.ChatInputApplicationCommand(name:, options:, ..)
@@ -187,20 +187,10 @@ pub fn find_handler(
       }
       User(signature:, handler:), data.UserApplicationCommand(name:, ..)
         if signature.name == name
-      ->
-        fn(i, state) {
-          let _ = #(i, state, handler)
-          todo
-        }
-        |> Ok
+      -> todo as "execute handler"
       Message(signature:, handler:), data.MessageApplicationCommand(name:, ..)
         if signature.name == name
-      ->
-        fn(i, state) {
-          let _ = #(i, state, handler)
-          todo
-        }
-        |> Ok
+      -> todo as "execute handler"
       _, _ -> Error(Nil)
     }
   })
@@ -432,10 +422,11 @@ pub fn required(option: CommandOption(_), required: Bool) {
   }
 }
 
-pub fn find_autocomplete(
+pub fn find_execute_autocomplete(
   commands: List(ApplicationCommand(state)),
+  state: state,
   i: Interaction,
-) -> Result(fn(Interaction, state) -> interaction.Response, Nil) {
+) -> Result(interaction.Response, Nil) {
   let assert interaction.ApplicationCommandAutocomplete(data:, ..) = i
 
   use command <- list.find_map(commands)
@@ -451,49 +442,7 @@ pub fn find_autocomplete(
         |> dict.from_list
 
       use option <- list.find_map(options)
-      case option {
-        StringOption(
-          name:,
-          details: AutocompleteStringOption(autocomplete:, ..),
-          ..,
-        )
-          if name == focused.name
-        ->
-          fn(i, s) {
-            let assert option_data.StringValue(value: partial, ..) = focused
-            autocomplete(i, s, invoked_options, partial)
-            |> interaction.StringAutocomplete
-          }
-          |> Ok
-        IntegerOption(
-          name:,
-          details: AutocompleteIntegerOption(autocomplete:, ..),
-          ..,
-        )
-          if name == focused.name
-        ->
-          fn(i, s) {
-            let assert option_data.IntegerValue(value: partial, ..) = focused
-            autocomplete(i, s, invoked_options, partial)
-            |> interaction.IntegerAutocomplete
-          }
-          |> Ok
-        NumberOption(
-          name:,
-          details: AutocompleteNumberOption(autocomplete:, ..),
-          ..,
-        )
-          if name == focused.name
-        ->
-          fn(i, s) {
-            let assert option_data.NumberValue(value: partial, ..) = focused
-            autocomplete(i, s, invoked_options, partial)
-            |> interaction.NumberAutocomplete
-          }
-          |> Ok
-
-        _ -> Error(Nil)
-      }
+      execute_autocomplete_option(option, focused, i, state, invoked_options)
     }
     ChatInputGroup(name: group, subcommands:, ..),
       data.ChatInputApplicationCommand(name:, options:, ..)
@@ -504,5 +453,55 @@ pub fn find_autocomplete(
       todo as "drill to autocomplete subcommand option"
     }
     _, _ -> Error(Nil)
+  }
+}
+
+fn execute_autocomplete_option(
+  option: CommandOption(state),
+  focused: option_data.Value,
+  i: Interaction,
+  state: state,
+  invoked_options: Dict(String, option_data.Value),
+) -> Result(interaction.Response, Nil) {
+  case option {
+    StringOption(
+      name:,
+      details: AutocompleteStringOption(autocomplete:, ..),
+      ..,
+    )
+      if name == focused.name
+    -> {
+      let assert option_data.StringValue(value: partial, ..) = focused
+      autocomplete(i, state, invoked_options, partial)
+      |> interaction.StringAutocomplete
+      |> Ok
+    }
+    IntegerOption(
+      name:,
+      details: AutocompleteIntegerOption(autocomplete:, ..),
+      ..,
+    )
+      if name == focused.name
+    -> {
+      let assert option_data.IntegerValue(value: partial, ..) = focused
+      autocomplete(i, state, invoked_options, partial)
+      |> interaction.IntegerAutocomplete
+      |> Ok
+    }
+
+    NumberOption(
+      name:,
+      details: AutocompleteNumberOption(autocomplete:, ..),
+      ..,
+    )
+      if name == focused.name
+    -> {
+      let assert option_data.NumberValue(value: partial, ..) = focused
+      autocomplete(i, state, invoked_options, partial)
+      |> interaction.NumberAutocomplete
+      |> Ok
+    }
+
+    _ -> Error(Nil)
   }
 }
