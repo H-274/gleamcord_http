@@ -148,3 +148,22 @@ fn name_subcommand() {
   { "Hello " <> name <> "!" }
   |> interaction.Message
 }
+
+pub fn user_command() {
+  let signature =
+    command.signature(name: "high-five", desc: "gives user a high-five")
+
+  use _i, _s <- command.user(signature:)
+
+  { "Someone got a high-five!" }
+  |> interaction.Message
+}
+
+pub fn message_command() {
+  let signature = command.signature(name: "report", desc: "reports a message")
+
+  use _i, _s <- command.message(signature:)
+
+  { "Message reported successfully" }
+  |> interaction.Message
+}

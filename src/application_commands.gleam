@@ -153,13 +153,11 @@ pub type ChatInputHandler(state) =
   fn(Interaction, state, Dict(String, option_data.Value)) ->
     interaction.Response
 
-pub type UserHandler(state) {
-  UserHandler
-}
+pub type UserHandler(state) =
+  fn(Interaction, state) -> interaction.Response
 
-pub type MessageHandler(state) {
-  MessageHandler
-}
+pub type MessageHandler(state) =
+  fn(Interaction, state) -> interaction.Response
 
 pub fn execute_handler(
   commands: List(ApplicationCommand(state)),
@@ -167,33 +165,33 @@ pub fn execute_handler(
   i: Interaction,
 ) -> Result(interaction.Response, Nil) {
   let assert interaction.ApplicationCommand(data:, ..) = i
-  list.find_map(commands, fn(command) {
-    case command, data {
-      ChatInput(signature:, handler:, ..),
-        data.ChatInputApplicationCommand(name:, ..)
-        if signature.name == name
-      -> {
-        let assert type_utils.A(invoked_options) = data.options
-        let invoked_options =
-          invoked_options |> list.map(fn(o) { #(o.name, o) }) |> dict.from_list
-        Ok(handler(i, state, invoked_options))
-      }
-      ChatInputGroup(name: group, subcommands:, ..),
-        data.ChatInputApplicationCommand(name:, options:, ..)
-        if group == name
-      -> {
-        let _ = #(subcommands, options)
-        todo as "find subcommand"
-      }
-      User(signature:, handler:), data.UserApplicationCommand(name:, ..)
-        if signature.name == name
-      -> todo as "execute handler"
-      Message(signature:, handler:), data.MessageApplicationCommand(name:, ..)
-        if signature.name == name
-      -> todo as "execute handler"
-      _, _ -> Error(Nil)
+
+  use command <- list.find_map(commands)
+  case command, data {
+    ChatInput(signature:, handler:, ..),
+      data.ChatInputApplicationCommand(name:, ..)
+      if signature.name == name
+    -> {
+      let assert type_utils.A(invoked_options) = data.options
+      let invoked_options =
+        invoked_options |> list.map(fn(o) { #(o.name, o) }) |> dict.from_list
+      Ok(handler(i, state, invoked_options))
     }
-  })
+    ChatInputGroup(name: group, subcommands:, ..),
+      data.ChatInputApplicationCommand(name:, options:, ..)
+      if group == name
+    -> {
+      let _ = #(subcommands, options)
+      todo as "find subcommand"
+    }
+    User(signature:, handler:), data.UserApplicationCommand(name:, ..)
+      if signature.name == name
+    -> Ok(handler(i, state))
+    Message(signature:, handler:), data.MessageApplicationCommand(name:, ..)
+      if signature.name == name
+    -> Ok(handler(i, state))
+    _, _ -> Error(Nil)
+  }
 }
 
 /// According to https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
