@@ -3,10 +3,12 @@
 //// 
 //// TODO: Investigate merging chat input command and chat input subcommands to allow easily changing a subcommand to a command and vice-versa
 
+import application_command/option_data.{type OptionData}
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option.{type Option}
 import interaction.{type Interaction}
+import interaction/data
 import internal/type_utils
 
 pub opaque type ApplicationCommand(state) {
@@ -129,6 +131,68 @@ pub fn signature(name name: String, desc description: String) {
     contexts: [Nil, Nil],
     nsfw: False,
   )
+}
+
+pub fn set_permissions(signature: Signature, permissions: Nil) {
+  Signature(..signature, permissions:)
+}
+
+pub fn set_integration_types(signature: Signature, integration_types: List(Nil)) {
+  Signature(..signature, integration_types:)
+}
+
+pub fn set_contexts(signature: Signature, contexts: List(Nil)) {
+  Signature(..signature, contexts:)
+}
+
+pub fn set_nsfw(signature: Signature, nsfw: Bool) {
+  Signature(..signature, nsfw:)
+}
+
+pub type ChatInputHandler(state) =
+  fn(Interaction, state, Dict(String, OptionData)) -> String
+
+pub type UserHandler(state) {
+  UserHandler
+}
+
+pub type MessageHandler(state) {
+  MessageHandler
+}
+
+pub type CommandHandler(state) {
+  ChatInputCommandHandler(ChatInputHandler(state))
+  UserCommandHandler(UserHandler(state))
+  MessageCommandHandler(MessageHandler(state))
+}
+
+pub fn find_handler(
+  commands: List(ApplicationCommand(state)),
+  i: Interaction,
+) -> Result(CommandHandler(state), Nil) {
+  let assert interaction.ApplicationCommand(data:, ..) = i
+  list.find_map(commands, fn(command) {
+    case command, data {
+      ChatInput(signature:, handler:, ..),
+        data.ChatInputApplicationCommand(name:, ..)
+        if signature.name == name
+      -> Ok(ChatInputCommandHandler(handler))
+      ChatInputGroup(name: group, subcommands:, ..),
+        data.ChatInputApplicationCommand(name:, options:, ..)
+        if group == name
+      -> {
+        let _ = #(subcommands, options)
+        todo as "find subcommand"
+      }
+      User(signature:, handler:), data.UserApplicationCommand(name:, ..)
+        if signature.name == name
+      -> Ok(UserCommandHandler(handler))
+      Message(signature:, handler:), data.MessageApplicationCommand(name:, ..)
+        if signature.name == name
+      -> Ok(MessageCommandHandler(handler))
+      _, _ -> Error(Nil)
+    }
+  })
 }
 
 /// According to https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
@@ -356,55 +420,29 @@ pub fn required(option: CommandOption(_), required: Bool) {
   }
 }
 
-pub fn set_permissions(signature: Signature, permissions: Nil) {
-  Signature(..signature, permissions:)
-}
-
-pub fn set_integration_types(signature: Signature, integration_types: List(Nil)) {
-  Signature(..signature, integration_types:)
-}
-
-pub fn set_contexts(signature: Signature, contexts: List(Nil)) {
-  Signature(..signature, contexts:)
-}
-
-pub fn set_nsfw(signature: Signature, nsfw: Bool) {
-  Signature(..signature, nsfw:)
-}
-
-pub type ChatInputHandler(state) =
-  fn(Interaction, state, Dict(String, ChatInputOptionValue)) -> String
-
-pub type ChatInputOptionValue {
-  StringValue(name: String, value: String, focused: Bool)
-  IntegerValue(name: String, value: Int, focused: Bool)
-  BooleanValue(name: String, value: Bool, focused: Bool)
-  UserValue(name: String, value: Int, focused: Bool)
-  ChannelValue(name: String, value: Int, focused: Bool)
-  RoleValue(name: String, value: Int, focused: Bool)
-  MentionableValue(name: String, value: Int, focused: Bool)
-  NumberValue(name: String, value: Float, focused: Bool)
-  AttachmentValue(name: String, value: Int, focused: Bool)
-}
-
-pub type UserHandler(state) {
-  UserHandler
-}
-
-pub type MessageHandler(state) {
-  MessageHandler
-}
-
-pub fn find_handler(
-  commands: List(ApplicationCommand(_)),
-  i: Interaction,
-) -> Option(handler) {
-  todo
-}
-
 pub fn find_autocomplete_handler(
   commands: List(ApplicationCommand(_)),
   i: Interaction,
-) -> Option(handler) {
-  todo
+) -> Result(_, Nil) {
+  let assert interaction.ApplicationCommandAutocomplete(data:, ..) = i
+  list.find_map(commands, fn(command) {
+    case command, data {
+      ChatInput(signature:, options:, ..),
+        data.ChatInputApplicationCommand(name:, options: data_options, ..)
+        if signature.name == name
+      ->
+        list.find_map(options, fn(option) {
+          let _ = #(option, data_options)
+          todo as "focused option handler"
+        })
+      ChatInputGroup(name: group, subcommands:, ..),
+        data.ChatInputApplicationCommand(name:, options: data_options, ..)
+        if group == name
+      -> {
+        let _ = #(subcommands, data_options)
+        todo as ""
+      }
+      _, _ -> Error(Nil)
+    }
+  })
 }

@@ -1,4 +1,7 @@
-import application_commands.{IntegerValue as IntVal, StringValue as StrVal} as command
+import application_command/option_data.{
+  IntegerValue as IntVal, StringValue as StrVal,
+}
+import application_commands as command
 import gleam/dict
 import gleam/list
 import gleam/option
