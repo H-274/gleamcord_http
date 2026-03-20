@@ -8,8 +8,8 @@ import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option.{type Option}
 import interaction.{type Interaction}
-import interaction/data
 import internal/type_utils
+import response/application_command as responses
 
 pub opaque type ApplicationCommand(state) {
   ChatInput(
@@ -150,49 +150,13 @@ pub fn set_nsfw(signature: Signature, nsfw: Bool) {
 }
 
 pub type ChatInputHandler(state) =
-  fn(Interaction, state, Dict(String, option_data.Value)) ->
-    interaction.Response
+  fn(Interaction, state, Dict(String, option_data.Value)) -> responses.Command
 
 pub type UserHandler(state) =
-  fn(Interaction, state) -> interaction.Response
+  fn(Interaction, state) -> responses.Command
 
 pub type MessageHandler(state) =
-  fn(Interaction, state) -> interaction.Response
-
-pub fn execute_handler(
-  commands: List(ApplicationCommand(state)),
-  state: state,
-  i: Interaction,
-) -> Result(interaction.Response, Nil) {
-  let assert interaction.ApplicationCommand(data:, ..) = i
-
-  use command <- list.find_map(commands)
-  case command, data {
-    ChatInput(signature:, handler:, ..),
-      data.ChatInputApplicationCommand(name:, ..)
-      if signature.name == name
-    -> {
-      let assert type_utils.A(invoked_options) = data.options
-      let invoked_options =
-        invoked_options |> list.map(fn(o) { #(o.name, o) }) |> dict.from_list
-      Ok(handler(i, state, invoked_options))
-    }
-    ChatInputGroup(name: group, subcommands:, ..),
-      data.ChatInputApplicationCommand(name:, options:, ..)
-      if group == name
-    -> {
-      let _ = #(subcommands, options)
-      todo as "find subcommand"
-    }
-    User(signature:, handler:), data.UserApplicationCommand(name:, ..)
-      if signature.name == name
-    -> Ok(handler(i, state))
-    Message(signature:, handler:), data.MessageApplicationCommand(name:, ..)
-      if signature.name == name
-    -> Ok(handler(i, state))
-    _, _ -> Error(Nil)
-  }
-}
+  fn(Interaction, state) -> responses.Command
 
 /// According to https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
 const min_string_length = 0
@@ -417,89 +381,5 @@ pub fn required(option: CommandOption(_), required: Bool) {
     MentionableOption(..) -> MentionableOption(..option, required:)
     NumberOption(..) -> NumberOption(..option, required:)
     AttachmentOption(..) -> AttachmentOption(..option, required:)
-  }
-}
-
-pub fn find_execute_autocomplete(
-  commands: List(ApplicationCommand(state)),
-  state: state,
-  i: Interaction,
-) -> Result(interaction.Response, Nil) {
-  let assert interaction.ApplicationCommandAutocomplete(data:, ..) = i
-
-  use command <- list.find_map(commands)
-  case command, data {
-    ChatInput(signature:, options:, ..),
-      data.ChatInputApplicationCommand(name:, options: invoked_options, ..)
-      if signature.name == name
-    -> {
-      let assert type_utils.A(invoked_options) = invoked_options
-      let assert Ok(focused) = list.find(invoked_options, fn(o) { o.focused })
-      let invoked_options =
-        list.map(invoked_options, fn(o) { #(o.name, o) })
-        |> dict.from_list
-
-      use option <- list.find_map(options)
-      execute_autocomplete_option(option, focused, i, state, invoked_options)
-    }
-    ChatInputGroup(name: group, subcommands:, ..),
-      data.ChatInputApplicationCommand(name:, options:, ..)
-      if group == name
-    -> {
-      let assert type_utils.B(invoked_tree) = options
-      let _ = #(subcommands, invoked_tree)
-      todo as "drill to autocomplete subcommand option"
-    }
-    _, _ -> Error(Nil)
-  }
-}
-
-fn execute_autocomplete_option(
-  option: CommandOption(state),
-  focused: option_data.Value,
-  i: Interaction,
-  state: state,
-  invoked_options: Dict(String, option_data.Value),
-) -> Result(interaction.Response, Nil) {
-  case option {
-    StringOption(
-      name:,
-      details: AutocompleteStringOption(autocomplete:, ..),
-      ..,
-    )
-      if name == focused.name
-    -> {
-      let assert option_data.StringValue(value: partial, ..) = focused
-      autocomplete(i, state, invoked_options, partial)
-      |> interaction.StringAutocomplete
-      |> Ok
-    }
-    IntegerOption(
-      name:,
-      details: AutocompleteIntegerOption(autocomplete:, ..),
-      ..,
-    )
-      if name == focused.name
-    -> {
-      let assert option_data.IntegerValue(value: partial, ..) = focused
-      autocomplete(i, state, invoked_options, partial)
-      |> interaction.IntegerAutocomplete
-      |> Ok
-    }
-
-    NumberOption(
-      name:,
-      details: AutocompleteNumberOption(autocomplete:, ..),
-      ..,
-    )
-      if name == focused.name
-    -> {
-      let assert option_data.NumberValue(value: partial, ..) = focused
-      autocomplete(i, state, invoked_options, partial)
-      |> interaction.NumberAutocomplete
-      |> Ok
-    }
-
-    _ -> Error(Nil)
   }
 }

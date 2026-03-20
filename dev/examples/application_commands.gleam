@@ -7,6 +7,7 @@ import gleam/list
 import gleam/option
 import gleam/string
 import interaction
+import response/application_command as command_response
 
 pub fn chat_input() {
   // --- /ping
@@ -15,7 +16,7 @@ pub fn chat_input() {
   use _i, _s, _opts <- command.chat_input(signature:, opts: [])
 
   "Pong!"
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }
 
 pub fn chat_input_group() {
@@ -65,7 +66,7 @@ fn times_subcommand() {
 
   list.repeat("Hello World!", times:)
   |> string.join("\n")
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }
 
 fn caps_subcommand(hello_world) {
@@ -75,7 +76,7 @@ fn caps_subcommand(hello_world) {
   use _i, _s, _opts <- command.subcommand(signature:, opts: [])
 
   string.uppercase(hello_world)
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }
 
 fn colour_picker_subcommand() {
@@ -98,7 +99,7 @@ fn colour_picker_subcommand() {
   let assert Ok(StrVal(value: colour, ..)) = dict.get(opts, "colour")
 
   { "You picked the value: `" <> colour <> "` !" }
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }
 
 fn words_subcommand() {
@@ -126,7 +127,7 @@ fn words_subcommand() {
   let assert Ok(StrVal(value: word, ..)) = dict.get(opts, "word")
 
   { "You picked the word: `" <> word <> "` !" }
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }
 
 fn name_subcommand() {
@@ -146,7 +147,7 @@ fn name_subcommand() {
   let assert Ok(StrVal(value: name, ..)) = dict.get(opts, "name")
 
   { "Hello " <> name <> "!" }
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }
 
 pub fn user_command() {
@@ -156,7 +157,7 @@ pub fn user_command() {
   use _i, _s <- command.user(signature:)
 
   { "Someone got a high-five!" }
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }
 
 pub fn message_command() {
@@ -165,5 +166,5 @@ pub fn message_command() {
   use _i, _s <- command.message(signature:)
 
   { "Message reported successfully" }
-  |> interaction.Message
+  |> command_response.MessageWithSource
 }

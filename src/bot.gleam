@@ -2,6 +2,7 @@ import application_commands.{type ApplicationCommand} as command
 import gleam/erlang/process
 import gleam/option.{type Option}
 import interaction.{type Interaction}
+import response
 
 pub type Bot(state) {
   Bot(
@@ -21,20 +22,15 @@ pub type Bot(state) {
 pub fn handle_interaction(
   bot: Bot(_),
   i i: Interaction,
-) -> Result(interaction.Response, Nil) {
+) -> Result(response.Response, Nil) {
   case i {
-    interaction.Ping(..) -> Ok(interaction.Pong)
-    interaction.ApplicationCommand(..) ->
-      case command.execute_handler(bot.commands, bot.state, i) {
-        Ok(_) as res -> res
-        _ -> Error(Nil)
-      }
+    interaction.Ping(..) -> Ok(response.Pong)
+    interaction.ApplicationCommand(..) -> Ok(todo as "execute command")
     interaction.MessageComponent(..) -> Ok(todo as "execute component")
     interaction.ApplicationCommandAutocomplete(..) ->
-      case command.find_execute_autocomplete(bot.commands, bot.state, i) {
-        Ok(_) as res -> res
-        _ -> Error(Nil)
-      }
+      todo as "execute autocomplete"
+      |> response.Autocomplete
+      |> Ok
     interaction.ModalSubmit(..) -> Ok(todo as "handle submission")
   }
 }
