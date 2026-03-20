@@ -103,7 +103,7 @@ pub fn subcommand_group_decoder() -> decode.Decoder(SubcommandGroup) {
   use name <- decode.field("name", decode.string)
   use subcommands <- decode.field(
     "subcommands",
-    decode.list(todo as "Decoder for Subcommand"),
+    decode.list(subcommand_decoder()),
   )
   decode.success(SubcommandGroup(name:, subcommands:))
 }
@@ -114,9 +114,6 @@ pub type Subcommand {
 
 pub fn subcommand_decoder() -> decode.Decoder(Subcommand) {
   use name <- decode.field("name", decode.string)
-  use options <- decode.field(
-    "options",
-    decode.list(todo as "Decoder for Value"),
-  )
+  use options <- decode.field("options", decode.list(value_decoder()))
   decode.success(Subcommand(name:, options:))
 }
