@@ -38,6 +38,7 @@ pub fn handle_interaction(
   }
 }
 
+/// TODO: Use a dict of strings for to map handlers, then build string from options and lookup in dict
 fn handle_application_command(commands, state, i, data) {
   case data {
     data.ChatInputApplicationCommand(name: invoked_name, options:, ..) ->
@@ -93,8 +94,8 @@ fn handle_chat_input_group(
   i: Interaction,
   state: state,
 ) -> Result(response.Response, Nil) {
-  let assert type_utils.B(invoked_subcommand) = options
-  case invoked_subcommand {
+  let assert type_utils.B(invoked) = options
+  case invoked {
     type_utils.A(option_data.SubcommandGroup(
       name: invoked_name,
       subcommand: invoked_subcommand,
