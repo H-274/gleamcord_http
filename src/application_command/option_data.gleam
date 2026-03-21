@@ -2,15 +2,13 @@ import gleam/dynamic/decode
 import internal/type_utils
 
 pub type Options =
-  type_utils.Or(CommandOptions, CommandGroupOptions)
+  type_utils.Or(CommandOptions, CommandGroupOption)
 
 pub fn options_decoder() -> decode.Decoder(Options) {
   decode.one_of(decode.list(value_decoder()) |> decode.map(type_utils.A), [
-    decode.list(
-      decode.one_of(subcommand_group_decoder() |> decode.map(type_utils.A), [
-        subcommand_decoder() |> decode.map(type_utils.B),
-      ]),
-    )
+    decode.one_of(subcommand_group_decoder() |> decode.map(type_utils.A), [
+      subcommand_decoder() |> decode.map(type_utils.B),
+    ])
     |> decode.map(type_utils.B),
   ])
 }
@@ -18,8 +16,8 @@ pub fn options_decoder() -> decode.Decoder(Options) {
 pub type CommandOptions =
   List(Value)
 
-pub type CommandGroupOptions =
-  List(type_utils.Or(SubcommandGroup, Subcommand))
+pub type CommandGroupOption =
+  type_utils.Or(SubcommandGroup, Subcommand)
 
 pub type Value {
   StringValue(name: String, value: String, focused: Bool)
@@ -96,16 +94,13 @@ pub fn value_decoder() -> decode.Decoder(Value) {
 }
 
 pub type SubcommandGroup {
-  SubcommandGroup(name: String, subcommands: List(Subcommand))
+  SubcommandGroup(name: String, subcommand: Subcommand)
 }
 
 pub fn subcommand_group_decoder() -> decode.Decoder(SubcommandGroup) {
   use name <- decode.field("name", decode.string)
-  use subcommands <- decode.field(
-    "subcommands",
-    decode.list(subcommand_decoder()),
-  )
-  decode.success(SubcommandGroup(name:, subcommands:))
+  use subcommand <- decode.field("subcommands", subcommand_decoder())
+  decode.success(SubcommandGroup(name:, subcommand:))
 }
 
 pub type Subcommand {

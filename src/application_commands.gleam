@@ -11,7 +11,7 @@ import interaction.{type Interaction}
 import internal/type_utils
 import response/application_command as responses
 
-pub opaque type ApplicationCommand(state) {
+pub type ApplicationCommand(state) {
   ChatInput(
     signature: Signature,
     options: List(CommandOption(state)),
@@ -79,7 +79,7 @@ pub fn message(
   Message(signature:, handler:)
 }
 
-pub opaque type ChatInputSubcommandGroup(state) {
+pub type ChatInputSubcommandGroup(state) {
   ChatInputSubcommandGroup(
     name: String,
     description: String,
@@ -95,7 +95,7 @@ pub fn subcommand_group(
   ChatInputSubcommandGroup(name:, description:, subcommands:)
 }
 
-pub opaque type ChatInputSubcommand(state) {
+pub type ChatInputSubcommand(state) {
   ChatInputSubcommand(
     signature: Signature,
     options: List(CommandOption(state)),
@@ -111,7 +111,7 @@ pub fn subcommand(
   ChatInputSubcommand(signature:, options:, handler:)
 }
 
-pub opaque type Signature {
+pub type Signature {
   Signature(
     name: String,
     description: String,
