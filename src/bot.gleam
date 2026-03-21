@@ -55,62 +55,7 @@ fn handle_application_command(commands, state, i, data) {
           }
           command.ChatInputGroup(name:, subcommands:, ..)
             if name == invoked_name
-          -> {
-            let assert type_utils.B(invoked_subcommand) = options
-            case invoked_subcommand {
-              type_utils.A(option_data.SubcommandGroup(
-                name: invoked_name,
-                subcommand: invoked_subcommand,
-              )) ->
-                list.find_map(subcommands, fn(s) {
-                  case s {
-                    type_utils.A(command.ChatInputSubcommandGroup(
-                      name:,
-                      subcommands:,
-                      ..,
-                    ))
-                      if name == invoked_name
-                    ->
-                      list.find_map(subcommands, fn(s) {
-                        case s {
-                          command.ChatInputSubcommand(signature:, handler:, ..)
-                            if signature.name == invoked_subcommand.name
-                          -> {
-                            list.map(invoked_subcommand.options, fn(o) {
-                              #(o.name, o)
-                            })
-                            |> dict.from_list
-                            |> handler(i, state, _)
-                            |> response.Command
-                            |> Ok
-                          }
-                          _ -> Error(Nil)
-                        }
-                      })
-                    _ -> Error(Nil)
-                  }
-                })
-              type_utils.B(option_data.Subcommand(name: invoked_name, options:)) ->
-                list.find_map(subcommands, fn(s) {
-                  case s {
-                    type_utils.B(command.ChatInputSubcommand(
-                      signature:,
-                      handler:,
-                      ..,
-                    ))
-                      if signature.name == invoked_name
-                    -> {
-                      list.map(options, fn(o) { #(o.name, o) })
-                      |> dict.from_list
-                      |> handler(i, state, _)
-                      |> response.Command
-                      |> Ok
-                    }
-                    _ -> Error(Nil)
-                  }
-                })
-            }
-          }
+          -> handle_chat_input_group(options, subcommands, i, state)
           _ -> Error(Nil)
         }
       })
@@ -128,6 +73,66 @@ fn handle_application_command(commands, state, i, data) {
           command.Message(signature:, handler:)
             if signature.name == invoked_name
           -> handler(i, state) |> response.Command |> Ok
+          _ -> Error(Nil)
+        }
+      })
+  }
+}
+
+fn handle_chat_input_group(
+  options: type_utils.Or(
+    List(option_data.Value),
+    type_utils.Or(option_data.SubcommandGroup, option_data.Subcommand),
+  ),
+  subcommands: List(
+    type_utils.Or(
+      command.ChatInputSubcommandGroup(state),
+      command.ChatInputSubcommand(state),
+    ),
+  ),
+  i: Interaction,
+  state: state,
+) -> Result(response.Response, Nil) {
+  let assert type_utils.B(invoked_subcommand) = options
+  case invoked_subcommand {
+    type_utils.A(option_data.SubcommandGroup(
+      name: invoked_name,
+      subcommand: invoked_subcommand,
+    )) ->
+      list.find_map(subcommands, fn(s) {
+        case s {
+          type_utils.A(command.ChatInputSubcommandGroup(name:, subcommands:, ..))
+            if name == invoked_name
+          ->
+            list.find_map(subcommands, fn(s) {
+              case s {
+                command.ChatInputSubcommand(signature:, handler:, ..)
+                  if signature.name == invoked_subcommand.name
+                -> {
+                  list.map(invoked_subcommand.options, fn(o) { #(o.name, o) })
+                  |> dict.from_list
+                  |> handler(i, state, _)
+                  |> response.Command
+                  |> Ok
+                }
+                _ -> Error(Nil)
+              }
+            })
+          _ -> Error(Nil)
+        }
+      })
+    type_utils.B(option_data.Subcommand(name: invoked_name, options:)) ->
+      list.find_map(subcommands, fn(s) {
+        case s {
+          type_utils.B(command.ChatInputSubcommand(signature:, handler:, ..))
+            if signature.name == invoked_name
+          -> {
+            list.map(options, fn(o) { #(o.name, o) })
+            |> dict.from_list
+            |> handler(i, state, _)
+            |> response.Command
+            |> Ok
+          }
           _ -> Error(Nil)
         }
       })
