@@ -1,9 +1,7 @@
 import application_command/option_data
 import application_commands.{type ApplicationCommand} as command
 import gleam/dict
-import gleam/erlang/process
 import gleam/list
-import gleam/option.{type Option}
 import interaction.{type Interaction}
 import interaction/data
 import internal/type_utils
@@ -15,7 +13,6 @@ pub type Bot(state) {
     pub_key: String,
     token: String,
     state: state,
-    deferred_actor: Option(process.Name(fn() -> String)),
     commands: List(ApplicationCommand(state)),
     // TODO implement message component definitions
     components: List(Nil),
