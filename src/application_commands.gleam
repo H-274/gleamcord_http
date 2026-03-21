@@ -2,17 +2,17 @@
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
 //// 
 //// TODO: Investigate merging chat input command and chat input subcommands to allow easily changing a subcommand to a command and vice-versa
-//// TODO: Try to make ApplicationCommand opaque. ApplicationCommand not being opaque allows creation of invalid dicts
 
 import application_command/option_data
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option.{type Option}
 import interaction.{type Interaction}
+import interaction/data
 import internal/type_utils
 import response/application_command as responses
 
-pub type ApplicationCommand(state) {
+pub opaque type ApplicationCommand(state) {
   ChatInput(
     signature: Signature,
     options: List(CommandOption(state)),
@@ -89,7 +89,7 @@ pub fn message(
   Message(signature:, handler:)
 }
 
-pub type ChatInputSubcommandGroup(state) {
+pub opaque type ChatInputSubcommandGroup(state) {
   ChatInputSubcommandGroup(
     name: String,
     description: String,
@@ -107,7 +107,7 @@ pub fn subcommand_group(
   |> ChatInputSubcommandGroup(name:, description:, subcommands: _)
 }
 
-pub type ChatInputSubcommand(state) {
+pub opaque type ChatInputSubcommand(state) {
   ChatInputSubcommand(
     signature: Signature,
     options: List(CommandOption(state)),
@@ -393,5 +393,56 @@ pub fn required(option: CommandOption(_), required: Bool) {
     MentionableOption(..) -> MentionableOption(..option, required:)
     NumberOption(..) -> NumberOption(..option, required:)
     AttachmentOption(..) -> AttachmentOption(..option, required:)
+  }
+}
+
+pub fn handle_interaction(commands, state, i, data) {
+  case data {
+    data.ChatInputApplicationCommand(name: invoked_name, options:, ..) ->
+      case dict.get(commands, invoked_name), options {
+        Ok(ChatInput(handler:, ..)), type_utils.A(options) -> {
+          list.map(options, fn(o) { #(o.name, o) })
+          |> dict.from_list
+          |> handler(i, state, _)
+          |> Ok
+        }
+        Ok(ChatInputGroup(subcommands:, ..)), type_utils.B(option) ->
+          case option {
+            type_utils.A(invoked) ->
+              case dict.get(subcommands, invoked.name) {
+                Ok(type_utils.A(group)) ->
+                  case dict.get(group.subcommands, invoked.subcommand.name) {
+                    Ok(subcommand) ->
+                      invoked.subcommand.options
+                      |> list.map(fn(o) { #(o.name, o) })
+                      |> dict.from_list
+                      |> subcommand.handler(i, state, _)
+                      |> Ok
+                    _ -> Error(Nil)
+                  }
+                _ -> Error(Nil)
+              }
+            type_utils.B(invoked) ->
+              case dict.get(subcommands, invoked.name) {
+                Ok(type_utils.B(subcommand)) ->
+                  list.map(invoked.options, fn(o) { #(o.name, o) })
+                  |> dict.from_list
+                  |> subcommand.handler(i, state, _)
+                  |> Ok
+                _ -> Error(Nil)
+              }
+          }
+        _, _ -> Error(Nil)
+      }
+    data.UserApplicationCommand(name: invoked, ..) ->
+      case dict.get(commands, invoked) {
+        Ok(User(handler:, ..)) -> handler(i, state) |> Ok
+        _ -> Error(Nil)
+      }
+    data.MessageApplicationCommand(name: invoked, ..) ->
+      case dict.get(commands, invoked) {
+        Ok(Message(handler:, ..)) -> handler(i, state) |> Ok
+        _ -> Error(Nil)
+      }
   }
 }
