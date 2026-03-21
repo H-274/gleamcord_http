@@ -2,6 +2,7 @@
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
 //// 
 //// TODO: Investigate merging chat input command and chat input subcommands to allow easily changing a subcommand to a command and vice-versa
+//// TODO: Try to make ApplicationCommand opaque. ApplicationCommand not being opaque allows creation of invalid dicts
 
 import application_command/option_data
 import gleam/dict.{type Dict}
@@ -20,7 +21,8 @@ pub type ApplicationCommand(state) {
   ChatInputGroup(
     name: String,
     description: String,
-    subcommands: List(
+    subcommands: Dict(
+      String,
       type_utils.Or(ChatInputSubcommandGroup(state), ChatInputSubcommand(state)),
     ),
   )
@@ -37,7 +39,7 @@ pub fn chat_input(
 }
 
 pub fn chat_input_group(name name: String, desc description: String) {
-  ChatInputGroup(name:, description:, subcommands: [])
+  ChatInputGroup(name:, description:, subcommands: dict.new())
 }
 
 pub fn add_subcommand_group(
@@ -46,10 +48,14 @@ pub fn add_subcommand_group(
 ) {
   case command {
     ChatInputGroup(subcommands: subcommands, ..) ->
-      ChatInputGroup(..command, subcommands: [
-        type_utils.A(subcommand_group),
-        ..subcommands
-      ])
+      ChatInputGroup(
+        ..command,
+        subcommands: dict.insert(
+          subcommands,
+          subcommand_group.name,
+          type_utils.A(subcommand_group),
+        ),
+      )
     _ -> command
   }
 }
@@ -60,10 +66,14 @@ pub fn add_subcommand(
 ) {
   case command {
     ChatInputGroup(subcommands: subcommands, ..) ->
-      ChatInputGroup(..command, subcommands: [
-        type_utils.B(subcommand),
-        ..subcommands
-      ])
+      ChatInputGroup(
+        ..command,
+        subcommands: dict.insert(
+          subcommands,
+          subcommand.signature.name,
+          type_utils.B(subcommand),
+        ),
+      )
     _ -> command
   }
 }
@@ -83,7 +93,7 @@ pub type ChatInputSubcommandGroup(state) {
   ChatInputSubcommandGroup(
     name: String,
     description: String,
-    subcommands: List(ChatInputSubcommand(state)),
+    subcommands: Dict(String, ChatInputSubcommand(state)),
   )
 }
 
@@ -92,7 +102,9 @@ pub fn subcommand_group(
   desc description: String,
   sub subcommands: List(ChatInputSubcommand(_)),
 ) {
-  ChatInputSubcommandGroup(name:, description:, subcommands:)
+  list.map(subcommands, fn(s) { #(s.signature.name, s) })
+  |> dict.from_list
+  |> ChatInputSubcommandGroup(name:, description:, subcommands: _)
 }
 
 pub type ChatInputSubcommand(state) {
