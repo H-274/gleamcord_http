@@ -1,10 +1,7 @@
 import application_commands.{type ApplicationCommand} as command
 import gleam/dict.{type Dict}
-import gleam/list
 import gleam/result
 import interaction.{type Interaction}
-import interaction/data
-import internal/type_utils
 import response
 
 pub type Bot(state) {
