@@ -1,7 +1,7 @@
-import application_commands.{type ApplicationCommand} as command
+import application_command/application_command.{type ApplicationCommand} as command
 import gleam/dict.{type Dict}
 import gleam/result
-import interaction.{type Interaction}
+import interaction/interaction.{type Interaction}
 import response
 
 pub type Bot(state) {

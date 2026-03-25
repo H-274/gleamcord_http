@@ -1,7 +1,7 @@
-import response/application_command
+import application_command/application_command as command
 
 pub type Response {
   Pong
-  Command(application_command.Command)
-  Autocomplete(application_command.Autocomplete)
+  Command(command.Response)
+  Autocomplete(command.AutocompleteResponse)
 }

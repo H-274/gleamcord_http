@@ -1,13 +1,12 @@
+import application_command/application_command as command
 import application_command/option_data.{
   IntegerValue as IntVal, StringValue as StrVal,
 }
-import application_commands as command
 import gleam/dict
 import gleam/list
 import gleam/option
 import gleam/string
-import interaction
-import response/application_command as command_response
+import interaction/interaction
 
 pub fn chat_input() {
   // --- /ping
@@ -16,7 +15,7 @@ pub fn chat_input() {
   use _i, _s, _opts <- command.chat_input(signature:, opts: [])
 
   "Pong!"
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }
 
 pub fn chat_input_group() {
@@ -66,7 +65,7 @@ fn times_subcommand() {
 
   list.repeat("Hello World!", times:)
   |> string.join("\n")
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }
 
 fn caps_subcommand(hello_world) {
@@ -76,7 +75,7 @@ fn caps_subcommand(hello_world) {
   use _i, _s, _opts <- command.subcommand(signature:, opts: [])
 
   string.uppercase(hello_world)
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }
 
 fn colour_picker_subcommand() {
@@ -99,7 +98,7 @@ fn colour_picker_subcommand() {
   let assert Ok(StrVal(value: colour, ..)) = dict.get(opts, "colour")
 
   { "You picked the value: `" <> colour <> "` !" }
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }
 
 fn words_subcommand() {
@@ -117,6 +116,7 @@ fn words_subcommand() {
           ["Timeline", "Times", "Tinker"]
           |> list.filter(string.starts_with(_, case_adjusted_partial))
           |> list.map(fn(x) { #(x, x) })
+          |> command.StringAutocomplete
         },
       ),
     ),
@@ -127,7 +127,7 @@ fn words_subcommand() {
   let assert Ok(StrVal(value: word, ..)) = dict.get(opts, "word")
 
   { "You picked the word: `" <> word <> "` !" }
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }
 
 fn name_subcommand() {
@@ -147,7 +147,7 @@ fn name_subcommand() {
   let assert Ok(StrVal(value: name, ..)) = dict.get(opts, "name")
 
   { "Hello " <> name <> "!" }
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }
 
 pub fn user_command() {
@@ -157,7 +157,7 @@ pub fn user_command() {
   use _i, _s <- command.user(signature:)
 
   { "Someone got a high-five!" }
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }
 
 pub fn message_command() {
@@ -166,5 +166,5 @@ pub fn message_command() {
   use _i, _s <- command.message(signature:)
 
   { "Message reported successfully" }
-  |> command_response.MessageWithSource
+  |> command.MessageWithSource
 }

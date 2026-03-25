@@ -7,10 +7,9 @@ import application_command/option_data
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option.{type Option}
-import interaction.{type Interaction}
 import interaction/data
+import interaction/interaction.{type Interaction}
 import internal/type_utils
-import response/application_command as responses
 
 pub opaque type ApplicationCommand(state) {
   ChatInput(
@@ -162,13 +161,13 @@ pub fn set_nsfw(signature: Signature, nsfw: Bool) {
 }
 
 pub type ChatInputHandler(state) =
-  fn(Interaction, state, Dict(String, option_data.Value)) -> responses.Command
+  fn(Interaction, state, Dict(String, option_data.Value)) -> Response
 
 pub type UserHandler(state) =
-  fn(Interaction, state) -> responses.Command
+  fn(Interaction, state) -> Response
 
 pub type MessageHandler(state) =
-  fn(Interaction, state) -> responses.Command
+  fn(Interaction, state) -> Response
 
 /// According to https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
 const min_string_length = 0
@@ -376,7 +375,7 @@ pub fn number_option(
 
 pub type AutocompleteHandler(state, val) =
   fn(Interaction, state, Dict(String, option_data.Value), val) ->
-    List(#(String, val))
+    AutocompleteResponse
 
 pub fn attachment_option(name name: String, desc description: String) {
   AttachmentOption(name:, description:, required: True)
@@ -401,7 +400,7 @@ pub fn handle_interaction(
   state: state,
   i: Interaction,
   data: data.ApplicationCommand,
-) -> Result(responses.Command, Nil) {
+) -> Result(Response, Nil) {
   case data {
     data.ChatInputApplicationCommand(name: ivk_name, options:, ..) ->
       case dict.get(commands, ivk_name), options {
@@ -439,4 +438,16 @@ pub fn handle_interaction(
         _ -> Error(Nil)
       }
   }
+}
+
+pub type Response {
+  MessageWithSource(String)
+  DeferredMessageWithSource(String)
+  Modal
+}
+
+pub type AutocompleteResponse {
+  StringAutocomplete(List(#(String, String)))
+  IntegerAutocomplete(List(#(String, Int)))
+  NumberAutocomplete(List(#(String, Float)))
 }
