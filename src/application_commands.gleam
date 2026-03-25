@@ -396,28 +396,25 @@ pub fn required(option: CommandOption(_), required: Bool) {
   }
 }
 
-pub fn handle_interaction(commands, state, i, data) {
+pub fn handle_interaction(
+  commands: Dict(String, ApplicationCommand(state)),
+  state: state,
+  i: Interaction,
+  data: data.ApplicationCommand,
+) -> Result(responses.Command, Nil) {
   case data {
-    data.ChatInputApplicationCommand(name: invoked_name, options:, ..) ->
-      case dict.get(commands, invoked_name), options {
-        Ok(ChatInput(handler:, ..)), type_utils.A(options) -> {
-          list.map(options, fn(o) { #(o.name, o) })
-          |> dict.from_list
-          |> handler(i, state, _)
-          |> Ok
-        }
+    data.ChatInputApplicationCommand(name: ivk_name, options:, ..) ->
+      case dict.get(commands, ivk_name), options {
+        Ok(ChatInput(handler:, ..)), type_utils.A(options) ->
+          handler(i, state, options) |> Ok
         Ok(ChatInputGroup(subcommands:, ..)), type_utils.B(option) ->
           case option {
-            type_utils.A(invoked) ->
-              case dict.get(subcommands, invoked.name) {
+            type_utils.A(ivk) ->
+              case dict.get(subcommands, ivk.name) {
                 Ok(type_utils.A(group)) ->
-                  case dict.get(group.subcommands, invoked.subcommand.name) {
+                  case dict.get(group.subcommands, ivk.subcommand.name) {
                     Ok(subcommand) ->
-                      invoked.subcommand.options
-                      |> list.map(fn(o) { #(o.name, o) })
-                      |> dict.from_list
-                      |> subcommand.handler(i, state, _)
-                      |> Ok
+                      subcommand.handler(i, state, ivk.subcommand.options) |> Ok
                     _ -> Error(Nil)
                   }
                 _ -> Error(Nil)
@@ -425,22 +422,19 @@ pub fn handle_interaction(commands, state, i, data) {
             type_utils.B(invoked) ->
               case dict.get(subcommands, invoked.name) {
                 Ok(type_utils.B(subcommand)) ->
-                  list.map(invoked.options, fn(o) { #(o.name, o) })
-                  |> dict.from_list
-                  |> subcommand.handler(i, state, _)
-                  |> Ok
+                  subcommand.handler(i, state, invoked.options) |> Ok
                 _ -> Error(Nil)
               }
           }
         _, _ -> Error(Nil)
       }
-    data.UserApplicationCommand(name: invoked, ..) ->
-      case dict.get(commands, invoked) {
+    data.UserApplicationCommand(name: ivk_name, ..) ->
+      case dict.get(commands, ivk_name) {
         Ok(User(handler:, ..)) -> handler(i, state) |> Ok
         _ -> Error(Nil)
       }
-    data.MessageApplicationCommand(name: invoked, ..) ->
-      case dict.get(commands, invoked) {
+    data.MessageApplicationCommand(name: ivk_name, ..) ->
+      case dict.get(commands, ivk_name) {
         Ok(Message(handler:, ..)) -> handler(i, state) |> Ok
         _ -> Error(Nil)
       }

@@ -1,4 +1,5 @@
 import application_command/option_data
+import gleam/dict
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
@@ -91,7 +92,7 @@ pub fn application_command_decoder() -> decode.Decoder(ApplicationCommand) {
           id: "",
           name: "",
           resolved: option.None,
-          options: type_utils.A([]),
+          options: type_utils.A(dict.new()),
           guild_id: option.None,
           target_id: option.None,
         ),
