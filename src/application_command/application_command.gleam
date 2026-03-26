@@ -3,7 +3,7 @@
 //// 
 //// TODO: Investigate merging chat input command and chat input subcommands to allow easily changing a subcommand to a command and vice-versa
 
-import application_command/option_data
+import application_command/option_value
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option.{type Option}
@@ -161,7 +161,7 @@ pub fn set_nsfw(signature: Signature, nsfw: Bool) {
 }
 
 pub type ChatInputHandler(state) =
-  fn(Interaction, state, Dict(String, option_data.Value)) -> Response
+  fn(Interaction, state, option_value.Values) -> Response
 
 pub type UserHandler(state) =
   fn(Interaction, state) -> Response
@@ -374,8 +374,7 @@ pub fn number_option(
 }
 
 pub type AutocompleteHandler(state, val) =
-  fn(Interaction, state, Dict(String, option_data.Value), val) ->
-    AutocompleteResponse
+  fn(Interaction, state, option_value.Values, val) -> List(#(String, val))
 
 pub fn attachment_option(name name: String, desc description: String) {
   AttachmentOption(name:, description:, required: True)
@@ -404,21 +403,21 @@ pub fn handle_interaction(
   case data {
     data.ChatInputApplicationCommand(name: ivk_name, options:, ..) ->
       case dict.get(commands, ivk_name), options {
-        Ok(ChatInput(handler:, ..)), option_data.Command(options) ->
+        Ok(ChatInput(handler:, ..)), option_value.Values(options) ->
           handler(i, state, options) |> Ok
-        Ok(ChatInputGroup(subcommands:, ..)), option_data.CommandGroup(option) ->
+        Ok(ChatInputGroup(subcommands:, ..)), option_value.Group(option) ->
           case option {
-            option_data.GroupSubcommandGroup(ivk) ->
+            option_value.SubcommandGroup(ivk) ->
               case dict.get(subcommands, ivk.name) {
                 Ok(type_utils.A(group)) ->
-                  case dict.get(group.subcommands, ivk.subcommand.name) {
+                  case dict.get(group.subcommands, ivk.sub.name) {
                     Ok(subcommand) ->
-                      subcommand.handler(i, state, ivk.subcommand.options) |> Ok
+                      subcommand.handler(i, state, ivk.sub.options) |> Ok
                     _ -> Error(Nil)
                   }
                 _ -> Error(Nil)
               }
-            option_data.GroupSubcommand(ivk) ->
+            option_value.Subcommand(ivk) ->
               case dict.get(subcommands, ivk.name) {
                 Ok(type_utils.B(subcommand)) ->
                   subcommand.handler(i, state, ivk.options) |> Ok

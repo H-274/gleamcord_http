@@ -1,4 +1,4 @@
-import application_command/option_data.{type OptionData}
+import application_command/option_value.{type OptionValue}
 import gleam/dict
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
@@ -9,7 +9,7 @@ pub type ApplicationCommand {
     id: String,
     name: String,
     resolved: Option(Resolved),
-    options: OptionData,
+    options: OptionValue,
     guild_id: Option(String),
     target_id: Option(String),
   )
@@ -39,7 +39,10 @@ pub fn application_command_decoder() -> decode.Decoder(ApplicationCommand) {
         "resolved",
         decode.optional(resolved_decoder()),
       )
-      use options <- decode.field("options", option_data.options_decoder())
+      use options <- decode.field(
+        "options",
+        option_value.command_option_decoder(),
+      )
       use guild_id <- decode.field("guild_id", decode.optional(decode.string))
       use target_id <- decode.field("target_id", decode.optional(decode.string))
       decode.success(ChatInputApplicationCommand(
@@ -91,7 +94,7 @@ pub fn application_command_decoder() -> decode.Decoder(ApplicationCommand) {
           id: "",
           name: "",
           resolved: option.None,
-          options: option_data.Command(dict.new()),
+          options: option_value.Values(dict.new()),
           guild_id: option.None,
           target_id: option.None,
         ),

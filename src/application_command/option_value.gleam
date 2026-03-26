@@ -1,38 +1,22 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic/decode
 
-pub type OptionData {
-  Command(CommandOptions)
-  CommandGroup(CommandGroupOption)
+pub type OptionValue {
+  Values(Values)
+  Group(Group)
 }
 
-pub fn options_decoder() -> decode.Decoder(OptionData) {
+pub fn command_option_decoder() -> decode.Decoder(OptionValue) {
   decode.one_of(
     decode.list(value_decoder() |> decode.map(fn(o) { #(o.name, o) }))
       |> decode.map(dict.from_list)
-      |> decode.map(Command),
-    [
-      decode.one_of(
-        subcommand_decoder()
-          |> decode.map(GroupSubcommand)
-          |> decode.map(CommandGroup),
-        [
-          subcommand_group_decoder()
-          |> decode.map(GroupSubcommandGroup)
-          |> decode.map(CommandGroup),
-        ],
-      ),
-    ],
+      |> decode.map(Values),
+    [decode.at([0], group_decoder()) |> decode.map(Group)],
   )
 }
 
-pub type CommandOptions =
+pub type Values =
   Dict(String, Value)
-
-pub type CommandGroupOption {
-  GroupSubcommandGroup(SubcommandGroup)
-  GroupSubcommand(Subcommand)
-}
 
 pub type Value {
   StringValue(name: String, value: String, focused: Bool)
@@ -108,26 +92,43 @@ pub fn value_decoder() -> decode.Decoder(Value) {
   }
 }
 
+pub type Group {
+  SubcommandGroup(SubcommandGroup)
+  Subcommand(Subcommand)
+}
+
+pub fn group_decoder() -> decode.Decoder(Group) {
+  use variant <- decode.field("type", decode.int)
+  case variant {
+    1 -> subcommand_decoder() |> decode.map(Subcommand)
+    2 -> subcommand_group_decoder() |> decode.map(SubcommandGroup)
+    _ -> decode.failure(Subcommand(SubcommandValue("", dict.new())), "Group")
+  }
+}
+
 pub type SubcommandGroup {
-  SubcommandGroup(name: String, subcommand: Subcommand)
+  SubcommandGroupValue(name: String, sub: Subcommand)
 }
 
 pub fn subcommand_group_decoder() -> decode.Decoder(SubcommandGroup) {
   use name <- decode.field("name", decode.string)
-  use subcommand <- decode.field("subcommands", subcommand_decoder())
-  decode.success(SubcommandGroup(name:, subcommand:))
+  use sub <- decode.field("options", subcommand_decoder())
+
+  decode.success(SubcommandGroupValue(name:, sub:))
 }
 
 pub type Subcommand {
-  Subcommand(name: String, options: CommandOptions)
+  SubcommandValue(name: String, options: Dict(String, Value))
 }
 
 pub fn subcommand_decoder() -> decode.Decoder(Subcommand) {
   use name <- decode.field("name", decode.string)
   use options <- decode.field(
     "options",
-    decode.list(value_decoder() |> decode.map(fn(o) { #(o.name, o) }))
-      |> decode.map(dict.from_list),
+    decode.list(value_decoder() |> decode.map(fn(o) { #(o.name, o) })),
   )
-  decode.success(Subcommand(name:, options:))
+
+  let options = dict.from_list(options)
+
+  decode.success(SubcommandValue(name:, options:))
 }

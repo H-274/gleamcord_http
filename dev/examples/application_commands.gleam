@@ -1,5 +1,5 @@
 import application_command/application_command as command
-import application_command/option_data.{
+import application_command/command_option.{
   IntegerValue as IntVal, StringValue as StrVal,
 }
 import gleam/dict
