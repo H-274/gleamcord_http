@@ -404,11 +404,11 @@ pub fn handle_interaction(
   case data {
     data.ChatInputApplicationCommand(name: ivk_name, options:, ..) ->
       case dict.get(commands, ivk_name), options {
-        Ok(ChatInput(handler:, ..)), type_utils.A(options) ->
+        Ok(ChatInput(handler:, ..)), option_data.Command(options) ->
           handler(i, state, options) |> Ok
-        Ok(ChatInputGroup(subcommands:, ..)), type_utils.B(option) ->
+        Ok(ChatInputGroup(subcommands:, ..)), option_data.CommandGroup(option) ->
           case option {
-            type_utils.A(ivk) ->
+            option_data.GroupSubcommandGroup(ivk) ->
               case dict.get(subcommands, ivk.name) {
                 Ok(type_utils.A(group)) ->
                   case dict.get(group.subcommands, ivk.subcommand.name) {
@@ -418,10 +418,10 @@ pub fn handle_interaction(
                   }
                 _ -> Error(Nil)
               }
-            type_utils.B(invoked) ->
-              case dict.get(subcommands, invoked.name) {
+            option_data.GroupSubcommand(ivk) ->
+              case dict.get(subcommands, ivk.name) {
                 Ok(type_utils.B(subcommand)) ->
-                  subcommand.handler(i, state, invoked.options) |> Ok
+                  subcommand.handler(i, state, ivk.options) |> Ok
                 _ -> Error(Nil)
               }
           }

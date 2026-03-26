@@ -5,7 +5,6 @@ import gleam/dynamic
 import gleam/option
 import interaction/data
 import interaction/interaction
-import internal/type_utils
 
 const correct_run = "correct run"
 
@@ -26,7 +25,7 @@ pub fn valid_chat_input_handle_interaction_test() {
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: type_utils.A(options),
+      options: option_data.Command(options),
       guild_id: option.None,
       target_id: option.None,
     )
@@ -95,7 +94,7 @@ pub fn invalid_chat_input_handle_interaction_test() {
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: type_utils.A(options),
+      options: option_data.Command(options),
       guild_id: option.None,
       target_id: option.None,
     )
@@ -155,8 +154,11 @@ pub fn valid_chat_input_group_handle_interaction_test() {
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: type_utils.B(
-        type_utils.B(option_data.Subcommand(invoked_subcommand, options:)),
+      options: option_data.CommandGroup(
+        option_data.GroupSubcommand(option_data.Subcommand(
+          invoked_subcommand,
+          options:,
+        )),
       ),
       guild_id: option.None,
       target_id: option.None,
@@ -226,8 +228,11 @@ pub fn invalid_chat_input_group_handle_interaction_test() {
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: type_utils.B(
-        type_utils.B(option_data.Subcommand(bad_subcommand, options:)),
+      options: option_data.CommandGroup(
+        option_data.GroupSubcommand(option_data.Subcommand(
+          bad_subcommand,
+          options:,
+        )),
       ),
       guild_id: option.None,
       target_id: option.None,
@@ -292,8 +297,8 @@ pub fn valid_chat_input_subcommand_group_handle_interaction_test() {
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: type_utils.B(
-        type_utils.A(option_data.SubcommandGroup(
+      options: option_data.CommandGroup(
+        option_data.GroupSubcommandGroup(option_data.SubcommandGroup(
           invoked_subcommand_group,
           option_data.Subcommand(invoked_subcommand, options:),
         )),
@@ -371,8 +376,8 @@ pub fn invalid_chat_input_subcommand_group_handle_interaction_test() {
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: type_utils.B(
-        type_utils.A(option_data.SubcommandGroup(
+      options: option_data.CommandGroup(
+        option_data.GroupSubcommandGroup(option_data.SubcommandGroup(
           invoked_subcommand_group,
           option_data.Subcommand(invoked_subcommand, options:),
         )),

@@ -1,16 +1,15 @@
-import application_command/option_data
+import application_command/option_data.{type OptionData}
 import gleam/dict
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
-import internal/type_utils
 
 pub type ApplicationCommand {
   ChatInputApplicationCommand(
     id: String,
     name: String,
     resolved: Option(Resolved),
-    options: option_data.Options,
+    options: OptionData,
     guild_id: Option(String),
     target_id: Option(String),
   )
@@ -92,7 +91,7 @@ pub fn application_command_decoder() -> decode.Decoder(ApplicationCommand) {
           id: "",
           name: "",
           resolved: option.None,
-          options: type_utils.A(dict.new()),
+          options: option_data.Command(dict.new()),
           guild_id: option.None,
           target_id: option.None,
         ),

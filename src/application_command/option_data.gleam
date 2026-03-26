@@ -1,23 +1,27 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic/decode
-import internal/type_utils
 
-pub type Options =
-  type_utils.Or(CommandOptions, CommandGroupOption)
+pub type OptionData {
+  Command(CommandOptions)
+  CommandGroup(CommandGroupOption)
+}
 
-pub fn options_decoder() -> decode.Decoder(Options) {
+pub fn options_decoder() -> decode.Decoder(OptionData) {
   decode.one_of(
     decode.list(value_decoder() |> decode.map(fn(o) { #(o.name, o) }))
       |> decode.map(dict.from_list)
-      |> decode.map(type_utils.A),
+      |> decode.map(Command),
     [
       decode.one_of(
-        decode.at([0], subcommand_group_decoder()) |> decode.map(type_utils.A),
+        subcommand_decoder()
+          |> decode.map(GroupSubcommand)
+          |> decode.map(CommandGroup),
         [
-          decode.at([0], subcommand_decoder()) |> decode.map(type_utils.B),
+          subcommand_group_decoder()
+          |> decode.map(GroupSubcommandGroup)
+          |> decode.map(CommandGroup),
         ],
-      )
-      |> decode.map(type_utils.B),
+      ),
     ],
   )
 }
@@ -25,8 +29,10 @@ pub fn options_decoder() -> decode.Decoder(Options) {
 pub type CommandOptions =
   Dict(String, Value)
 
-pub type CommandGroupOption =
-  type_utils.Or(SubcommandGroup, Subcommand)
+pub type CommandGroupOption {
+  GroupSubcommandGroup(SubcommandGroup)
+  GroupSubcommand(Subcommand)
+}
 
 pub type Value {
   StringValue(name: String, value: String, focused: Bool)
