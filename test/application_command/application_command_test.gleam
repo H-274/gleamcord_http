@@ -1,5 +1,5 @@
 import application_command/application_command as command
-import application_command/command_option
+import application_command/option_value
 import gleam/dict
 import gleam/dynamic
 import gleam/option
@@ -18,14 +18,14 @@ pub fn valid_chat_input_handle_interaction_test() {
     dict.new()
     |> dict.insert(
       opt_name,
-      command_option.StringValue(name: opt_name, value: "", focused: False),
+      option_value.StringValue(name: opt_name, value: "", focused: False),
     )
   let data =
     data.ChatInputApplicationCommand(
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: command_option.Values(options),
+      options: option_value.Values(options),
       guild_id: option.None,
       target_id: option.None,
     )
@@ -83,7 +83,7 @@ pub fn invalid_chat_input_handle_interaction_test() {
     dict.new()
     |> dict.insert(
       opt_name,
-      command_option.StringValue(
+      option_value.StringValue(
         name: opt_name,
         value: correct_run,
         focused: False,
@@ -94,7 +94,7 @@ pub fn invalid_chat_input_handle_interaction_test() {
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: command_option.Values(options),
+      options: option_value.Values(options),
       guild_id: option.None,
       target_id: option.None,
     )
@@ -147,15 +147,15 @@ pub fn valid_chat_input_group_handle_interaction_test() {
     dict.new()
     |> dict.insert(
       opt_name,
-      command_option.StringValue(name: opt_name, value: "", focused: False),
+      option_value.StringValue(name: opt_name, value: "", focused: False),
     )
   let data =
     data.ChatInputApplicationCommand(
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: command_option.Group(
-        command_option.Subcommand(command_option.SubcommandValue(
+      options: option_value.Group(
+        option_value.Subcommand(option_value.SubcommandValue(
           invoked_subcommand,
           options:,
         )),
@@ -221,15 +221,15 @@ pub fn invalid_chat_input_group_handle_interaction_test() {
     dict.new()
     |> dict.insert(
       opt_name,
-      command_option.StringValue(name: opt_name, value: "", focused: False),
+      option_value.StringValue(name: opt_name, value: "", focused: False),
     )
   let data =
     data.ChatInputApplicationCommand(
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: command_option.Group(
-        command_option.Subcommand(command_option.SubcommandValue(
+      options: option_value.Group(
+        option_value.Subcommand(option_value.SubcommandValue(
           bad_subcommand,
           options:,
         )),
@@ -290,17 +290,17 @@ pub fn valid_chat_input_subcommand_group_handle_interaction_test() {
     dict.new()
     |> dict.insert(
       opt_name,
-      command_option.StringValue(name: opt_name, value: "", focused: False),
+      option_value.StringValue(name: opt_name, value: "", focused: False),
     )
   let data =
     data.ChatInputApplicationCommand(
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: command_option.Group(
-        command_option.SubcommandGroup(command_option.SubcommandGroupValue(
+      options: option_value.Group(
+        option_value.SubcommandGroup(option_value.SubcommandGroupValue(
           invoked_subcommand_group,
-          command_option.SubcommandValue(invoked_subcommand, options:),
+          option_value.SubcommandValue(invoked_subcommand, options:),
         )),
       ),
       guild_id: option.None,
@@ -369,17 +369,17 @@ pub fn invalid_chat_input_subcommand_group_handle_interaction_test() {
     dict.new()
     |> dict.insert(
       opt_name,
-      command_option.StringValue(name: opt_name, value: "", focused: False),
+      option_value.StringValue(name: opt_name, value: "", focused: False),
     )
   let data =
     data.ChatInputApplicationCommand(
       id: "",
       name: invoked_name,
       resolved: option.None,
-      options: command_option.Group(
-        command_option.SubcommandGroup(command_option.SubcommandGroupValue(
+      options: option_value.Group(
+        option_value.SubcommandGroup(option_value.SubcommandGroupValue(
           invoked_subcommand_group,
-          command_option.SubcommandValue(invoked_subcommand, options:),
+          option_value.SubcommandValue(invoked_subcommand, options:),
         )),
       ),
       guild_id: option.None,

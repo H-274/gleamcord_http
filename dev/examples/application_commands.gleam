@@ -1,5 +1,5 @@
 import application_command/application_command as command
-import application_command/command_option.{
+import application_command/option_value.{
   IntegerValue as IntVal, StringValue as StrVal,
 }
 import gleam/dict
@@ -116,7 +116,6 @@ fn words_subcommand() {
           ["Timeline", "Times", "Tinker"]
           |> list.filter(string.starts_with(_, case_adjusted_partial))
           |> list.map(fn(x) { #(x, x) })
-          |> command.StringAutocomplete
         },
       ),
     ),
