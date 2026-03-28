@@ -24,23 +24,17 @@ pub fn handle_interaction(
 ) -> Result(response.Response, Nil) {
   case i {
     interaction.Ping(..) -> Ok(response.Pong)
+
     interaction.ApplicationCommand(data:, ..) ->
       command.handle_interaction(bot.commands, bot.state, i, data)
       |> result.map(response.Command)
-    interaction.MessageComponent(data:, ..) ->
-      handle_component(bot.components, bot.state, i, data)
+
+    interaction.MessageComponent(data: _, ..) -> todo
+
     interaction.ApplicationCommandAutocomplete(data:, ..) ->
       command.handle_autocomplete_interaction(bot.commands, bot.state, i, data)
       |> result.map(response.Autocomplete)
-    interaction.ModalSubmit(data:, ..) ->
-      handle_modal(bot.commands, bot.state, i, data)
+
+    interaction.ModalSubmit(data: _, ..) -> todo
   }
-}
-
-fn handle_component(components, state, i, data) {
-  todo
-}
-
-fn handle_modal(modals, state, i, data) {
-  todo
 }
