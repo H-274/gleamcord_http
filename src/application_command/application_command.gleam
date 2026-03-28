@@ -41,8 +41,8 @@ pub fn handle_interaction(
   data: data.ApplicationCommand,
 ) -> Result(Response, Nil) {
   case data {
-    data.ChatInputApplicationCommand(name: ivk_name, options:, ..) ->
-      case dict.get(commands, ivk_name), options {
+    data.ChatInputApplicationCommand(name:, options:, ..) ->
+      case dict.get(commands, name), options {
         Ok(ChatInput(chat_input)), option_value.Values(values) ->
           chat_input.run(chat_input, i, state, values)
 
@@ -51,14 +51,14 @@ pub fn handle_interaction(
         _, _ -> Error(Nil)
       }
 
-    data.UserApplicationCommand(name: ivk_name, ..) ->
-      case dict.get(commands, ivk_name) {
+    data.UserApplicationCommand(name:, ..) ->
+      case dict.get(commands, name) {
         Ok(User(user)) -> user.run(user, i, state)
         _ -> Error(Nil)
       }
 
-    data.MessageApplicationCommand(name: ivk_name, ..) ->
-      case dict.get(commands, ivk_name) {
+    data.MessageApplicationCommand(name:, ..) ->
+      case dict.get(commands, name) {
         Ok(Message(message)) -> message.run(message, i, state)
         _ -> Error(Nil)
       }
