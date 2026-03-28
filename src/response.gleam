@@ -1,4 +1,4 @@
-import application_command/application_command as command
+import application_command/response as command
 
 pub type Response {
   Pong
