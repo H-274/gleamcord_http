@@ -31,6 +31,7 @@ pub fn handle_interaction(
       handle_component(bot.components, bot.state, i, data)
     interaction.ApplicationCommandAutocomplete(data:, ..) ->
       handle_autocomplete(bot.commands, bot.state, i, data)
+      |> result.map(response.Autocomplete)
     interaction.ModalSubmit(data:, ..) ->
       handle_modal(bot.commands, bot.state, i, data)
   }

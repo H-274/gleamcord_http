@@ -118,7 +118,7 @@ pub fn subcommand_group_decoder() -> decode.Decoder(SubcommandGroup) {
 }
 
 pub type Subcommand {
-  SubcommandValue(name: String, options: Dict(String, Value))
+  SubcommandValue(name: String, options: Values)
 }
 
 pub fn subcommand_decoder() -> decode.Decoder(Subcommand) {
