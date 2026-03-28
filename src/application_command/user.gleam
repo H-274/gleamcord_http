@@ -1,6 +1,6 @@
+import application_command/interaction.{type Interaction}
 import application_command/response.{type Response}
 import application_command/signature.{type Signature}
-import interaction/interaction.{type Interaction}
 
 pub type User(state) {
   User(signature: Signature, handler: Handler(state))

@@ -1,9 +1,9 @@
 import application_command/chat_input.{type ChatInput}
+import application_command/interaction.{type Interaction}
 import application_command/option_value
 import application_command/response.{type Response}
 import gleam/dict.{type Dict}
 import gleam/list
-import interaction/interaction.{type Interaction}
 
 pub opaque type ChatInputGroup(state) {
   ChatInputGroup(

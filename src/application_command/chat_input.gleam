@@ -1,3 +1,4 @@
+import application_command/interaction.{type Interaction}
 import application_command/option_value.{IntegerValue, NumberValue, StringValue}
 import application_command/response.{type Response}
 import application_command/signature.{
@@ -6,7 +7,6 @@ import application_command/signature.{
 }
 import gleam/dict.{type Dict}
 import gleam/list
-import interaction/interaction
 
 pub opaque type ChatInput(state) {
   ChatInput(
@@ -79,4 +79,4 @@ pub fn run_autocomplete(
 }
 
 pub type Handler(state) =
-  fn(interaction.Interaction, state, option_value.Values) -> Response
+  fn(Interaction, state, option_value.Values) -> Response

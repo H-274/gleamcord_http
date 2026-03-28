@@ -1,7 +1,7 @@
+import application_command/interaction
 import application_command/option_value
 import gleam/list
 import gleam/option.{type Option}
-import interaction/interaction
 
 pub type Signature {
   Signature(

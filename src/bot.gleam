@@ -25,16 +25,16 @@ pub fn handle_interaction(
   case i {
     interaction.Ping(..) -> Ok(response.Pong)
 
-    interaction.ApplicationCommand(data:, ..) ->
-      command.handle_interaction(bot.commands, bot.state, i, data)
+    interaction.ApplicationCommand(i) ->
+      command.handle_interaction(bot.commands, bot.state, i)
       |> result.map(response.Command)
 
-    interaction.MessageComponent(data: _, ..) -> todo
+    interaction.MessageComponent(..) -> todo
 
-    interaction.ApplicationCommandAutocomplete(data:, ..) ->
-      command.handle_autocomplete_interaction(bot.commands, bot.state, i, data)
+    interaction.ApplicationCommandAutocomplete(i) ->
+      command.handle_autocomplete_interaction(bot.commands, bot.state, i)
       |> result.map(response.Autocomplete)
 
-    interaction.ModalSubmit(data: _, ..) -> todo
+    interaction.ModalSubmit(..) -> todo
   }
 }
