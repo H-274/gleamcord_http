@@ -66,15 +66,12 @@ pub fn run(
       case dict.get(chat_input_group.subcommands, invoked.name) {
         Ok(Subcommand(chat_input)) ->
           chat_input.run(chat_input, i, state, invoked.options)
-
         _ -> Error(Nil)
       }
-
     option_value.SubcommandGroup(invoked) ->
       case dict.get(chat_input_group.subcommands, invoked.name) {
         Ok(SubcommandGroup(subcommands:, ..)) ->
           run_subcommand_group(subcommands, i, state, invoked.sub)
-
         _ -> Error(Nil)
       }
   }
@@ -103,15 +100,12 @@ pub fn run_autocomplete(
       case dict.get(chat_input_group.subcommands, invoked.name) {
         Ok(Subcommand(chat_input)) ->
           chat_input.run_autocomplete(chat_input, i, state, invoked.options)
-
         _ -> Error(Nil)
       }
-
     option_value.SubcommandGroup(invoked) ->
       case dict.get(chat_input_group.subcommands, invoked.name) {
         Ok(SubcommandGroup(subcommands:, ..)) ->
           run_subcommand_group_autocomplete(subcommands, i, state, invoked.sub)
-
         _ -> Error(Nil)
       }
   }

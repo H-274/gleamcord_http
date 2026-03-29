@@ -59,21 +59,18 @@ pub fn run_autocomplete(
       autocomplete(i, state, values, partial)
       |> response.StringAutocomplete
       |> Ok
-
     Ok(IntegerOption(details: AutocompleteIntegerOption(autocomplete:, ..), ..)),
       IntegerValue(value: partial, ..)
     ->
       autocomplete(i, state, values, partial)
       |> response.IntegerAutocomplete
       |> Ok
-
     Ok(NumberOption(details: AutocompleteNumberOption(autocomplete:, ..), ..)),
       NumberValue(value: partial, ..)
     ->
       autocomplete(i, state, values, partial)
       |> response.NumberAutocomplete
       |> Ok
-
     _, _ -> Error(Nil)
   }
 }

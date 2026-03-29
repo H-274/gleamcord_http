@@ -43,18 +43,15 @@ pub fn handle_interaction(
       case dict.get(commands, chat_input.name), chat_input.options {
         Ok(ChatInput(chat_input)), option_value.Values(values) ->
           chat_input.run(chat_input, i, state, values)
-
         Ok(ChatInputGroup(chat_input_group)), option_value.Group(group) ->
           chat_input_group.run(chat_input_group, i, state, group)
         _, _ -> Error(Nil)
       }
-
     Interaction(data: interaction.User(user), ..) ->
       case dict.get(commands, user.name) {
         Ok(User(user)) -> user.run(user, i, state)
         _ -> Error(Nil)
       }
-
     Interaction(data: interaction.Message(message), ..) ->
       case dict.get(commands, message.name) {
         Ok(Message(message)) -> message.run(message, i, state)
@@ -73,10 +70,8 @@ pub fn handle_autocomplete_interaction(
       case dict.get(commands, chat_input.name), chat_input.options {
         Ok(ChatInput(chat_input)), option_value.Values(values) ->
           chat_input.run_autocomplete(chat_input, i, state, values)
-
         Ok(ChatInputGroup(chat_input_group)), option_value.Group(group) ->
           chat_input_group.run_autocomplete(chat_input_group, i, state, group)
-
         _, _ -> Error(Nil)
       }
     _ -> Error(Nil)
