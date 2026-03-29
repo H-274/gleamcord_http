@@ -4,7 +4,7 @@ import gleam/result
 import interaction/interaction.{type Interaction}
 import response
 
-pub type Bot(state) {
+pub opaque type Bot(state) {
   Bot(
     app_id: String,
     pub_key: String,
@@ -16,6 +16,31 @@ pub type Bot(state) {
     // TODO implement modals definitions
     modals: Dict(String, Nil),
   )
+}
+
+pub fn new(
+  app_id app_id: String,
+  pub_key pub_key: String,
+  token token: String,
+  state state: state,
+) {
+  Bot(
+    app_id:,
+    pub_key:,
+    token:,
+    state:,
+    commands: dict.new(),
+    components: dict.new(),
+    modals: dict.new(),
+  )
+}
+
+pub fn add_command(
+  bot: Bot(state),
+  command: ApplicationCommand(state),
+) -> Bot(state) {
+  let pair = command.dict_pair(command)
+  Bot(..bot, commands: dict.insert(bot.commands, pair.0, pair.1))
 }
 
 pub fn handle_interaction(

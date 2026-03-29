@@ -30,8 +30,8 @@ pub fn get_option(chat_input: ChatInput(_), name: String) {
   dict.get(chat_input.options, name)
 }
 
-pub fn get_signature(chat_input: ChatInput(_)) {
-  chat_input.signature
+pub fn get_name(chat_input: ChatInput(_)) -> String {
+  chat_input.signature.name
 }
 
 pub fn run(

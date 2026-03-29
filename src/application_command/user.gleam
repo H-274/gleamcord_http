@@ -2,7 +2,7 @@ import application_command/interaction.{type Interaction}
 import application_command/response.{type Response}
 import application_command/signature.{type Signature}
 
-pub type User(state) {
+pub opaque type User(state) {
   User(signature: Signature, handler: Handler(state))
 }
 
@@ -11,6 +11,10 @@ pub fn new(
   handler handler: Handler(state),
 ) -> User(state) {
   User(signature:, handler:)
+}
+
+pub fn get_name(user: User(_)) -> String {
+  user.signature.name
 }
 
 pub fn run(user: User(state), i, state: state) -> Result(Response, Nil) {

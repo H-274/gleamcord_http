@@ -33,6 +33,17 @@ pub fn from_message(message: Message(_)) {
   Message(message)
 }
 
+pub fn dict_pair(
+  command: ApplicationCommand(state),
+) -> #(String, ApplicationCommand(state)) {
+  case command {
+    ChatInput(c) -> #(chat_input.get_name(c), command)
+    ChatInputGroup(c) -> #(chat_input_group.get_name(c), command)
+    User(c) -> #(user.get_name(c), command)
+    Message(c) -> #(message.get_name(c), command)
+  }
+}
+
 pub fn handle_interaction(
   commands: Dict(String, ApplicationCommand(state)),
   state: state,

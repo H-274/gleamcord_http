@@ -22,12 +22,16 @@ pub fn new(
     list.map(subcommands, fn(s) {
       case s {
         SubcommandGroup(name:, ..) -> #(name, s)
-        Subcommand(command) -> #(chat_input.get_signature(command).name, s)
+        Subcommand(c) -> #(chat_input.get_name(c), s)
       }
     })
     |> dict.from_list
 
   ChatInputGroup(name:, description:, subcommands:)
+}
+
+pub fn get_name(group: ChatInputGroup(_)) -> String {
+  group.name
 }
 
 pub opaque type GroupSubcommand(state) {
@@ -45,7 +49,7 @@ pub fn subcommand_group(
   subs subcommands: List(ChatInput(state)),
 ) -> GroupSubcommand(state) {
   let subcommands =
-    list.map(subcommands, fn(s) { #(chat_input.get_signature(s).name, s) })
+    list.map(subcommands, fn(s) { #(chat_input.get_name(s), s) })
     |> dict.from_list
 
   SubcommandGroup(name:, description:, subcommands:)
