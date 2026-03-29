@@ -1,5 +1,6 @@
 import application_command/application_command.{type ApplicationCommand} as command
 import gleam/dict.{type Dict}
+import gleam/list
 import gleam/result
 import interaction/interaction.{type Interaction}
 import response
@@ -41,6 +42,16 @@ pub fn add_command(
 ) -> Bot(state) {
   let pair = command.dict_pair(command)
   Bot(..bot, commands: dict.insert(bot.commands, pair.0, pair.1))
+}
+
+pub fn add_commands(
+  bot: Bot(state),
+  commands: List(ApplicationCommand(state)),
+) -> Bot(state) {
+  let pairs = list.map(commands, command.dict_pair)
+  let new_commands = dict.merge(bot.commands, dict.from_list(pairs))
+
+  Bot(..bot, commands: new_commands)
 }
 
 pub fn handle_interaction(
