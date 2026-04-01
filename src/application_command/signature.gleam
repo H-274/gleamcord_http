@@ -1,5 +1,6 @@
 //// Based on:
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
+//// - https://docs.discord.com/developers/interactions/application-commands#application-command-object-application-command-option-structure
 
 import application_command/interaction
 import application_command/option_value
