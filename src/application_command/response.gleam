@@ -1,10 +1,12 @@
 //// Based on:
 //// - https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-response-object
 
-pub type Response {
+import modal/modal.{type Modal}
+
+pub type Response(state) {
   MessageWithSource(String)
   DeferredMessageWithSource(fn() -> String)
-  Modal
+  Modal(Modal(state))
 }
 
 pub type AutocompleteResponse {

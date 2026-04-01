@@ -20,9 +20,9 @@ pub fn get_name(user: User(_)) -> String {
   user.signature.name
 }
 
-pub fn run(user: User(state), i, state: state) -> Result(Response, Nil) {
+pub fn run(user: User(state), i, state: state) -> Result(Response(state), Nil) {
   user.handler(i, state) |> Ok
 }
 
 pub type Handler(state) =
-  fn(Interaction, state) -> Response
+  fn(Interaction, state) -> Response(state)

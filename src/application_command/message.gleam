@@ -20,9 +20,13 @@ pub fn get_name(message: Message(_)) -> String {
   message.signature.name
 }
 
-pub fn run(message: Message(state), i, state: state) -> Result(Response, Nil) {
+pub fn run(
+  message: Message(state),
+  i,
+  state: state,
+) -> Result(Response(state), Nil) {
   message.handler(i, state) |> Ok
 }
 
 pub type Handler(state) =
-  fn(Interaction, state) -> Response
+  fn(Interaction, state) -> Response(state)

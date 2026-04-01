@@ -4,7 +4,7 @@ import gleam/list
 import gleam/result
 import interaction/interaction.{type Interaction}
 import modal/modal.{type Modal}
-import response
+import response.{type Response}
 
 pub opaque type Bot(state) {
   Bot(
@@ -68,7 +68,7 @@ pub fn add_modals(bot: Bot(state), modals: List(Modal(state))) {
 pub fn handle_interaction(
   bot: Bot(_),
   i i: Interaction,
-) -> Result(response.Response, Nil) {
+) -> Result(Response(state), Nil) {
   case i {
     interaction.Ping(..) -> Ok(response.Pong)
 

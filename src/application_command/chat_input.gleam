@@ -42,7 +42,7 @@ pub fn run(
   i: interaction.Interaction,
   state: state,
   options: option_value.Values,
-) -> Result(Response, Nil) {
+) -> Result(Response(state), Nil) {
   chat_input.handler(i, state, options) |> Ok
 }
 
@@ -79,4 +79,4 @@ pub fn run_autocomplete(
 }
 
 pub type Handler(state) =
-  fn(Interaction, state, option_value.Values) -> Response
+  fn(Interaction, state, option_value.Values) -> Response(state)

@@ -68,7 +68,7 @@ pub fn run(
   i: Interaction,
   state: state,
   group: option_value.Group,
-) -> Result(Response, Nil) {
+) -> Result(Response(state), Nil) {
   case group {
     option_value.Subcommand(invoked) ->
       case dict.get(chat_input_group.subcommands, invoked.name) {
@@ -90,7 +90,7 @@ fn run_subcommand_group(
   i: Interaction,
   state: state,
   invoked: option_value.Subcommand,
-) -> Result(Response, Nil) {
+) -> Result(Response(state), Nil) {
   case dict.get(group_subcommands, invoked.name) {
     Ok(chat_input) -> chat_input.run(chat_input, i, state, invoked.options)
     _ -> Error(Nil)
