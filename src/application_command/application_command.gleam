@@ -45,7 +45,7 @@ pub fn handle_interaction(
   commands: Dict(String, ApplicationCommand(state)),
   state: state,
   i: Interaction,
-) -> Result(Response, Nil) {
+) -> Result(Response(state), Nil) {
   case i {
     Interaction(data: interaction.ChatInput(chat_input), ..) ->
       case dict.get(commands, chat_input.name), chat_input.options {
