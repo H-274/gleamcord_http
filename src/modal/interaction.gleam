@@ -1,3 +1,4 @@
+import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
 import locale.{type Locale}
@@ -28,5 +29,9 @@ pub type Interaction {
 }
 
 pub type Data {
-  Data(custom_id: String, components: List(Dynamic), resolved: Option(Resolved))
+  Data(
+    custom_id: String,
+    components: Dict(String, Dynamic),
+    resolved: Option(Resolved),
+  )
 }

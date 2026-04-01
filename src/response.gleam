@@ -1,7 +1,11 @@
-import application_command/response as command_response
+import application_command/response.{
+  type AutocompleteResponse, type Response as CommandResponse,
+} as _
+import modal/response.{type Response as ModalResponse} as _
 
 pub type Response {
   Pong
-  Command(command_response.Response)
-  Autocomplete(command_response.AutocompleteResponse)
+  Command(CommandResponse)
+  Autocomplete(AutocompleteResponse)
+  Modal(ModalResponse)
 }

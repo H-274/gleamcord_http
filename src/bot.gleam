@@ -3,6 +3,7 @@ import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
 import interaction/interaction.{type Interaction}
+import modal/modal.{type Modal}
 import response
 
 pub opaque type Bot(state) {
@@ -14,8 +15,7 @@ pub opaque type Bot(state) {
     commands: Dict(String, ApplicationCommand(state)),
     // TODO implement message component definitions
     components: Dict(String, Nil),
-    // TODO implement modals definitions
-    modals: Dict(String, Nil),
+    modals: Dict(String, Modal(state)),
   )
 }
 
@@ -54,6 +54,17 @@ pub fn add_commands(
   Bot(..bot, commands: new_commands)
 }
 
+pub fn add_modal(bot: Bot(state), modal: Modal(state)) {
+  Bot(..bot, modals: dict.insert(bot.modals, modal.get_id(modal), modal))
+}
+
+pub fn add_modals(bot: Bot(state), modals: List(Modal(state))) {
+  let pairs = list.map(modals, fn(m) { #(modal.get_id(m), m) })
+  let new_modals = dict.merge(bot.modals, dict.from_list(pairs))
+
+  Bot(..bot, modals: new_modals)
+}
+
 pub fn handle_interaction(
   bot: Bot(_),
   i i: Interaction,
@@ -71,6 +82,8 @@ pub fn handle_interaction(
       command.handle_autocomplete_interaction(bot.commands, bot.state, i)
       |> result.map(response.Autocomplete)
 
-    interaction.ModalSubmit(..) -> todo
+    interaction.ModalSubmit(i) ->
+      modal.handle_interaction(bot.modals, bot.state, i)
+      |> result.map(response.Modal)
   }
 }
