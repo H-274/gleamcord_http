@@ -66,7 +66,7 @@ const max_number_value = 1.7976931348623157e308
 /// According to https://docs.discord.com/developers/interactions/application-commands#application-command-object-application-command-option-structure
 const max_choice_count = 25
 
-pub type CommandOption(state) {
+pub opaque type CommandOption(state) {
   StringOption(
     name: String,
     description: String,
@@ -109,7 +109,7 @@ pub type StringOptionDetails(state) {
   )
 }
 
-/// Shorthand constructor to create a string option definition.
+/// Constructor to create a string option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -160,7 +160,7 @@ pub type IntegerOptionDetails(state) {
   )
 }
 
-/// Shorthand constructor to create an integer option definition.
+/// Constructor to create an integer option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -198,7 +198,7 @@ pub fn integer_option(
   }
 }
 
-/// Shorthand constructor to create a boolean option definition.
+/// Constructor to create a boolean option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -209,7 +209,7 @@ pub fn boolean_option(name name: String, desc description: String) {
   BooleanOption(name:, description:, required: True)
 }
 
-/// Shorthand constructor to create a user option definition.
+/// Constructor to create a user option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -220,7 +220,7 @@ pub fn user_option(name name: String, desc description: String) {
   UserOption(name:, description:, required: True)
 }
 
-/// Shorthand constructor to create a channel option definition.
+/// Constructor to create a channel option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -235,7 +235,7 @@ pub fn channel_option(
   ChannelOption(name:, description:, required: True, types:)
 }
 
-/// Shorthand constructor to create a role option definition.
+/// Constructor to create a role option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -246,7 +246,7 @@ pub fn role_option(name name: String, desc description: String) {
   RoleOption(name:, description:, required: True)
 }
 
-/// Shorthand constructor to create a mentionnable option definition.
+/// Constructor to create a mentionnable option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -269,7 +269,7 @@ pub type NumberOptionDetails(state) {
   )
 }
 
-/// Shorthand constructor to create a number option definition.
+/// Constructor to create a number option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
@@ -312,7 +312,7 @@ pub type AutocompleteHandler(state, val) =
   fn(interaction.Interaction, state, option_value.Values, val) ->
     List(#(String, val))
 
-/// Shorthand constructor to create an attachment option definition.
+/// Constructor to create an attachment option definition.
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
