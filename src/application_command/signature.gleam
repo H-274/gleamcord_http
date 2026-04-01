@@ -113,7 +113,7 @@ pub type StringOptionDetails(state) {
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 /// 
@@ -164,7 +164,7 @@ pub type IntegerOptionDetails(state) {
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 pub fn integer_option(
@@ -202,7 +202,7 @@ pub fn integer_option(
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 pub fn boolean_option(name name: String, desc description: String) {
@@ -213,7 +213,7 @@ pub fn boolean_option(name name: String, desc description: String) {
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 pub fn user_option(name name: String, desc description: String) {
@@ -224,7 +224,7 @@ pub fn user_option(name name: String, desc description: String) {
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 pub fn channel_option(
@@ -239,7 +239,7 @@ pub fn channel_option(
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 pub fn role_option(name name: String, desc description: String) {
@@ -250,7 +250,7 @@ pub fn role_option(name name: String, desc description: String) {
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 /// 
@@ -273,7 +273,7 @@ pub type NumberOptionDetails(state) {
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 /// 
@@ -316,7 +316,7 @@ pub type AutocompleteHandler(state, val) =
 /// 
 /// By default, required is set to true. To override, use the following:
 /// ```gleam
-/// /// Where "o" is the option
+/// // Where "o" is the option
 /// required(o, False)
 /// ```
 /// 
