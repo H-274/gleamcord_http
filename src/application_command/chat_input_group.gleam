@@ -1,3 +1,7 @@
+//// Based on:
+//// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
+//// - https://docs.discord.com/developers/interactions/application-commands#application-command-object-application-command-option-structure
+
 import application_command/chat_input.{type ChatInput}
 import application_command/interaction.{type Interaction}
 import application_command/option_value

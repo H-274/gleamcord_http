@@ -1,3 +1,6 @@
+//// Based on:
+//// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
+
 import application_command/interaction
 import application_command/option_value
 import gleam/list

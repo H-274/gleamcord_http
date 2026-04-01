@@ -1,3 +1,6 @@
+//// Based on:
+//// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
+
 import application_command/interaction.{type Interaction}
 import application_command/option_value.{IntegerValue, NumberValue, StringValue}
 import application_command/response.{type Response}

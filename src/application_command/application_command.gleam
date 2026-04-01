@@ -1,6 +1,3 @@
-//// Based on:
-//// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
-
 import application_command/chat_input.{type ChatInput}
 import application_command/chat_input_group.{type ChatInputGroup}
 import application_command/interaction.{type Interaction, Interaction}

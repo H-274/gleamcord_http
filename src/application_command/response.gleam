@@ -1,3 +1,6 @@
+//// Based on:
+//// - https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-response-object
+
 pub type Response {
   MessageWithSource(String)
   DeferredMessageWithSource(fn() -> String)

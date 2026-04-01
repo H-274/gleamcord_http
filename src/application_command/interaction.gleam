@@ -1,3 +1,6 @@
+//// Based on:
+//// - https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object
+
 import application_command/option_value.{type OptionValue}
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}

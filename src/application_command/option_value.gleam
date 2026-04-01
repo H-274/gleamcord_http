@@ -1,3 +1,6 @@
+//// Based on:
+//// - https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object-application-command-interaction-data-option-structure
+
 import gleam/dict.{type Dict}
 import gleam/dynamic/decode
 
