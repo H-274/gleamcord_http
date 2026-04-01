@@ -67,7 +67,7 @@ const max_number_value = 1.7976931348623157e308
 /// According to https://docs.discord.com/developers/interactions/application-commands#application-command-object-application-command-option-structure
 const max_choice_count = 25
 
-pub opaque type CommandOption(state) {
+pub type CommandOption(state) {
   StringOption(
     name: String,
     description: String,
@@ -99,6 +99,7 @@ pub opaque type CommandOption(state) {
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
+// TODO: make opaque
 pub type StringOptionDetails(state) {
   BasicStringOption
   LengthStringOption(min_length: Option(Int), max_length: Option(Int))
@@ -150,6 +151,7 @@ pub fn string_option(
   }
 }
 
+// TODO: make opaque
 pub type IntegerOptionDetails(state) {
   BasicIntegerOption
   ValueIntegerOption(min_value: Option(Int), max_value: Option(Int))
@@ -259,6 +261,7 @@ pub fn mentionable_option(name name: String, desc description: String) {
   MentionableOption(name:, description:, required: True)
 }
 
+// TODO: make opaque
 pub type NumberOptionDetails(state) {
   BasicNumberOption
   ValueNumberOption(min_value: Option(Float), max_value: Option(Float))
