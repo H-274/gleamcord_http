@@ -7,6 +7,7 @@ import application_command/option_value
 import gleam/list
 import gleam/option.{type Option}
 
+// TODO: Missing type definitions
 pub type Signature {
   Signature(
     name: String,
