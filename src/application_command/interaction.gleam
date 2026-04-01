@@ -4,8 +4,8 @@
 import application_command/option_value.{type OptionValue}
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
-import interaction/data.{type Resolved}
 import locale.{type Locale}
+import resolved.{type Resolved}
 
 pub type Interaction {
   Interaction(

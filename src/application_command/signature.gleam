@@ -109,6 +109,14 @@ pub type StringOptionDetails(state) {
   )
 }
 
+/// Shorthand constructor to create a string option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
+/// 
 /// TODO: revisit min_len max_len branching to reduce code duplication 
 pub fn string_option(
   name name: String,
@@ -152,6 +160,13 @@ pub type IntegerOptionDetails(state) {
   )
 }
 
+/// Shorthand constructor to create an integer option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
 pub fn integer_option(
   name name: String,
   desc description: String,
@@ -183,14 +198,35 @@ pub fn integer_option(
   }
 }
 
+/// Shorthand constructor to create a boolean option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
 pub fn boolean_option(name name: String, desc description: String) {
   BooleanOption(name:, description:, required: True)
 }
 
+/// Shorthand constructor to create a user option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
 pub fn user_option(name name: String, desc description: String) {
   UserOption(name:, description:, required: True)
 }
 
+/// Shorthand constructor to create a channel option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
 pub fn channel_option(
   name name: String,
   desc description: String,
@@ -199,10 +235,25 @@ pub fn channel_option(
   ChannelOption(name:, description:, required: True, types:)
 }
 
+/// Shorthand constructor to create a role option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
 pub fn role_option(name name: String, desc description: String) {
   RoleOption(name:, description:, required: True)
 }
 
+/// Shorthand constructor to create a mentionnable option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
+/// 
 pub fn mentionable_option(name name: String, desc description: String) {
   MentionableOption(name:, description:, required: True)
 }
@@ -218,6 +269,14 @@ pub type NumberOptionDetails(state) {
   )
 }
 
+/// Shorthand constructor to create a number option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
+/// 
 pub fn number_option(
   name name: String,
   desc description: String,
@@ -253,10 +312,19 @@ pub type AutocompleteHandler(state, val) =
   fn(interaction.Interaction, state, option_value.Values, val) ->
     List(#(String, val))
 
+/// Shorthand constructor to create an attachment option definition.
+/// 
+/// By default, required is set to true. To override, use the following:
+/// ```gleam
+/// /// Where "o" is the option
+/// required(o, False)
+/// ```
+/// 
 pub fn attachment_option(name name: String, desc description: String) {
   AttachmentOption(name:, description:, required: True)
 }
 
+/// Changes the required attribute of a command option definition
 pub fn required(option: CommandOption(_), required: Bool) {
   case option {
     StringOption(..) -> StringOption(..option, required:)

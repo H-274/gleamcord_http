@@ -1,17 +1,13 @@
-import application_command/interaction.{type Interaction as CommandInteraction} as _
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
-import interaction/data
 import locale.{type Locale}
-import modal/interaction.{type Interaction as ModalInteraction} as _
+import resolved.{type Resolved}
 
 pub type Interaction {
-  Ping(id: String, application_id: String, token: String, version: Int)
-  ApplicationCommand(CommandInteraction)
-  MessageComponent(
+  Interaction(
     id: String,
     application_id: String,
-    data: data.MessageComponent,
+    data: Data,
     guild: Option(Dynamic),
     guild_id: Option(String),
     channel: Option(Dynamic),
@@ -29,6 +25,8 @@ pub type Interaction {
     context: Dynamic,
     attachment_size_limit: Int,
   )
-  ApplicationCommandAutocomplete(CommandInteraction)
-  ModalSubmit(ModalInteraction)
+}
+
+pub type Data {
+  Data(custom_id: String, components: List(Dynamic), resolved: Option(Resolved))
 }
