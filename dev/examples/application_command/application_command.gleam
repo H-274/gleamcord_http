@@ -22,6 +22,19 @@ pub fn chat_input() {
   |> command_response.MessageWithSource
 }
 
+pub fn slow() {
+  // --- /slow
+  let signature = signature.new(name: "slow", desc: "delayed response")
+
+  use _i, _s, _opts <- chat_input.new(signature:, opts: [])
+
+  use <- command_response.DeferredMessageWithSource
+
+  // process.sleep(5000)
+
+  "Waited 5 seconds!"
+}
+
 pub fn chat_input_group() {
   chat_input_group.new(name: "demo", desc: "demonstration commands", subs: [
     chat_input_group.subcommand_group(

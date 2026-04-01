@@ -1,6 +1,6 @@
 pub type Response {
   MessageWithSource(String)
-  DeferredMessageWithSource(String)
+  DeferredMessageWithSource(fn() -> String)
   Modal
 }
 
