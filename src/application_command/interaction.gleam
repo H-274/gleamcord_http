@@ -8,7 +8,7 @@ pub type Interaction {
   Interaction(
     id: String,
     application_id: String,
-    data: InteractionData,
+    data: Data,
     guild: Option(Dynamic),
     guild_id: Option(String),
     channel: Option(Dynamic),
@@ -27,7 +27,7 @@ pub type Interaction {
   )
 }
 
-pub type InteractionData {
+pub type Data {
   ChatInput(ChatInputData)
   User(UserData)
   Message(MessageData)
