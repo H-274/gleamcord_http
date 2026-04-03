@@ -2,26 +2,27 @@
 //// - https://discord.com/developers/docs/interactions/application-commands#application-command-object
 
 import application_command/interaction.{type Interaction}
+import application_command/option_definition.{
+  IntegerAutocompleteDefinition, NumberAutocompleteDefinition,
+  StringAutocompleteDefinition,
+} as co
 import application_command/option_value.{IntegerValue, NumberValue, StringValue}
 import application_command/response.{type Response}
-import application_command/signature.{
-  type Signature, AutocompleteIntegerOption, AutocompleteNumberOption,
-  AutocompleteStringOption, IntegerOption, NumberOption, StringOption,
-}
+import application_command/signature.{type Signature}
 import gleam/dict.{type Dict}
 import gleam/list
 
 pub opaque type ChatInput(state) {
   ChatInput(
     signature: Signature,
-    options: Dict(String, signature.CommandOption(state)),
+    options: Dict(String, co.Definition(state)),
     handler: Handler(state),
   )
 }
 
 pub fn new(
   signature signature: Signature,
-  opts options: List(signature.CommandOption(state)),
+  opts options: List(co.Definition(state)),
   handler handler: Handler(state),
 ) {
   let options = list.map(options, fn(o) { #(o.name, o) }) |> dict.from_list
@@ -56,22 +57,22 @@ pub fn run_autocomplete(
     as "there should always be a focused option when autocomplete is called"
 
   case dict.get(chat_input.options, option.name), option {
-    Ok(StringOption(details: AutocompleteStringOption(autocomplete:, ..), ..)),
+    Ok(StringAutocompleteDefinition(autocomplete: autocomplete, ..)),
       StringValue(value: partial, ..)
     ->
-      autocomplete(i, state, values, partial)
+      autocomplete(i, state, partial, values)
       |> response.StringAutocomplete
       |> Ok
-    Ok(IntegerOption(details: AutocompleteIntegerOption(autocomplete:, ..), ..)),
+    Ok(IntegerAutocompleteDefinition(autocomplete:, ..)),
       IntegerValue(value: partial, ..)
     ->
-      autocomplete(i, state, values, partial)
+      autocomplete(i, state, partial, values)
       |> response.IntegerAutocomplete
       |> Ok
-    Ok(NumberOption(details: AutocompleteNumberOption(autocomplete:, ..), ..)),
+    Ok(NumberAutocompleteDefinition(autocomplete:, ..)),
       NumberValue(value: partial, ..)
     ->
-      autocomplete(i, state, values, partial)
+      autocomplete(i, state, partial, values)
       |> response.NumberAutocomplete
       |> Ok
     _, _ -> Error(Nil)

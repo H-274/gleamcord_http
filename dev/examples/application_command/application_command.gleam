@@ -1,6 +1,7 @@
 import application_command/chat_input
 import application_command/chat_input_group
 import application_command/message
+import application_command/option_definition as opt_def
 import application_command/option_value.{
   IntegerValue as IntVal, StringValue as StrVal,
 }
@@ -9,7 +10,6 @@ import application_command/signature
 import application_command/user
 import gleam/dict
 import gleam/list
-import gleam/option
 import gleam/string
 
 pub fn chat_input() {
@@ -60,15 +60,12 @@ fn times_subcommand() {
   let signature =
     signature.new(name: "times", desc: "greets the world a number of times")
   let opts = [
-    signature.integer_option(
+    opt_def.IntegerDefinition(
       name: "times",
-      desc: "times to say hello",
-      details: signature.ValueIntegerOption(
-        min_value: option.Some(2),
-        max_value: option.Some(5),
-      ),
-    )
-    |> signature.required(False),
+      description: "times to say hello",
+      required: False,
+      details: [opt_def.min_int(2), opt_def.max_int(5)],
+    ),
   ]
 
   use _i, _s, opts <- chat_input.new(signature:, opts:)
@@ -95,15 +92,16 @@ fn caps_subcommand(hello_world) {
 fn colour_picker_subcommand() {
   let signature = signature.new(name: "colours", desc: "pick your fav. colour")
   let opts = [
-    signature.string_option(
+    opt_def.StringChoicesDefinition(
       name: "colour",
-      desc: "your fav colour",
-      details: signature.ChoicesStringOption(choices: [
+      description: "your fav colour",
+      required: True,
+      choices: [
         #("Red", "#ff0000"),
         #("Green", "#00ff00"),
         #("Blue", "#0000ff"),
         #("Other", "#7985e2"),
-      ]),
+      ],
     ),
   ]
 
@@ -117,20 +115,18 @@ fn colour_picker_subcommand() {
 fn words_subcommand() {
   let signature = signature.new(name: "words", desc: "write a word")
   let opts = [
-    signature.string_option(
+    opt_def.StringAutocompleteDefinition(
       name: "word",
-      desc: "any word",
-      details: signature.AutocompleteStringOption(
-        min_length: option.None,
-        max_length: option.None,
-        autocomplete: fn(_i, _s, _opts, partial) {
-          let case_adjusted_partial = string.capitalise(partial)
+      description: "any word",
+      details: [],
+      required: True,
+      autocomplete: fn(_i, _s, partial, _opts) {
+        let case_adjusted_partial = string.capitalise(partial)
 
-          ["Timeline", "Times", "Tinker"]
-          |> list.filter(string.starts_with(_, case_adjusted_partial))
-          |> list.map(fn(x) { #(x, x) })
-        },
-      ),
+        ["Timeline", "Times", "Tinker"]
+        |> list.filter(string.starts_with(_, case_adjusted_partial))
+        |> list.map(fn(x) { #(x, x) })
+      },
     ),
   ]
 
@@ -144,13 +140,11 @@ fn words_subcommand() {
 fn name_subcommand() {
   let signature = signature.new(name: "name", desc: "greet a name")
   let opts = [
-    signature.string_option(
+    opt_def.StringDefinition(
       name: "name",
-      desc: "name to greet",
-      details: signature.LengthStringOption(
-        min_length: option.Some(1),
-        max_length: option.Some(64),
-      ),
+      description: "name to greet",
+      required: True,
+      details: [opt_def.max_length(64)],
     ),
   ]
 
