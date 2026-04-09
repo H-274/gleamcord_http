@@ -135,17 +135,46 @@ pub type DefaultValue {
 }
 
 pub type FileUpload {
-  FileUpload
+  FileUpload(
+    custom_id: String,
+    min_values: Option(Int),
+    max_values: Option(Int),
+    required: Bool,
+  )
 }
 
 pub type RadioGroup {
-  RadioGroup
+  RadioGroup(custom_id: String, options: List(RadioGroupOption), required: Bool)
+}
+
+pub type RadioGroupOption {
+  RadioGroupOption(
+    value: String,
+    label: String,
+    description: String,
+    default: Bool,
+  )
 }
 
 pub type CheckboxGroup {
-  CheckboxGroup
+  CheckboxGroup(
+    custom_id: String,
+    options: List(CheckboxGroupOption),
+    min_values: Option(Int),
+    max_values: Option(Int),
+    required: Bool,
+  )
+}
+
+pub type CheckboxGroupOption {
+  CheckboxGroupOption(
+    value: String,
+    label: String,
+    description: String,
+    default: Bool,
+  )
 }
 
 pub type Checkbox {
-  Checkbox
+  Checkbox(custom_id: String, default: Bool)
 }
