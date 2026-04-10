@@ -1,45 +1,52 @@
-//// TODO: add handlers for components that require them
-
 import gleam/option.{type Option}
+import message_component/interaction.{type Interaction}
+import message_component/response.{type Response}
 
-pub type Button {
+pub type Button(state) {
   PrimaryButton(
     custom_id: String,
     label: String,
     emoji: Option(#(String, String, Bool)),
     disabled: Bool,
+    handler: ButtonHandler(state),
   )
   SecondaryButton(
     custom_id: String,
     label: String,
     emoji: Option(#(String, String, Bool)),
     disabled: Bool,
+    handler: ButtonHandler(state),
   )
   SuccessButton(
     custom_id: String,
     label: String,
     emoji: Option(#(String, String, Bool)),
     disabled: Bool,
+    handler: ButtonHandler(state),
   )
   DangerButton(
     custom_id: String,
     label: String,
     emoji: Option(#(String, String, Bool)),
     disabled: Bool,
+    handler: ButtonHandler(state),
   )
   LinkButton(url: String, label: String, disabled: Bool)
   PremiumButton(sku_id: String)
 }
 
-pub type SelectComponent {
-  StringSelectVariant(StringSelect)
-  UserSelectVariant(UserSelect)
-  RoleSelectVariant(RoleSelect)
-  MentionableSelectVariant(MentionableSelect)
-  ChannelSelectVariant(ChannelSelect)
+pub type ButtonHandler(state) =
+  fn(Interaction, state) -> Response
+
+pub type SelectComponent(state) {
+  StringSelectVariant(StringSelect(state))
+  UserSelectVariant(UserSelect(state))
+  RoleSelectVariant(RoleSelect(state))
+  MentionableSelectVariant(MentionableSelect(state))
+  ChannelSelectVariant(ChannelSelect(state))
 }
 
-pub type StringSelect {
+pub type StringSelect(state) {
   StringSelect(
     custom_id: String,
     options: List(SelectOption),
@@ -48,6 +55,7 @@ pub type StringSelect {
     max_values: Option(Int),
     required: Bool,
     disabled: Bool,
+    handler: SelectHandler(state, String),
   )
 }
 
@@ -61,26 +69,7 @@ pub type SelectOption {
   )
 }
 
-pub type TextInput {
-  ShortTextInput(
-    custom_id: String,
-    min_length: Option(Int),
-    max_length: Option(Int),
-    required: Bool,
-    value: String,
-    placeholder: String,
-  )
-  ParaTextInput(
-    custom_id: String,
-    min_length: Option(Int),
-    max_length: Option(Int),
-    required: Bool,
-    value: String,
-    placeholder: String,
-  )
-}
-
-pub type UserSelect {
+pub type UserSelect(state) {
   UserSelect(
     custom_id: String,
     placeholder: String,
@@ -89,10 +78,11 @@ pub type UserSelect {
     max_values: Option(Int),
     required: Bool,
     disabled: Bool,
+    handler: SelectHandler(state, String),
   )
 }
 
-pub type RoleSelect {
+pub type RoleSelect(state) {
   RoleSelect(
     custom_id: String,
     placeholder: String,
@@ -101,10 +91,11 @@ pub type RoleSelect {
     max_values: Option(Int),
     required: Bool,
     disabled: Bool,
+    handler: SelectHandler(state, String),
   )
 }
 
-pub type MentionableSelect {
+pub type MentionableSelect(state) {
   MentionableSelect(
     custom_id: String,
     placeholder: String,
@@ -113,10 +104,11 @@ pub type MentionableSelect {
     max_values: Option(Int),
     required: Bool,
     disabled: Bool,
+    handler: SelectHandler(state, String),
   )
 }
 
-pub type ChannelSelect {
+pub type ChannelSelect(state) {
   ChannelSelect(
     custom_id: String,
     placeholder: String,
@@ -127,6 +119,7 @@ pub type ChannelSelect {
     max_values: Option(Int),
     required: Bool,
     disabled: Bool,
+    handler: SelectHandler(state, String),
   )
 }
 
@@ -134,47 +127,5 @@ pub type DefaultValue {
   DefaultValue(snowflake: String)
 }
 
-pub type FileUpload {
-  FileUpload(
-    custom_id: String,
-    min_values: Option(Int),
-    max_values: Option(Int),
-    required: Bool,
-  )
-}
-
-pub type RadioGroup {
-  RadioGroup(custom_id: String, options: List(RadioGroupOption), required: Bool)
-}
-
-pub type RadioGroupOption {
-  RadioGroupOption(
-    value: String,
-    label: String,
-    description: String,
-    default: Bool,
-  )
-}
-
-pub type CheckboxGroup {
-  CheckboxGroup(
-    custom_id: String,
-    options: List(CheckboxGroupOption),
-    min_values: Option(Int),
-    max_values: Option(Int),
-    required: Bool,
-  )
-}
-
-pub type CheckboxGroupOption {
-  CheckboxGroupOption(
-    value: String,
-    label: String,
-    description: String,
-    default: Bool,
-  )
-}
-
-pub type Checkbox {
-  Checkbox(custom_id: String, default: Bool)
-}
+pub type SelectHandler(state, value) =
+  fn(Interaction, state, List(value)) -> Response
