@@ -7,6 +7,20 @@ pub type Interactive(state) {
   InteractiveSelectComponent(SelectComponent(state))
 }
 
+pub fn get_cusom_id(interactive: Interactive(_)) -> String {
+  case interactive {
+    InteractiveButton(button) ->
+      case button {
+        PrimaryButton(custom_id:, ..)
+        | SecondaryButton(custom_id:, ..)
+        | SuccessButton(custom_id:, ..)
+        | DangerButton(custom_id:, ..) -> todo
+        _ -> panic as "does not have a custom_id"
+      }
+    InteractiveSelectComponent(select) -> todo
+  }
+}
+
 pub type Button(state) {
   PrimaryButton(
     custom_id: String,

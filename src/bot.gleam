@@ -3,6 +3,7 @@ import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
 import interaction/interaction.{type Interaction}
+import message_component/interactive.{type Interactive}
 import modal/modal.{type Modal}
 import response.{type Response}
 
@@ -13,8 +14,7 @@ pub opaque type Bot(state) {
     token: String,
     state: state,
     commands: Dict(String, ApplicationCommand(state)),
-    // TODO implement message component definitions
-    components: Dict(String, Nil),
+    components: Dict(String, Interactive(state)),
     modals: Dict(String, Modal(state)),
   )
 }
@@ -52,6 +52,16 @@ pub fn add_commands(
   let new_commands = dict.merge(bot.commands, dict.from_list(pairs))
 
   Bot(..bot, commands: new_commands)
+}
+
+pub fn add_component(
+  bot: Bot(state),
+  component: Interactive(state),
+) -> Bot(state) {
+  let pair = #(interactive.get_cusom_id(component), component)
+  let new_components = dict.insert(bot.components, pair.0, pair.1)
+
+  Bot(..bot, components: new_components)
 }
 
 pub fn add_modal(bot: Bot(state), modal: Modal(state)) {
