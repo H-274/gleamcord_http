@@ -36,7 +36,7 @@ pub type InteractionButton(state) {
 pub type ButtonHandler(state) =
   fn(Interaction, state) -> Response(state)
 
-pub fn simple_primary(
+pub fn new_primary(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
@@ -50,7 +50,7 @@ pub fn simple_primary(
   )
 }
 
-pub fn simple_secondary(
+pub fn new_secondary(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
@@ -64,7 +64,7 @@ pub fn simple_secondary(
   )
 }
 
-pub fn simple_success(
+pub fn new_success(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
@@ -78,7 +78,7 @@ pub fn simple_success(
   )
 }
 
-pub fn simple_danger(
+pub fn new_danger(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
