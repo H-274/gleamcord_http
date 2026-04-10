@@ -1,16 +1,16 @@
-import component/content
-import component/interactive
 import gleam/option.{type Option}
+import message_component/content
+import message_component/interactive
 
-pub type ActionRow {
-  ButtonActionRow(List(interactive.Button))
-  SelectActionRow(interactive.SelectComponent)
+pub type ActionRow(state) {
+  ButtonActionRow(List(interactive.Button(state)))
+  SelectActionRow(interactive.SelectComponent(state))
 }
 
-pub type Section {
+pub type Section(state) {
   Section(
     components: List(SectionComponent),
-    accessories: List(SectionAccessory),
+    accessories: List(SectionAccessory(state)),
   )
 }
 
@@ -18,8 +18,8 @@ pub type SectionComponent {
   SectionTextDisplay(content.TextDisplay)
 }
 
-pub type SectionAccessory {
-  SectionButton(interactive.Button)
+pub type SectionAccessory(state) {
+  SectionButton(interactive.Button(state))
   SectionThumbnail(content.Thumbnail)
 }
 
@@ -32,18 +32,18 @@ pub type SeparatorSpacing {
   LargeSpacing
 }
 
-pub type Container {
+pub type Container(state) {
   Container(
-    components: List(ContainerComponent),
+    components: List(ContainerComponent(state)),
     accent_colour: Option(Int),
     spoiler: Bool,
   )
 }
 
-pub type ContainerComponent {
-  ContainerActionRow(ActionRow)
+pub type ContainerComponent(state) {
+  ContainerActionRow(ActionRow(state))
   ContainerTextDisplay(content.TextDisplay)
-  ContainerSection(Section)
+  ContainerSection(Section(state))
   ContainerMediaGallery(content.MediaGallery)
   ContainerSeparator(Separator)
   ContainerFile(content.File)

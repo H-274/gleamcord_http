@@ -2,6 +2,11 @@ import gleam/option.{type Option}
 import message_component/interaction.{type Interaction}
 import message_component/response.{type Response}
 
+pub type Interactive(state) {
+  InteractiveButton(Button(state))
+  InteractiveSelectComponent(SelectComponent(state))
+}
+
 pub type Button(state) {
   PrimaryButton(
     custom_id: String,
