@@ -2,7 +2,7 @@ import gleam/option.{type Option}
 import message_component/interaction.{type Interaction}
 import message_component/response.{type Response}
 
-pub type InteractiveButton(state) {
+pub type InteractionButton(state) {
   PrimaryButton(
     custom_id: String,
     label: String,
@@ -40,7 +40,7 @@ pub fn simple_primary(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
-) -> InteractiveButton(state) {
+) -> InteractionButton(state) {
   PrimaryButton(
     custom_id:,
     label:,
@@ -54,7 +54,7 @@ pub fn simple_secondary(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
-) -> InteractiveButton(state) {
+) -> InteractionButton(state) {
   SecondaryButton(
     custom_id:,
     label:,
@@ -68,7 +68,7 @@ pub fn simple_success(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
-) -> InteractiveButton(state) {
+) -> InteractionButton(state) {
   SuccessButton(
     custom_id:,
     label:,
@@ -82,7 +82,7 @@ pub fn simple_danger(
   custom_id: String,
   label: String,
   handler: ButtonHandler(state),
-) -> InteractiveButton(state) {
+) -> InteractionButton(state) {
   DangerButton(
     custom_id:,
     label:,

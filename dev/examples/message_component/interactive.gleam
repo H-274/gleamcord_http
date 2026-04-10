@@ -1,12 +1,12 @@
 import gleam/list
 import gleam/option
 import gleam/string
-import message_component/button/interactive_button
+import message_component/button/interaction_button
 import message_component/interactive
 import message_component/response as component_response
 
 pub fn button() {
-  use _i, _state <- interactive_button.PrimaryButton(
+  use _i, _state <- interaction_button.PrimaryButton(
     custom_id: "tos-agree",
     label: "Agree",
     emoji: option.None,

@@ -1,12 +1,12 @@
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
 import message_component/button/button
-import message_component/button/interactive_button.{type InteractiveButton}
+import message_component/button/interaction_button.{type InteractionButton}
 import message_component/interaction.{type Interaction}
 import message_component/response.{type Response}
 
 pub type Interactive(state) {
-  InteractionButton(InteractiveButton(state))
+  InteractionButton(InteractionButton(state))
   SelectComponent(SelectComponent(state))
 }
 
