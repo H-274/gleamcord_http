@@ -3,8 +3,6 @@ import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
 import interaction.{type Interaction}
-import message_component/interactive.{type Interactive}
-import message_component/message_component
 import modal/modal.{type Modal}
 import response.{type Response}
 
@@ -15,7 +13,8 @@ pub opaque type Bot(state) {
     token: String,
     state: state,
     commands: Dict(String, ApplicationCommand(state)),
-    components: Dict(String, Interactive(state)),
+    // TODO missing type
+    components: Dict(String, Nil),
     modals: Dict(String, Modal(state)),
   )
 }
@@ -55,37 +54,6 @@ pub fn add_commands(
   Bot(..bot, commands: new_commands)
 }
 
-pub fn add_component(
-  bot: Bot(state),
-  component: Interactive(state),
-) -> Bot(state) {
-  let pair = #(component, component)
-  let new_components = dict.insert(bot.components, todo, pair.1)
-
-  Bot(..bot, components: new_components)
-}
-
-pub fn add_components(
-  bot: Bot(state),
-  components: List(Interactive(state)),
-) -> Bot(state) {
-  let pairs = list.map(components, fn(c) { #(todo, c) })
-  let new_components = dict.merge(bot.components, dict.from_list(pairs))
-
-  Bot(..bot, components: new_components)
-}
-
-pub fn add_modal(bot: Bot(state), modal: Modal(state)) {
-  Bot(..bot, modals: dict.insert(bot.modals, modal.get_id(modal), modal))
-}
-
-pub fn add_modals(bot: Bot(state), modals: List(Modal(state))) {
-  let pairs = list.map(modals, fn(m) { #(modal.get_id(m), m) })
-  let new_modals = dict.merge(bot.modals, dict.from_list(pairs))
-
-  Bot(..bot, modals: new_modals)
-}
-
 pub fn handle_interaction(
   bot: Bot(_),
   i i: Interaction,
@@ -97,9 +65,7 @@ pub fn handle_interaction(
       command.handle_interaction(bot.commands, bot.state, i)
       |> result.map(response.Command)
 
-    interaction.MessageComponent(i) ->
-      message_component.handle_interaction(bot.components, bot.state, i)
-      |> result.map(response.MessageComponent)
+    interaction.MessageComponent(_i) -> todo as "missing handling"
 
     interaction.ApplicationCommandAutocomplete(i) ->
       command.handle_autocomplete_interaction(bot.commands, bot.state, i)
