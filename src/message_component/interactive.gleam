@@ -41,7 +41,7 @@ pub type Button(state) {
 }
 
 pub type ButtonHandler(state) =
-  fn(Interaction, state) -> Response
+  fn(Interaction, state) -> Response(state)
 
 pub type SelectComponent(state) {
   StringSelectVariant(StringSelect(state))
@@ -56,8 +56,8 @@ pub type StringSelect(state) {
     custom_id: String,
     options: List(SelectOption),
     placeholder: String,
-    min_values: Option(Int),
-    max_values: Option(Int),
+    min_values: Int,
+    max_values: Int,
     required: Bool,
     disabled: Bool,
     handler: SelectHandler(state, String),
@@ -68,7 +68,7 @@ pub type SelectOption {
   SelectOption(
     label: String,
     value: String,
-    description: Option(String),
+    description: String,
     emoji: Option(#(String, String, Bool)),
     default: Bool,
   )
@@ -79,8 +79,8 @@ pub type UserSelect(state) {
     custom_id: String,
     placeholder: String,
     default_values: List(DefaultValue),
-    min_values: Option(Int),
-    max_values: Option(Int),
+    min_values: Int,
+    max_values: Int,
     required: Bool,
     disabled: Bool,
     handler: SelectHandler(state, String),
@@ -92,8 +92,8 @@ pub type RoleSelect(state) {
     custom_id: String,
     placeholder: String,
     default_values: List(DefaultValue),
-    min_values: Option(Int),
-    max_values: Option(Int),
+    min_values: Int,
+    max_values: Int,
     required: Bool,
     disabled: Bool,
     handler: SelectHandler(state, String),
@@ -105,8 +105,8 @@ pub type MentionableSelect(state) {
     custom_id: String,
     placeholder: String,
     default_values: List(DefaultValue),
-    min_values: Option(Int),
-    max_values: Option(Int),
+    min_values: Int,
+    max_values: Int,
     required: Bool,
     disabled: Bool,
     handler: SelectHandler(state, String),
@@ -120,8 +120,8 @@ pub type ChannelSelect(state) {
     // TODO: define channel types
     channel_types: List(Nil),
     default_values: List(DefaultValue),
-    min_values: Option(Int),
-    max_values: Option(Int),
+    min_values: Int,
+    max_values: Int,
     required: Bool,
     disabled: Bool,
     handler: SelectHandler(state, String),
@@ -133,4 +133,4 @@ pub type DefaultValue {
 }
 
 pub type SelectHandler(state, value) =
-  fn(Interaction, state, List(value)) -> Response
+  fn(Interaction, state, List(value)) -> Response(state)

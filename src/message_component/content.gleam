@@ -1,5 +1,5 @@
 pub type TextDisplay {
-  TextDisplay
+  TextDisplay(String)
 }
 
 pub type Thumbnail {
