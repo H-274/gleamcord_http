@@ -131,7 +131,10 @@ pub type MentionableSelect(state) {
     max_values: Int,
     required: Bool,
     disabled: Bool,
-    handler: SelectHandler(state, #(List(Dynamic), List(Dynamic))),
+    handler: SelectHandler(
+      state,
+      #(List(Dynamic), List(Dynamic), List(Dynamic)),
+    ),
   )
 }
 

@@ -65,7 +65,7 @@ pub type MentionableSelectData {
   MentionableSelectData(
     id: Int,
     custom_id: String,
-    resolved: #(List(Dynamic), List(Dynamic)),
+    resolved: #(List(Dynamic), List(Dynamic), List(Dynamic)),
     values: List(String),
   )
 }
