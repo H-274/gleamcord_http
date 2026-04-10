@@ -6,15 +6,12 @@ import message_component/interaction.{type Interaction}
 import message_component/response.{type Response}
 
 pub type Interactive(state) {
-  InteractiveButton(InteractiveButton(state))
-  InteractiveSelectComponent(SelectComponent(state))
+  InteractionButton(InteractiveButton(state))
+  SelectComponent(SelectComponent(state))
 }
 
 pub type Button(state) =
   button.Button(state)
-
-pub type ButtonHandler(state) =
-  fn(Interaction, state) -> Response(state)
 
 pub type SelectComponent(state) {
   StringSelectVariant(StringSelect(state))
