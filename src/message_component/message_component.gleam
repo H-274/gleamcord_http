@@ -1,10 +1,9 @@
 import gleam/dict.{type Dict}
 import message_component/interaction.{type Interaction, Interaction}
 import message_component/interactive.{
-  type Interactive, ChannelSelectVariant, DangerButton, InteractiveButton,
-  InteractiveSelectComponent, MentionableSelectVariant, PrimaryButton,
-  RoleSelectVariant, SecondaryButton, StringSelectVariant, SuccessButton,
-  UserSelectVariant,
+  type Interactive, ChannelSelectVariant, InteractiveButton,
+  InteractiveSelectComponent, MentionableSelectVariant, RoleSelectVariant,
+  StringSelectVariant, UserSelectVariant,
 }
 
 pub fn handle_interaction(
@@ -15,11 +14,7 @@ pub fn handle_interaction(
   case i {
     Interaction(data: interaction.Button(data), ..) ->
       case dict.get(components, data.custom_id) {
-        Ok(InteractiveButton(PrimaryButton(handler:, ..)))
-        | Ok(InteractiveButton(SecondaryButton(handler:, ..)))
-        | Ok(InteractiveButton(SuccessButton(handler:, ..)))
-        | Ok(InteractiveButton(DangerButton(handler:, ..))) ->
-          handler(i, state) |> Ok
+        Ok(InteractiveButton(button)) -> button.handler(i, state) |> Ok
         _ -> Error(Nil)
       }
     Interaction(data: interaction.StringSelect(data), ..) ->

@@ -59,8 +59,8 @@ pub fn add_component(
   bot: Bot(state),
   component: Interactive(state),
 ) -> Bot(state) {
-  let pair = #(interactive.get_cusom_id(component), component)
-  let new_components = dict.insert(bot.components, pair.0, pair.1)
+  let pair = #(component, component)
+  let new_components = dict.insert(bot.components, todo, pair.1)
 
   Bot(..bot, components: new_components)
 }

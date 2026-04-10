@@ -1,66 +1,17 @@
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
+import message_component/button/button
+import message_component/button/interactive_button.{type InteractiveButton}
 import message_component/interaction.{type Interaction}
 import message_component/response.{type Response}
 
 pub type Interactive(state) {
-  InteractiveButton(Button(state))
+  InteractiveButton(InteractiveButton(state))
   InteractiveSelectComponent(SelectComponent(state))
 }
 
-pub fn get_cusom_id(interactive: Interactive(_)) -> String {
-  case interactive {
-    InteractiveButton(button) ->
-      case button {
-        PrimaryButton(custom_id:, ..)
-        | SecondaryButton(custom_id:, ..)
-        | SuccessButton(custom_id:, ..)
-        | DangerButton(custom_id:, ..) -> custom_id
-        _ -> panic as "does not have a custom_id"
-      }
-    InteractiveSelectComponent(select) ->
-      case select {
-        StringSelectVariant(StringSelect(custom_id:, ..))
-        | UserSelectVariant(UserSelect(custom_id:, ..))
-        | RoleSelectVariant(RoleSelect(custom_id:, ..))
-        | MentionableSelectVariant(MentionableSelect(custom_id:, ..))
-        | ChannelSelectVariant(ChannelSelect(custom_id:, ..)) -> custom_id
-      }
-  }
-}
-
-pub type Button(state) {
-  PrimaryButton(
-    custom_id: String,
-    label: String,
-    emoji: Option(#(String, String, Bool)),
-    disabled: Bool,
-    handler: ButtonHandler(state),
-  )
-  SecondaryButton(
-    custom_id: String,
-    label: String,
-    emoji: Option(#(String, String, Bool)),
-    disabled: Bool,
-    handler: ButtonHandler(state),
-  )
-  SuccessButton(
-    custom_id: String,
-    label: String,
-    emoji: Option(#(String, String, Bool)),
-    disabled: Bool,
-    handler: ButtonHandler(state),
-  )
-  DangerButton(
-    custom_id: String,
-    label: String,
-    emoji: Option(#(String, String, Bool)),
-    disabled: Bool,
-    handler: ButtonHandler(state),
-  )
-  LinkButton(url: String, label: String, disabled: Bool)
-  PremiumButton(sku_id: String)
-}
+pub type Button(state) =
+  button.Button(state)
 
 pub type ButtonHandler(state) =
   fn(Interaction, state) -> Response(state)

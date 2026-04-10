@@ -1,29 +1,28 @@
 import examples/message_component/interactive as i_example
 import gleam/option
+import message_component/button/button
 import message_component/interactive
 import message_component/layout
 
 pub fn button_action_row() {
-  layout.ButtonActionRow([i_example.button()])
+  layout.button_row([button.Interactive(i_example.button())])
 }
 
 pub fn string_select_action_row() {
-  layout.SelectActionRow(
-    interactive.StringSelectVariant(i_example.string_select()),
-  )
+  layout.select_row(interactive.StringSelectVariant(i_example.string_select()))
 }
 
 pub fn section() {
   layout.Section(
     components: [layout.SectionTextDisplay("example")],
     accessories: [
-      layout.SectionButton(i_example.button()),
+      layout.SectionButton(button.Interactive(i_example.button())),
     ],
   )
 }
 
 pub fn separator() {
-  layout.Separator(divider: True, spacing: layout.LargeSpacing)
+  layout.LargeSeparator(divider: True)
 }
 
 pub fn container() {
