@@ -3,6 +3,13 @@ import gleam/option.{type Option}
 import message_component/content
 import message_component/interactive
 
+pub type Layout(state) {
+  RowLayout(ActionRow(state))
+  SectionLayout(Section(state))
+  SeparatorLayout(Separator)
+  ContainerLayout(Container(state))
+}
+
 pub opaque type ActionRow(state) {
   ButtonActionRow(List(interactive.Button(state)))
   SelectActionRow(interactive.SelectComponent(state))
