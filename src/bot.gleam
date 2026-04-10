@@ -2,7 +2,7 @@ import application_command/application_command.{type ApplicationCommand} as comm
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
-import interaction/interaction.{type Interaction}
+import interaction.{type Interaction}
 import message_component/interactive.{type Interactive}
 import message_component/message_component
 import modal/modal.{type Modal}
