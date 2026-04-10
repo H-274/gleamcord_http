@@ -3,8 +3,7 @@
 
 import application_command/interaction.{type Interaction}
 import application_command/option_definition.{
-  IntegerAutocompleteDefinition, NumberAutocompleteDefinition,
-  StringAutocompleteDefinition,
+  IntegerAutocomplete, NumberAutocomplete, StringAutocomplete,
 } as co
 import application_command/option_value.{IntegerValue, NumberValue, StringValue}
 import application_command/response.{type Response}
@@ -57,21 +56,18 @@ pub fn run_autocomplete(
     as "there should always be a focused option when autocomplete is called"
 
   case dict.get(chat_input.options, option.name), option {
-    Ok(StringAutocompleteDefinition(autocomplete: autocomplete, ..)),
+    Ok(StringAutocomplete(autocomplete: autocomplete, ..)),
       StringValue(value: partial, ..)
     ->
       autocomplete(i, state, partial, values)
       |> response.StringAutocomplete
       |> Ok
-    Ok(IntegerAutocompleteDefinition(autocomplete:, ..)),
-      IntegerValue(value: partial, ..)
+    Ok(IntegerAutocomplete(autocomplete:, ..)), IntegerValue(value: partial, ..)
     ->
       autocomplete(i, state, partial, values)
       |> response.IntegerAutocomplete
       |> Ok
-    Ok(NumberAutocompleteDefinition(autocomplete:, ..)),
-      NumberValue(value: partial, ..)
-    ->
+    Ok(NumberAutocomplete(autocomplete:, ..)), NumberValue(value: partial, ..) ->
       autocomplete(i, state, partial, values)
       |> response.NumberAutocomplete
       |> Ok

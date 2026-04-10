@@ -26,74 +26,69 @@ const max_number_value = 1.7976931348623157e308
 pub const max_choice_count = 25
 
 pub type Definition(state) {
-  StringDefinition(
+  String(
     name: String,
     description: String,
     required: Bool,
     details: List(LengthDetail),
   )
-  StringChoicesDefinition(
+  StringChoices(
     name: String,
     description: String,
     required: Bool,
     choices: Choices(String),
   )
-  StringAutocompleteDefinition(
+  StringAutocomplete(
     name: String,
     description: String,
     required: Bool,
     details: List(LengthDetail),
     autocomplete: Autocomplete(state, String),
   )
-  IntegerDefinition(
+  Integer(
     name: String,
     description: String,
     required: Bool,
     details: List(ValueDetail(Int)),
   )
-  IntegerChoicesDefinition(
+  IntegerChoices(
     name: String,
     description: String,
     required: Bool,
     choices: Choices(Int),
   )
-  IntegerAutocompleteDefinition(
+  IntegerAutocomplete(
     name: String,
     description: String,
     required: Bool,
     details: List(ValueDetail(Int)),
     autocomplete: Autocomplete(state, Int),
   )
-  BooleanDefinition(name: String, description: String, required: Bool)
-  UserDefinition(name: String, description: String, required: Bool)
-  ChannelDefinition(
-    name: String,
-    description: String,
-    required: Bool,
-    types: List(Nil),
-  )
-  RoleDefinition(name: String, description: String, required: Bool)
-  MentionableDefinition(name: String, description: String, required: Bool)
-  NumberDefinition(
+  Boolean(name: String, description: String, required: Bool)
+  User(name: String, description: String, required: Bool)
+  Channel(name: String, description: String, required: Bool, types: List(Nil))
+  Role(name: String, description: String, required: Bool)
+  Mentionable(name: String, description: String, required: Bool)
+  Number(
     name: String,
     description: String,
     required: Bool,
     details: List(ValueDetail(Float)),
   )
-  NumberChoicesDefinition(
+  NumberChoices(
     name: String,
     description: String,
     required: Bool,
     choices: Choices(Float),
   )
-  NumberAutocompleteDefinition(
+  NumberAutocomplete(
     name: String,
     description: String,
     required: Bool,
     details: List(ValueDetail(Float)),
     autocomplete: Autocomplete(state, Float),
   )
-  AttachmentDefinition(name: String, description: String, required: Bool)
+  Attachment(name: String, description: String, required: Bool)
 }
 
 pub type Choices(val) =

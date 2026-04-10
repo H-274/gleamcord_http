@@ -60,7 +60,7 @@ fn times_subcommand() {
   let signature =
     signature.new(name: "times", desc: "greets the world a number of times")
   let opts = [
-    opt_def.IntegerDefinition(
+    opt_def.Integer(
       name: "times",
       description: "times to say hello",
       required: False,
@@ -92,7 +92,7 @@ fn caps_subcommand(hello_world) {
 fn colour_picker_subcommand() {
   let signature = signature.new(name: "colours", desc: "pick your fav. colour")
   let opts = [
-    opt_def.StringChoicesDefinition(
+    opt_def.StringChoices(
       name: "colour",
       description: "your fav colour",
       required: True,
@@ -115,7 +115,7 @@ fn colour_picker_subcommand() {
 fn words_subcommand() {
   let signature = signature.new(name: "words", desc: "write a word")
   let opts = [
-    opt_def.StringAutocompleteDefinition(
+    opt_def.StringAutocomplete(
       name: "word",
       description: "any word",
       details: [],
@@ -140,7 +140,7 @@ fn words_subcommand() {
 fn name_subcommand() {
   let signature = signature.new(name: "name", desc: "greet a name")
   let opts = [
-    opt_def.StringDefinition(
+    opt_def.String(
       name: "name",
       description: "name to greet",
       required: True,
