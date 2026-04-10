@@ -65,6 +65,16 @@ pub fn add_component(
   Bot(..bot, components: new_components)
 }
 
+pub fn add_components(
+  bot: Bot(state),
+  components: List(Interactive(state)),
+) -> Bot(state) {
+  let pairs = list.map(components, fn(c) { #(todo, c) })
+  let new_components = dict.merge(bot.components, dict.from_list(pairs))
+
+  Bot(..bot, components: new_components)
+}
+
 pub fn add_modal(bot: Bot(state), modal: Modal(state)) {
   Bot(..bot, modals: dict.insert(bot.modals, modal.get_id(modal), modal))
 }
