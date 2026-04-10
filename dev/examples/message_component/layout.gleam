@@ -1,6 +1,5 @@
 import examples/message_component/interactive as i_example
 import gleam/option
-import message_component/content
 import message_component/interactive
 import message_component/layout
 
@@ -16,7 +15,7 @@ pub fn string_select_action_row() {
 
 pub fn section() {
   layout.Section(
-    components: [layout.SectionTextDisplay(content.TextDisplay("example"))],
+    components: [layout.SectionTextDisplay("example")],
     accessories: [
       layout.SectionButton(i_example.button()),
     ],
@@ -30,7 +29,7 @@ pub fn separator() {
 pub fn container() {
   layout.Container(
     components: [
-      layout.ContainerTextDisplay(content.TextDisplay("Example")),
+      layout.ContainerTextDisplay("Example"),
       layout.ContainerSection(section()),
       layout.ContainerSeparator(separator()),
       layout.ContainerActionRow(button_action_row()),

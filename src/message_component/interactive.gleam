@@ -1,3 +1,4 @@
+import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option}
 import message_component/interaction.{type Interaction}
 import message_component/response.{type Response}
@@ -14,10 +15,17 @@ pub fn get_cusom_id(interactive: Interactive(_)) -> String {
         PrimaryButton(custom_id:, ..)
         | SecondaryButton(custom_id:, ..)
         | SuccessButton(custom_id:, ..)
-        | DangerButton(custom_id:, ..) -> todo
+        | DangerButton(custom_id:, ..) -> custom_id
         _ -> panic as "does not have a custom_id"
       }
-    InteractiveSelectComponent(select) -> todo
+    InteractiveSelectComponent(select) ->
+      case select {
+        StringSelectVariant(StringSelect(custom_id:, ..))
+        | UserSelectVariant(UserSelect(custom_id:, ..))
+        | RoleSelectVariant(RoleSelect(custom_id:, ..))
+        | MentionableSelectVariant(MentionableSelect(custom_id:, ..))
+        | ChannelSelectVariant(ChannelSelect(custom_id:, ..)) -> custom_id
+      }
   }
 }
 
@@ -74,7 +82,7 @@ pub type StringSelect(state) {
     max_values: Int,
     required: Bool,
     disabled: Bool,
-    handler: SelectHandler(state, String),
+    handler: SelectHandler(state, List(String)),
   )
 }
 
@@ -97,7 +105,7 @@ pub type UserSelect(state) {
     max_values: Int,
     required: Bool,
     disabled: Bool,
-    handler: SelectHandler(state, String),
+    handler: SelectHandler(state, #(List(Dynamic), List(Dynamic))),
   )
 }
 
@@ -110,7 +118,7 @@ pub type RoleSelect(state) {
     max_values: Int,
     required: Bool,
     disabled: Bool,
-    handler: SelectHandler(state, String),
+    handler: SelectHandler(state, List(Dynamic)),
   )
 }
 
@@ -123,7 +131,7 @@ pub type MentionableSelect(state) {
     max_values: Int,
     required: Bool,
     disabled: Bool,
-    handler: SelectHandler(state, String),
+    handler: SelectHandler(state, #(List(Dynamic), List(Dynamic))),
   )
 }
 
@@ -138,7 +146,7 @@ pub type ChannelSelect(state) {
     max_values: Int,
     required: Bool,
     disabled: Bool,
-    handler: SelectHandler(state, String),
+    handler: SelectHandler(state, List(Dynamic)),
   )
 }
 
@@ -146,5 +154,5 @@ pub type DefaultValue {
   DefaultValue(snowflake: String)
 }
 
-pub type SelectHandler(state, value) =
-  fn(Interaction, state, List(value)) -> Response(state)
+pub type SelectHandler(state, values) =
+  fn(Interaction, state, values) -> Response(state)

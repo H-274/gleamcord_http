@@ -1,6 +1,5 @@
-pub type TextDisplay {
-  TextDisplay(String)
-}
+pub type TextDisplay =
+  String
 
 pub type Thumbnail {
   Thumbnail

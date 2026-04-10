@@ -4,6 +4,7 @@ import gleam/list
 import gleam/result
 import interaction/interaction.{type Interaction}
 import message_component/interactive.{type Interactive}
+import message_component/message_component
 import modal/modal.{type Modal}
 import response.{type Response}
 
@@ -86,7 +87,9 @@ pub fn handle_interaction(
       command.handle_interaction(bot.commands, bot.state, i)
       |> result.map(response.Command)
 
-    interaction.MessageComponent(..) -> todo
+    interaction.MessageComponent(i) ->
+      message_component.handle_interaction(bot.components, bot.state, i)
+      |> result.map(response.MessageComponent)
 
     interaction.ApplicationCommandAutocomplete(i) ->
       command.handle_autocomplete_interaction(bot.commands, bot.state, i)

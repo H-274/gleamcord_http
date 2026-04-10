@@ -1,34 +1,13 @@
 import application_command/interaction.{type Interaction as CommandInteraction} as _
-import gleam/dynamic.{type Dynamic}
-import gleam/option.{type Option}
-import interaction/data
-import locale.{type Locale}
+import message_component/interaction.{
+  type Interaction as MessageComponentInteraction,
+} as _
 import modal/interaction.{type Interaction as ModalInteraction} as _
 
 pub type Interaction {
   Ping(id: String, application_id: String, token: String, version: Int)
   ApplicationCommand(CommandInteraction)
-  MessageComponent(
-    id: String,
-    application_id: String,
-    data: data.MessageComponent,
-    guild: Option(Dynamic),
-    guild_id: Option(String),
-    channel: Option(Dynamic),
-    channel_id: Option(String),
-    member: Option(Dynamic),
-    user: Option(Dynamic),
-    token: String,
-    version: Int,
-    message: Dynamic,
-    permissions: String,
-    locale: Option(Locale),
-    guild_locale: Option(Locale),
-    entitlements: List(Dynamic),
-    authorizing_integration_owners: List(#(String, Dynamic)),
-    context: Dynamic,
-    attachment_size_limit: Int,
-  )
+  MessageComponent(MessageComponentInteraction)
   ApplicationCommandAutocomplete(CommandInteraction)
   ModalSubmit(ModalInteraction)
 }
