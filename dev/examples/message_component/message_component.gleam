@@ -5,6 +5,7 @@ import component/interactive.{
 import gleam/dynamic.{type Dynamic}
 import gleam/option
 import gleam/string
+import message
 import message_component/message_component as mc
 import message_component/response as mcr
 
@@ -20,12 +21,14 @@ pub fn button() {
   // process.sleep(5000)
 
   "Updated message!"
+  |> message.NewText([])
 }
 
 pub fn string_select() {
   use _i, _state, values <- mc.StringSelect(StringSelect)
 
   { "You selected:\n" <> string.join(values, "\n") }
+  |> message.NewText([])
   |> mcr.MessageWithSource
 }
 
@@ -35,6 +38,7 @@ pub fn user_select() {
   let _members: List(Dynamic) = values.1
 
   { "Submitted successfully" }
+  |> message.NewText([])
   |> mcr.MessageWithSource
 }
 
@@ -43,6 +47,7 @@ pub fn role_select() {
   let _roles: List(Dynamic) = values
 
   { "Submitted successfully" }
+  |> message.NewText([])
   |> mcr.MessageWithSource
 }
 
@@ -53,6 +58,7 @@ pub fn mentionable_select() {
   let _roles: List(Dynamic) = values.2
 
   { "Submitted successfully" }
+  |> message.NewText([])
   |> mcr.MessageWithSource
 }
 
@@ -61,5 +67,6 @@ pub fn channel_select() {
   let _channels: List(Dynamic) = values
 
   { "Submitted successfully" }
+  |> message.NewText([])
   |> mcr.MessageWithSource
 }

@@ -2,7 +2,7 @@ import application_command/application_command as command
 import application_command/chat_input
 import application_command/chat_input_group
 import application_command/interaction
-import application_command/message
+import application_command/message as mc
 import application_command/option_value
 import application_command/response
 import application_command/signature
@@ -10,10 +10,11 @@ import application_command/user
 import gleam/dict
 import gleam/dynamic
 import gleam/option
+import message
 
 pub fn valid_chat_input_handle_interaction_test() {
   // Given
-  let expected = response.MessageWithSource("success")
+  let expected = response.MessageWithSource("success" |> message.NewText([]))
   let invoked = "command"
   let interaction =
     interaction.Interaction(
@@ -111,7 +112,7 @@ pub fn invalid_chat_input_handle_interaction_test() {
 
 pub fn valid_chat_input_subcommand_handle_interaction_test() {
   // Given
-  let expected = response.MessageWithSource("success")
+  let expected = response.MessageWithSource("success" |> message.NewText([]))
   let invoked = "command"
   let invoked_subcommand = "subcommand"
   let interaction =
@@ -235,7 +236,7 @@ pub fn invalid_chat_input_subcommand_handle_interaction_test() {
 
 pub fn valid_chat_input_subcommand_group_handle_interaction_test() {
   // Given
-  let expected = response.MessageWithSource("success")
+  let expected = response.MessageWithSource("success" |> message.NewText([]))
   let invoked = "command"
   let invoked_subcommand_group = "group"
   let invoked_subcommand = "subcommand"
@@ -361,7 +362,7 @@ pub fn invalid_chat_input_subcommand_group_handle_interaction_test() {
 
 pub fn valid_user_handle_interaction_test() {
   // Given
-  let expected = response.MessageWithSource("success")
+  let expected = response.MessageWithSource("success" |> message.NewText([]))
   let invoked = "command"
   let interaction =
     interaction.Interaction(
@@ -457,7 +458,7 @@ pub fn invalid_user_handle_interaction_test() {
 
 pub fn valid_message_handle_interaction_test() {
   // Given
-  let expected = response.MessageWithSource("success")
+  let expected = response.MessageWithSource("success" |> message.NewText([]))
   let invoked = "command"
   let interaction =
     interaction.Interaction(
@@ -491,7 +492,7 @@ pub fn valid_message_handle_interaction_test() {
     |> dict.insert(
       invoked,
       command.from_message(
-        message.new(signature.new(invoked, ""), fn(_, _) { expected }),
+        mc.new(signature.new(invoked, ""), fn(_, _) { expected }),
       ),
     )
 
@@ -538,7 +539,7 @@ pub fn invalid_message_handle_interaction_test() {
     |> dict.insert(
       invoked <> "bad",
       command.from_message(
-        message.new(signature.new(invoked <> "bad", ""), fn(_, _) {
+        mc.new(signature.new(invoked <> "bad", ""), fn(_, _) {
           panic as "should not run"
         }),
       ),

@@ -1,11 +1,12 @@
 //// Based on:
 //// - https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-response-object
 
+import message
 import modal/modal.{type Modal}
 
 pub type Response(state) {
-  MessageWithSource(String)
-  DeferredMessageWithSource(fn() -> String)
+  MessageWithSource(message.New)
+  DeferredMessageWithSource(fn() -> message.New)
   Modal(Modal(state))
 }
 
