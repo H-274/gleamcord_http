@@ -43,6 +43,7 @@ pub type StringSelectData {
   StringSelectData(id: Int, custom_id: String, values: List(String))
 }
 
+// TODO update values type
 pub type UserSelectData {
   UserSelectData(
     id: Int,
