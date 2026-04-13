@@ -13,6 +13,7 @@ pub fn button() {
   use _i, _state <- mc.Button(PrimaryButton(
     custom_id: "slow-update",
     label: "Slow",
+    disabled: False,
     emoji: option.None,
   ))
 
