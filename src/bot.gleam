@@ -65,7 +65,9 @@ pub fn handle_interaction(
       command.handle_interaction(bot.commands, bot.state, i)
       |> result.map(response.Command)
 
-    interaction.MessageComponent(_i) -> todo as "missing handling"
+    interaction.MessageComponent(i) ->
+      message_component.handle_interaction(bot.components, bot.state, i)
+      |> result.map(response.MessageComponent)
 
     interaction.ApplicationCommandAutocomplete(i) ->
       command.handle_autocomplete_interaction(bot.commands, bot.state, i)
