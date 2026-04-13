@@ -1,16 +1,18 @@
 //// TODO update definitions
 
+import gleam/option.{type Option}
+
 pub type Button {
   CustomButton(CustomButton)
-  LinkButton
-  PremiumButton
+  LinkButton(label: String, url: String, emoji: Option(String))
+  PremiumButton(sku: String)
 }
 
 pub type CustomButton {
-  PrimaryButton
-  SecondaryButton
-  SuccessButton
-  DangerButton
+  PrimaryButton(custom_id: String, label: String, emoji: Option(String))
+  SecondaryButton(custom_id: String, label: String, emoji: Option(String))
+  SuccessButton(custom_id: String, label: String, emoji: Option(String))
+  DangerButton(custom_id: String, label: String, emoji: Option(String))
 }
 
 pub type StringSelect {

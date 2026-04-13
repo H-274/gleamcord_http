@@ -3,12 +3,17 @@ import component/interactive.{
   UserSelect,
 }
 import gleam/dynamic.{type Dynamic}
+import gleam/option
 import gleam/string
 import message_component/message_component as mc
 import message_component/response as mcr
 
 pub fn button() {
-  use _i, _state <- mc.Button(PrimaryButton)
+  use _i, _state <- mc.Button(PrimaryButton(
+    custom_id: "slow-update",
+    label: "Slow",
+    emoji: option.None,
+  ))
 
   use <- mcr.DeferredUpdateMessage()
 
