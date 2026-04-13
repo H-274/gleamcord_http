@@ -1,34 +1,34 @@
-import application_command/chat_input
-import application_command/chat_input_group
-import application_command/message
+import application_command/chat_input as ci
+import application_command/chat_input_group as cig
+import application_command/message as mc
 import application_command/option_definition as opt_def
 import application_command/option_value.{
   IntegerValue as IntVal, StringValue as StrVal,
 }
-import application_command/response as command_response
-import application_command/signature
-import application_command/user
+import application_command/response as cr
+import application_command/signature as cs
+import application_command/user as uc
 import gleam/dict
 import gleam/list
 import gleam/string
 
 pub fn chat_input() {
   // --- /ping
-  let signature = signature.new(name: "ping", desc: "pongs")
+  let signature = cs.new(name: "ping", desc: "pongs")
 
-  use _i, _s, _opts <- chat_input.new(signature:, opts: [])
+  use _i, _s, _opts <- ci.new(signature:, opts: [])
 
   "Pong!"
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
 
 pub fn slow() {
   // --- /slow
-  let signature = signature.new(name: "slow", desc: "delayed response")
+  let signature = cs.new(name: "slow", desc: "delayed response")
 
-  use _i, _s, _opts <- chat_input.new(signature:, opts: [])
+  use _i, _s, _opts <- ci.new(signature:, opts: [])
 
-  use <- command_response.DeferredMessageWithSource
+  use <- cr.DeferredMessageWithSource
 
   // process.sleep(5000)
 
@@ -36,29 +36,25 @@ pub fn slow() {
 }
 
 pub fn chat_input_group() {
-  chat_input_group.new(name: "demo", desc: "demonstration commands", subs: [
-    chat_input_group.subcommand_group(
-      name: "hello",
-      desc: "greet the world",
-      subs: [
-        // --- /demo hello times [int]
-        times_subcommand(),
-        // --- /demo hello caps
-        caps_subcommand("Hello World!"),
-      ],
-    ),
+  cig.new(name: "demo", desc: "demonstration commands", subs: [
+    cig.subcommand_group(name: "hello", desc: "greet the world", subs: [
+      // --- /demo hello times [int]
+      times_subcommand(),
+      // --- /demo hello caps
+      caps_subcommand("Hello World!"),
+    ]),
     // --- /demo colours <Red|Green|Blue|Other>
-    colour_picker_subcommand() |> chat_input_group.subcommand,
+    colour_picker_subcommand() |> cig.subcommand,
     // --- /demo words <string>
-    words_subcommand() |> chat_input_group.subcommand,
+    words_subcommand() |> cig.subcommand,
     // --- /demo name <string>
-    name_subcommand() |> chat_input_group.subcommand,
+    name_subcommand() |> cig.subcommand,
   ])
 }
 
 fn times_subcommand() {
   let signature =
-    signature.new(name: "times", desc: "greets the world a number of times")
+    cs.new(name: "times", desc: "greets the world a number of times")
   let opts = [
     opt_def.Integer(
       name: "times",
@@ -68,7 +64,7 @@ fn times_subcommand() {
     ),
   ]
 
-  use _i, _s, opts <- chat_input.new(signature:, opts:)
+  use _i, _s, opts <- ci.new(signature:, opts:)
   let times = case dict.get(opts, "times") {
     Ok(IntVal(value:, ..)) -> value
     _ -> 2
@@ -76,21 +72,20 @@ fn times_subcommand() {
 
   list.repeat("Hello World!", times:)
   |> string.join("\n")
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
 
 fn caps_subcommand(hello_world) {
-  let signature =
-    signature.new(name: "caps", desc: "greets the world in all caps")
+  let signature = cs.new(name: "caps", desc: "greets the world in all caps")
 
-  use _i, _s, _opts <- chat_input.new(signature:, opts: [])
+  use _i, _s, _opts <- ci.new(signature:, opts: [])
 
   string.uppercase(hello_world)
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
 
 fn colour_picker_subcommand() {
-  let signature = signature.new(name: "colours", desc: "pick your fav. colour")
+  let signature = cs.new(name: "colours", desc: "pick your fav. colour")
   let opts = [
     opt_def.StringChoices(
       name: "colour",
@@ -105,15 +100,15 @@ fn colour_picker_subcommand() {
     ),
   ]
 
-  use _i, _s, opts <- chat_input.new(signature:, opts:)
+  use _i, _s, opts <- ci.new(signature:, opts:)
   let assert Ok(StrVal(value: colour, ..)) = dict.get(opts, "colour")
 
   { "You picked the value: `" <> colour <> "` !" }
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
 
 fn words_subcommand() {
-  let signature = signature.new(name: "words", desc: "write a word")
+  let signature = cs.new(name: "words", desc: "write a word")
   let opts = [
     opt_def.StringAutocomplete(
       name: "word",
@@ -130,15 +125,15 @@ fn words_subcommand() {
     ),
   ]
 
-  use _i, _s, opts <- chat_input.new(signature:, opts:)
+  use _i, _s, opts <- ci.new(signature:, opts:)
   let assert Ok(StrVal(value: word, ..)) = dict.get(opts, "word")
 
   { "You picked the word: `" <> word <> "` !" }
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
 
 fn name_subcommand() {
-  let signature = signature.new(name: "name", desc: "greet a name")
+  let signature = cs.new(name: "name", desc: "greet a name")
   let opts = [
     opt_def.String(
       name: "name",
@@ -148,28 +143,27 @@ fn name_subcommand() {
     ),
   ]
 
-  use _i, _s, opts <- chat_input.new(signature:, opts:)
+  use _i, _s, opts <- ci.new(signature:, opts:)
   let assert Ok(StrVal(value: name, ..)) = dict.get(opts, "name")
 
   { "Hello " <> name <> "!" }
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
 
 pub fn user_command() {
-  let signature =
-    signature.new(name: "high-five", desc: "gives user a high-five")
+  let signature = cs.new(name: "high-five", desc: "gives user a high-five")
 
-  use _i, _s <- user.new(signature:)
+  use _i, _s <- uc.new(signature:)
 
   { "Someone got a high-five!" }
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
 
 pub fn message_command() {
-  let signature = signature.new(name: "report", desc: "reports a message")
+  let signature = cs.new(name: "report", desc: "reports a message")
 
-  use _i, _s <- message.new(signature:)
+  use _i, _s <- mc.new(signature:)
 
   { "Message reported successfully" }
-  |> command_response.MessageWithSource
+  |> cr.MessageWithSource
 }
