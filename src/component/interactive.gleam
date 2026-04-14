@@ -88,8 +88,6 @@ pub type ChannelSelect {
   ChannelSelect
 }
 
-pub type Select
-
 pub type FileUpload {
   FileUpload
 }

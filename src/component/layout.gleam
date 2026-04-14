@@ -3,7 +3,11 @@ import component/interactive
 
 pub type ActionRow {
   ButtonRow(List(interactive.Button))
-  SelectRow(interactive.Select)
+  StringSelectRow(interactive.StringSelect)
+  UserSelectRow(interactive.UserSelect)
+  RoleSelectRow(interactive.RoleSelect)
+  MentionableSelectRow(interactive.MentionableSelect)
+  ChannelSelectRow(interactive.ChannelSelect)
 }
 
 pub type Section {
