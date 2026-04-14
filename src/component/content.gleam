@@ -1,4 +1,5 @@
-pub type TextDisplay
+pub type TextDisplay =
+  String
 
 pub type Thumbnail
 

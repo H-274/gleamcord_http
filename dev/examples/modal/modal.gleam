@@ -28,12 +28,12 @@ pub fn about_me() {
     layout.Label(
       label: "Nickname",
       description: "",
-      component: modal.TextInput(nickname_input),
+      component: layout.LabelTextInput(nickname_input),
     ),
     layout.Label(
       label: "Description",
       description: "A bit about yourself",
-      component: modal.TextInput(description_input),
+      component: layout.LabelTextInput(description_input),
     ),
   ]
   use _i, _s, values <- modal.new("about-me", "About me", components:)
