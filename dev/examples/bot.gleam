@@ -2,8 +2,8 @@ import application_command/application_command as command
 import bot
 import examples/application_command/chat_input as chat_input_command
 import examples/application_command/chat_input_group as chat_input_group_command
-import examples/application_command/message as message_command
-import examples/application_command/user as user_command
+import examples/application_command/message_command
+import examples/application_command/user_command
 
 pub fn example() {
   bot.new(app_id: "", pub_key: "", token: "", state: Nil)
