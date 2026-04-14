@@ -1,13 +1,18 @@
 import application_command/application_command as command
 import bot
-import examples/application_command/application_command as example_commands
+import examples/application_command/chat_input as chat_input_command
+import examples/application_command/chat_input_group as chat_input_group_command
+import examples/application_command/message as message_command
+import examples/application_command/user as user_command
 
 pub fn example() {
   bot.new(app_id: "", pub_key: "", token: "", state: Nil)
   |> bot.add_commands([
-    example_commands.chat_input() |> command.from_chat_input,
-    example_commands.chat_input_group() |> command.from_chat_input_group,
-    example_commands.user_command() |> command.from_user,
-    example_commands.message_command() |> command.from_message,
+    chat_input_command.ping() |> command.from_chat_input,
+    chat_input_command.slow() |> command.from_chat_input,
+    chat_input_command.greeting() |> command.from_chat_input,
+    chat_input_group_command.favourite() |> command.from_chat_input_group,
+    user_command.promote() |> command.from_user,
+    message_command.report() |> command.from_message,
   ])
 }

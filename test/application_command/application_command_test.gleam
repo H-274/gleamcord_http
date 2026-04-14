@@ -2,11 +2,11 @@ import application_command/application_command as command
 import application_command/chat_input
 import application_command/chat_input_group
 import application_command/interaction
-import application_command/message as mc
+import application_command/message_command
 import application_command/option_value
 import application_command/response
 import application_command/signature
-import application_command/user
+import application_command/user_command
 import gleam/dict
 import gleam/dynamic
 import gleam/option
@@ -396,7 +396,7 @@ pub fn valid_user_handle_interaction_test() {
     |> dict.insert(
       invoked,
       command.from_user(
-        user.new(signature.new(invoked, ""), fn(_, _) { expected }),
+        user_command.new(signature.new(invoked, ""), fn(_, _) { expected }),
       ),
     )
 
@@ -443,7 +443,7 @@ pub fn invalid_user_handle_interaction_test() {
     |> dict.insert(
       invoked <> "bad",
       command.from_user(
-        user.new(signature.new(invoked <> "bad", ""), fn(_, _) {
+        user_command.new(signature.new(invoked <> "bad", ""), fn(_, _) {
           panic as "should not run"
         }),
       ),
@@ -492,7 +492,7 @@ pub fn valid_message_handle_interaction_test() {
     |> dict.insert(
       invoked,
       command.from_message(
-        mc.new(signature.new(invoked, ""), fn(_, _) { expected }),
+        message_command.new(signature.new(invoked, ""), fn(_, _) { expected }),
       ),
     )
 
@@ -539,7 +539,7 @@ pub fn invalid_message_handle_interaction_test() {
     |> dict.insert(
       invoked <> "bad",
       command.from_message(
-        mc.new(signature.new(invoked <> "bad", ""), fn(_, _) {
+        message_command.new(signature.new(invoked <> "bad", ""), fn(_, _) {
           panic as "should not run"
         }),
       ),

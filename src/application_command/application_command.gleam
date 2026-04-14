@@ -1,10 +1,10 @@
 import application_command/chat_input.{type ChatInput}
 import application_command/chat_input_group.{type ChatInputGroup}
 import application_command/interaction.{type Interaction, Interaction}
-import application_command/message.{type Message}
+import application_command/message_command.{type Message}
 import application_command/option_value
 import application_command/response.{type Response}
-import application_command/user.{type User}
+import application_command/user_command.{type User}
 import gleam/dict.{type Dict}
 
 pub opaque type ApplicationCommand(state) {
@@ -36,8 +36,8 @@ pub fn dict_pair(
   case command {
     ChatInput(c) -> #(chat_input.get_name(c), command)
     ChatInputGroup(c) -> #(chat_input_group.get_name(c), command)
-    User(c) -> #(user.get_name(c), command)
-    Message(c) -> #(message.get_name(c), command)
+    User(c) -> #(user_command.get_name(c), command)
+    Message(c) -> #(message_command.get_name(c), command)
   }
 }
 
@@ -57,12 +57,12 @@ pub fn handle_interaction(
       }
     Interaction(data: interaction.User(user), ..) ->
       case dict.get(commands, user.name) {
-        Ok(User(user)) -> user.run(user, i, state)
+        Ok(User(user)) -> user_command.run(user, i, state)
         _ -> Error(Nil)
       }
     Interaction(data: interaction.Message(message), ..) ->
       case dict.get(commands, message.name) {
-        Ok(Message(message)) -> message.run(message, i, state)
+        Ok(Message(message)) -> message_command.run(message, i, state)
         _ -> Error(Nil)
       }
   }
