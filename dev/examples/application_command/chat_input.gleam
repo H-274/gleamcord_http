@@ -92,7 +92,7 @@ pub fn colour() {
   case colour {
     "#" <> rest ->
       case int.parse("0x" <> rest) {
-        Ok(val) if val <= 0xffffff ->
+        Ok(val) if val >= 0 ->
           [message.RootContainer(colour_component(colour, rest, val))]
           |> message.NewComponent([message.SuppressNotifications])
           |> command_response.MessageWithSource
@@ -110,7 +110,7 @@ fn colour_autocomplete(_interaction, _state, partial: String, _opts) {
     "#" <> rest -> {
       let padded = string.pad_end(rest, 6, "F")
       case int.parse("0x" <> padded) {
-        Ok(_) -> [#("#" <> padded, "#" <> padded)]
+        Ok(val) if val >= 0 -> [#("#" <> padded, "#" <> padded)]
         _ -> default
       }
     }
