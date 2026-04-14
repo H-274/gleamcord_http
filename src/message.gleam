@@ -1,7 +1,29 @@
+import component/layout
+
 pub type New {
   NewText(content: String, flags: List(Flag))
-  /// TODO replace nil with proper root type
-  NewComponent(content: List(Nil), flags: List(Flag))
+  NewComponent(content: List(ComponentRoot), flags: List(Flag))
 }
 
-pub type Flag
+pub type Flag {
+  Crossposted
+  IsCrosspost
+  SuppressEmbeds
+  SourceMessageDeleted
+  Urgent
+  HasThread
+  Ephemeral
+  Loading
+  FailedToMentionSomeRolesInThread
+  SuppressNotifications
+  IsVoiceMessage
+  HasSnapshot
+  IsComponentsV2
+}
+
+pub type ComponentRoot {
+  RootRow(layout.ActionRow)
+  RootContainer(layout.Container)
+  RootSeparator(layout.Separator)
+  RootSection(layout.Section)
+}
