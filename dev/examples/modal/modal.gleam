@@ -38,8 +38,9 @@ pub fn about_me() {
   ]
   use _i, _s, values <- modal.new("about-me", "About me", components:)
   let assert Ok(nickname) = dict.get(values, nickname_input.custom_id)
+  let assert Ok(description) = dict.get(values, description_input.custom_id)
 
-  echo nickname
+  echo #(nickname, description)
 
   { "Form submitted!" }
   |> message.NewText([])
