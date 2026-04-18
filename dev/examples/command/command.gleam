@@ -72,7 +72,7 @@ pub fn colour() {
       case int.base_parse(rest, 16) {
         Ok(value) if value >= 0 ->
           [message.RootContainer(colour_container(hex, rest, value))]
-          |> message.NewComponent([])
+          |> message.NewComponent([message.SuppressNotifications])
           |> response.MessageWithSource
         _ -> default_colour_response |> response.MessageWithSource
       }
