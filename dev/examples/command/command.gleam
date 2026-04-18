@@ -88,7 +88,7 @@ fn colour_container(hex: String, rest: String, value: Int) -> layout.Container {
           components: ["Selected the following colour: " <> hex],
           accessories: [
             layout.SectionThumbnail(content.Thumbnail(
-              media: "https://placehold.co/150/" <> rest <> "/" <> "/jpeg",
+              media: "https://placehold.co/150/" <> rest <> "/jpeg",
               description: hex,
               spoiler: False,
             )),
