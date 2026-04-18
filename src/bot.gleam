@@ -1,4 +1,3 @@
-import application_command/application_command.{type ApplicationCommand} as command
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
@@ -13,7 +12,7 @@ pub opaque type Bot(state) {
     pub_key: String,
     token: String,
     state: state,
-    commands: Dict(String, ApplicationCommand(state)),
+    commands: Dict(String, Nil),
     components: Dict(String, MessageComponent(state)),
     modals: Dict(String, Modal(state)),
   )
@@ -36,24 +35,6 @@ pub fn new(
   )
 }
 
-pub fn add_command(
-  bot: Bot(state),
-  command: ApplicationCommand(state),
-) -> Bot(state) {
-  let pair = command.dict_pair(command)
-  Bot(..bot, commands: dict.insert(bot.commands, pair.0, pair.1))
-}
-
-pub fn add_commands(
-  bot: Bot(state),
-  commands: List(ApplicationCommand(state)),
-) -> Bot(state) {
-  let pairs = list.map(commands, command.dict_pair)
-  let new_commands = dict.merge(bot.commands, dict.from_list(pairs))
-
-  Bot(..bot, commands: new_commands)
-}
-
 pub fn handle_interaction(
   bot: Bot(_),
   i i: Interaction,
@@ -62,7 +43,7 @@ pub fn handle_interaction(
     interaction.Ping(..) -> Ok(response.Pong)
 
     interaction.ApplicationCommand(i) ->
-      command.handle_interaction(bot.commands, bot.state, i)
+      todo
       |> result.map(response.Command)
 
     interaction.MessageComponent(i) ->
@@ -70,7 +51,7 @@ pub fn handle_interaction(
       |> result.map(response.MessageComponent)
 
     interaction.ApplicationCommandAutocomplete(i) ->
-      command.handle_autocomplete_interaction(bot.commands, bot.state, i)
+      todo
       |> result.map(response.Autocomplete)
 
     interaction.ModalSubmit(i) ->
