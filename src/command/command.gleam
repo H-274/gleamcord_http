@@ -4,7 +4,7 @@ import command/response.{type Response}
 import gleam/dict.{type Dict}
 import gleam/list
 
-pub type Command(state) {
+pub opaque type Command(state) {
   ChatInputCommand(ChatInput(state))
   ChatInputGroup(
     name: String,
@@ -13,6 +13,35 @@ pub type Command(state) {
   )
   User(signature: Signature, handler: UserHandler(state))
   Message(signature: Signature, handler: MessageHandler(state))
+}
+
+pub fn chat_input_command(chat_input: ChatInput(_)) {
+  ChatInputCommand(chat_input)
+}
+
+pub fn chat_input_group(
+  name name: String,
+  desc description: String,
+  sub sub: List(Subcommand(_)),
+) {
+  let sub =
+    list.map(sub, fn(s) {
+      case s {
+        Subcommand(ChatInput(signature:, ..)) -> #(signature.name, s)
+        SubcommandGroup(name:, ..) -> #(name, s)
+      }
+    })
+    |> dict.from_list
+
+  ChatInputGroup(name:, description:, sub:)
+}
+
+pub fn user(sig signature: Signature, handler handler: UserHandler(_)) {
+  User(signature:, handler:)
+}
+
+pub fn message(sig signature: Signature, handler handler: MessageHandler(_)) {
+  Message(signature:, handler:)
 }
 
 pub type Signature {
@@ -143,13 +172,27 @@ pub fn find_focused_option(options: option_value.Values) {
   |> list.find(fn(opt) { opt.focused })
 }
 
-pub type Subcommand(state) {
+pub opaque type Subcommand(state) {
   SubcommandGroup(
     name: String,
     description: String,
     sub: Dict(String, ChatInput(state)),
   )
   Subcommand(ChatInput(state))
+}
+
+pub fn subcommand_group(
+  name name: String,
+  desc description: String,
+  sub sub: List(ChatInput(_)),
+) {
+  let sub = list.map(sub, fn(c) { #(c.signature.name, c) }) |> dict.from_list
+
+  SubcommandGroup(name:, description:, sub:)
+}
+
+pub fn subcommand(chat_input: ChatInput(_)) {
+  Subcommand(chat_input)
 }
 
 pub type UserHandler(state) =

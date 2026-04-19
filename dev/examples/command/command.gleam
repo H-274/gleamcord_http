@@ -18,10 +18,10 @@ pub fn ping() {
 }
 
 pub fn high_five() {
-  let signature =
+  let sig =
     command.simple_signature(name: "high_five", desc: "High five this user")
 
-  use _i, _s <- command.User(signature:)
+  use _i, _s <- command.user(sig:)
 
   { todo as "mention user" }
   |> message.NewText([])
@@ -29,10 +29,10 @@ pub fn high_five() {
 }
 
 pub fn report_message() {
-  let signature =
+  let sig =
     command.simple_signature(name: "report", desc: "Report this message")
 
-  use _i, _s <- command.Message(signature:)
+  use _i, _s <- command.message(sig:)
 
   use <- response.DeferredMessageWithSource
 
@@ -122,5 +122,49 @@ fn colour_container(hex: String, rest: String, value: Int) {
     ],
     accent: value,
     spoiler: False,
+  )
+}
+
+const game_title = command.StringOption(
+  name: "title",
+  description: "game title",
+  min_len: 1,
+  max_len: 100,
+  required: True,
+)
+
+pub fn adventure() {
+  let sig =
+    command.simple_signature(
+      name: "adventure",
+      desc: "favourite adventure game",
+    )
+  let opts = [game_title]
+
+  use _i, _s, o <- command.chat_input(sig:, opts:)
+  let assert Ok(option_value.String(value: title, ..)) =
+    dict.get(o, game_title.name)
+
+  { title <> " is a good choice! Tell me more!" }
+  |> message.NewText([])
+  |> response.MessageWithSource
+}
+
+pub fn favourite() {
+  command.chat_input_group(
+    name: "favourite",
+    desc: "questions about favourites",
+    sub: [
+      // --- /favourite colour <hex:string>
+      colour() |> command.subcommand,
+      command.subcommand_group(
+        name: "games",
+        desc: "questions about fav games",
+        sub: [
+          // --- /favourite games adventure <title:string>
+          adventure(),
+        ],
+      ),
+    ],
   )
 }
