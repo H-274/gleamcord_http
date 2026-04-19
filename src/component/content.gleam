@@ -5,6 +5,10 @@ pub type Thumbnail {
   Thumbnail(media: String, description: String, spoiler: Bool)
 }
 
-pub type MediaGallery
+pub type MediaGallery {
+  MediaGallery
+}
 
-pub type File
+pub type File {
+  File
+}

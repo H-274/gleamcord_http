@@ -1,7 +1,6 @@
 import command/command
 import command/option_value
 import command/response
-import component/content
 import component/layout
 import gleam/dict
 import gleam/int

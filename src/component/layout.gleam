@@ -165,7 +165,7 @@ pub fn container_section(
 }
 
 pub fn container_gallery() {
-  todo
+  ContainerGallery(content.MediaGallery)
 }
 
 pub fn container_small_separator(divider divider: Bool) {
@@ -177,7 +177,7 @@ pub fn container_large_separator(divider divider: Bool) {
 }
 
 pub fn container_file() {
-  todo
+  ContainerFile(content.File)
 }
 
 pub type Label {
