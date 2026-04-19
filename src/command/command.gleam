@@ -1,4 +1,4 @@
-import command/interaction.{type Interaction, Interaction}
+import command/interaction.{type Interaction}
 import command/option_value
 import command/response.{type Response}
 import gleam/dict.{type Dict}
@@ -163,8 +163,8 @@ pub fn run(
   state: state,
   i: Interaction,
 ) -> Result(Response(state), Nil) {
-  case i {
-    Interaction(data: interaction.ChatInput(chat_input), ..) ->
+  case i.data {
+    interaction.ChatInput(chat_input) ->
       case dict.get(commands, chat_input.name), chat_input.options {
         Ok(ChatInputCommand(chat_input)), option_value.Values(values) ->
           chat_input.handler(i, state, values) |> Ok
@@ -172,12 +172,12 @@ pub fn run(
           run_chat_input_group(sub, i, state, group)
         _, _ -> Error(Nil)
       }
-    Interaction(data: interaction.User(user), ..) ->
+    interaction.User(user) ->
       case dict.get(commands, user.name) {
         Ok(User(handler:, ..)) -> handler(i, state) |> Ok
         _ -> Error(Nil)
       }
-    Interaction(data: interaction.Message(message), ..) ->
+    interaction.Message(message) ->
       case dict.get(commands, message.name) {
         Ok(Message(handler:, ..)) -> handler(i, state) |> Ok
         _ -> Error(Nil)
@@ -224,8 +224,8 @@ pub fn run_autocomplete(
   i: Interaction,
   state: state,
 ) -> Result(response.AutocompleteResponse, Nil) {
-  case i {
-    Interaction(data: interaction.ChatInput(chat_input), ..) ->
+  case i.data {
+    interaction.ChatInput(chat_input) ->
       case dict.get(commands, chat_input.name), chat_input.options {
         Ok(ChatInputCommand(command)), option_value.Values(values) ->
           run_chat_input_autocomplete(command, i, state, values)
