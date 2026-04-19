@@ -1,4 +1,5 @@
 import command/command
+import command/interaction
 import command/option_value
 import command/response
 import component/layout
@@ -21,9 +22,10 @@ pub fn high_five() {
   let sig =
     command.simple_signature(name: "high_five", desc: "High five this user")
 
-  use _i, _s <- command.user(sig:)
+  use i, _s <- command.user(sig:)
+  let assert interaction.User(data) = i.data
 
-  { todo as "mention user" }
+  { "High five <@" <> data.target_id <> ">!" }
   |> message.NewText([])
   |> response.MessageWithSource
 }
