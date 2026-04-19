@@ -29,6 +29,17 @@ pub fn high_five() {
   |> response.MessageWithSource
 }
 
+pub fn report_message() {
+  let signature =
+    command.simple_signature(name: "report", desc: "Report this message")
+
+  use _i, _s <- command.Message(signature:)
+
+  { "Message reported" }
+  |> message.NewText([message.Ephemeral])
+  |> response.MessageWithSource
+}
+
 const hex_option = command.StringAutocompleteOption(
   name: "hex",
   description: "hex code of your colour",
