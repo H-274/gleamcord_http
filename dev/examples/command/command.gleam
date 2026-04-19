@@ -52,15 +52,25 @@ const hex_option = command.StringAutocompleteOption(
   required: True,
 )
 
-const default_suggestion = [#("#ffffff", "#ffffff")]
+const default_suggestion = [
+  #("white", "#ffffff"),
+  #("red", "#ff0000"),
+  #("yellow", "#ffff00"),
+  #("pink", "#ff00ff"),
+  #("green", "#00ff00"),
+  #("aqua", "#00ffff"),
+  #("blue", "#0000ff"),
+  #("black", "#000000"),
+]
 
 fn colour_autocomplete(_i, _s, partial, _o) {
   case partial {
     "#" <> rest ->
       case int.base_parse(rest, 16) {
         Ok(value) if value >= 0 -> {
-          let suggestion = "#" <> string.pad_end(rest, 6, "f")
-          [#(suggestion, suggestion)]
+          let suggestion_w = "#" <> string.pad_end(rest, 6, "f")
+          let suggestion_b = "#" <> string.pad_end(rest, 6, "0")
+          [#(suggestion_w, suggestion_w), #(suggestion_b, suggestion_b)]
         }
         _ -> default_suggestion
       }
