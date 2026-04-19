@@ -63,6 +63,6 @@ pub type MessageData {
     name: String,
     resolved: Option(Resolved),
     guild_id: Option(String),
-    target_id: Option(String),
+    target_id: String,
   )
 }
