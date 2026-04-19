@@ -37,12 +37,22 @@ pub fn simple_signature(name name: String, desc description: String) {
   )
 }
 
-pub type ChatInput(state) {
+pub opaque type ChatInput(state) {
   ChatInput(
     signature: Signature,
     options: Dict(String, CommandOption(state)),
     handler: ChatInputHandler(state),
   )
+}
+
+pub fn chat_input(
+  sig signature: Signature,
+  opts options: List(CommandOption(state)),
+  handler handler: ChatInputHandler(state),
+) {
+  let options = list.map(options, fn(o) { #(o.name, o) }) |> dict.from_list
+
+  ChatInput(signature:, options:, handler:)
 }
 
 pub type CommandOption(state) {

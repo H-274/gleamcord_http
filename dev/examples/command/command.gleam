@@ -9,9 +9,9 @@ import gleam/string
 import message
 
 pub fn ping() {
-  let signature = command.simple_signature(name: "ping", desc: "Pongs!")
+  let sig = command.simple_signature(name: "ping", desc: "Pongs!")
 
-  use _i, _s, _o <- command.ChatInput(signature:, options: dict.from_list([]))
+  use _i, _s, _o <- command.chat_input(sig:, opts: [])
 
   { "Pong!" }
   |> message.NewText([])
@@ -60,13 +60,11 @@ const default_colour_response = message.NewText(
 )
 
 pub fn colour() {
-  let signature =
+  let sig =
     command.simple_signature(name: "colour", desc: "choose your fav colour")
-  let options =
-    [#(hex_option.name, hex_option)]
-    |> dict.from_list()
+  let opts = [hex_option]
 
-  use _i, _s, o <- command.ChatInput(signature:, options:)
+  use _i, _s, o <- command.chat_input(sig:, opts:)
   let assert Ok(option_value.String(value: hex, ..)) =
     dict.get(o, hex_option.name)
 
