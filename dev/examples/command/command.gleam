@@ -86,7 +86,7 @@ pub fn colour() {
     "#" <> rest ->
       case int.base_parse(rest, 16) {
         Ok(value) if value >= 0 ->
-          [message.RootContainer(colour_container(hex, rest, value))]
+          [colour_container(hex, rest, value)]
           |> message.NewComponent([message.SuppressNotifications])
           |> response.MessageWithSource
         _ -> default_colour_response |> response.MessageWithSource
@@ -95,22 +95,20 @@ pub fn colour() {
   }
 }
 
-fn colour_container(hex: String, rest: String, value: Int) -> layout.Container {
-  layout.Container(
+fn colour_container(hex: String, rest: String, value: Int) {
+  message.root_container(
     components: [
-      layout.ContainerSection(
-        layout.Section(
-          components: ["Selected the following colour: " <> hex],
-          accessories: [
-            layout.SectionThumbnail(content.Thumbnail(
-              media: "https://placehold.co/150/" <> rest <> "/jpeg",
-              description: hex,
-              spoiler: False,
-            )),
-          ],
-        ),
+      layout.container_section(
+        components: ["Selected the following colour: " <> hex],
+        accessories: [
+          layout.section_thumbnail(
+            media: "https://placehold.co/150/" <> rest <> "/jpeg",
+            description: hex,
+            spoiler: False,
+          ),
+        ],
       ),
-      layout.ContainerSeparator(layout.LargeSeparator(divider: True)),
+      layout.container_large_separator(divider: True),
       layout.ContainerText("**Great choice!**"),
     ],
     accent: value,

@@ -28,3 +28,11 @@ pub type ComponentRoot {
   RootSeparator(layout.Separator)
   RootSection(layout.Section)
 }
+
+pub fn root_container(
+  components components: List(layout.ContainerComponent),
+  accent accent: Int,
+  spoiler spoiler: Bool,
+) {
+  RootContainer(layout.Container(components:, accent:, spoiler:))
+}
