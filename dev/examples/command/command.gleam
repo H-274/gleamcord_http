@@ -35,9 +35,12 @@ pub fn report_message() {
 
   use _i, _s <- command.Message(signature:)
 
+  use <- response.DeferredMessageWithSource
+
+  // process.sleep(5000)
+
   { "Message reported" }
   |> message.NewText([message.Ephemeral])
-  |> response.MessageWithSource
 }
 
 const hex_option = command.StringAutocompleteOption(
