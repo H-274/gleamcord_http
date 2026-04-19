@@ -1,5 +1,5 @@
+import command/command.{type Command}
 import gleam/dict.{type Dict}
-import gleam/list
 import gleam/result
 import interaction.{type Interaction}
 import message_component/message_component.{type MessageComponent}
@@ -12,7 +12,7 @@ pub opaque type Bot(state) {
     pub_key: String,
     token: String,
     state: state,
-    commands: Dict(String, Nil),
+    commands: Dict(String, Command(state)),
     components: Dict(String, MessageComponent(state)),
     modals: Dict(String, Modal(state)),
   )
@@ -43,7 +43,7 @@ pub fn handle_interaction(
     interaction.Ping(..) -> Ok(response.Pong)
 
     interaction.ApplicationCommand(i) ->
-      todo
+      command.run(bot.commands, bot.state, i)
       |> result.map(response.Command)
 
     interaction.MessageComponent(i) ->
@@ -51,7 +51,7 @@ pub fn handle_interaction(
       |> result.map(response.MessageComponent)
 
     interaction.ApplicationCommandAutocomplete(i) ->
-      todo
+      command.run_autocomplete(bot.commands, i, bot.state)
       |> result.map(response.Autocomplete)
 
     interaction.ModalSubmit(i) ->

@@ -1,4 +1,5 @@
 import command/command
+import command/option_value
 import command/response
 import component/content
 import component/layout
@@ -10,7 +11,7 @@ import message
 pub fn ping() {
   let signature = command.simple_signature(name: "ping", desc: "Pongs!")
 
-  use _i, _s, _o <- command.ChatInput(signature:, options: [])
+  use _i, _s, _o <- command.ChatInput(signature:, options: dict.from_list([]))
 
   { "Pong!" }
   |> message.NewText([])
@@ -39,7 +40,7 @@ const hex_option = command.StringAutocompleteOption(
 
 const default_suggestion = [#("#ffffff", "#ffffff")]
 
-fn colour_autocomplete(_i, _s, partial) {
+fn colour_autocomplete(_i, _s, partial, _o) {
   case partial {
     "#" <> rest ->
       case int.base_parse(rest, 16) {
@@ -61,10 +62,12 @@ const default_colour_response = message.NewText(
 pub fn colour() {
   let signature =
     command.simple_signature(name: "colour", desc: "choose your fav colour")
-  let options = [hex_option]
+  let options =
+    [#(hex_option.name, hex_option)]
+    |> dict.from_list()
 
   use _i, _s, o <- command.ChatInput(signature:, options:)
-  let assert Ok(command.StringValue(value: hex, ..)) =
+  let assert Ok(option_value.String(value: hex, ..)) =
     dict.get(o, hex_option.name)
 
   case hex {

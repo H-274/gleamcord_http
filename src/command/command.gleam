@@ -1,4 +1,5 @@
-import command/interaction.{type Interaction}
+import command/interaction.{type Interaction, Interaction}
+import command/option_value
 import command/response.{type Response}
 import gleam/dict.{type Dict}
 import gleam/list
@@ -8,7 +9,7 @@ pub type Command(state) {
   ChatInputGroup(
     name: String,
     description: String,
-    sub: List(Subcommand(state)),
+    sub: Dict(String, Subcommand(state)),
   )
   User(signature: Signature, handler: UserHandler(state))
   Message(signature: Signature, handler: MessageHandler(state))
@@ -39,7 +40,7 @@ pub fn simple_signature(name name: String, desc description: String) {
 pub type ChatInput(state) {
   ChatInput(
     signature: Signature,
-    options: List(CommandOption(state)),
+    options: Dict(String, CommandOption(state)),
     handler: ChatInputHandler(state),
   )
 }
@@ -63,7 +64,8 @@ pub type CommandOption(state) {
     description: String,
     min_len: Int,
     max_len: Int,
-    autocomplete: fn(Interaction, state, String) -> List(#(String, String)),
+    autocomplete: fn(Interaction, state, String, option_value.Values) ->
+      List(#(String, String)),
     required: Bool,
   )
   IntegerOption(
@@ -84,7 +86,8 @@ pub type CommandOption(state) {
     description: String,
     min_val: Int,
     max_value: Int,
-    autocomplete: fn(Interaction, state, Int) -> List(#(String, Int)),
+    autocomplete: fn(Interaction, state, Int, option_value.Values) ->
+      List(#(String, Int)),
     required: Bool,
   )
   UserOption(name: String, description: String, required: Bool)
@@ -115,28 +118,17 @@ pub type CommandOption(state) {
     description: String,
     min_val: Float,
     max_val: Float,
-    autocomplete: fn(Interaction, state, Float) -> List(#(String, Float)),
+    autocomplete: fn(Interaction, state, Float, option_value.Values) ->
+      List(#(String, Float)),
     required: Bool,
   )
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
 pub type ChatInputHandler(state) =
-  fn(Interaction, state, Dict(String, OptionValue)) -> Response(state)
+  fn(Interaction, state, option_value.Values) -> Response(state)
 
-pub type OptionValue {
-  StringValue(name: String, value: String, focused: Bool)
-  IntegerValue(name: String, value: Int, focused: Bool)
-  BooleanValue(name: String, value: Bool, focused: Bool)
-  UserValue(name: String, value: String, focused: Bool)
-  ChannelValue(name: String, value: String, focused: Bool)
-  RoleValue(name: String, value: String, focused: Bool)
-  MentionableValue(name: String, value: String, focused: Bool)
-  NumberValue(name: String, value: Float, focused: Bool)
-  AttachmentValue(name: String, value: String, focused: Bool)
-}
-
-pub fn find_focused_option(options: Dict(String, OptionValue)) {
+pub fn find_focused_option(options: option_value.Values) {
   dict.values(options)
   |> list.find(fn(opt) { opt.focused })
 }
@@ -145,7 +137,7 @@ pub type Subcommand(state) {
   SubcommandGroup(
     name: String,
     description: String,
-    sub: List(ChatInput(state)),
+    sub: Dict(String, ChatInput(state)),
   )
   Subcommand(ChatInput(state))
 }
@@ -155,3 +147,149 @@ pub type UserHandler(state) =
 
 pub type MessageHandler(state) =
   fn(Interaction, state) -> Response(state)
+
+pub fn run(
+  commands: Dict(String, Command(state)),
+  state: state,
+  i: Interaction,
+) -> Result(Response(state), Nil) {
+  case i {
+    Interaction(data: interaction.ChatInput(chat_input), ..) ->
+      case dict.get(commands, chat_input.name), chat_input.options {
+        Ok(ChatInputCommand(chat_input)), option_value.Values(values) ->
+          chat_input.handler(i, state, values) |> Ok
+        Ok(ChatInputGroup(sub:, ..)), option_value.Group(group) ->
+          run_chat_input_group(sub, i, state, group)
+        _, _ -> Error(Nil)
+      }
+    Interaction(data: interaction.User(user), ..) ->
+      case dict.get(commands, user.name) {
+        Ok(User(handler:, ..)) -> handler(i, state) |> Ok
+        _ -> Error(Nil)
+      }
+    Interaction(data: interaction.Message(message), ..) ->
+      case dict.get(commands, message.name) {
+        Ok(Message(handler:, ..)) -> handler(i, state) |> Ok
+        _ -> Error(Nil)
+      }
+  }
+}
+
+fn run_chat_input_group(
+  subcommands: Dict(String, Subcommand(state)),
+  i: Interaction,
+  state: state,
+  group: option_value.Group,
+) -> Result(Response(state), Nil) {
+  case group {
+    option_value.Subcommand(invoked) ->
+      case dict.get(subcommands, invoked.name) {
+        Ok(Subcommand(chat_input)) ->
+          chat_input.handler(i, state, invoked.options) |> Ok
+        _ -> Error(Nil)
+      }
+    option_value.SubcommandGroup(invoked) ->
+      case dict.get(subcommands, invoked.name) {
+        Ok(SubcommandGroup(sub:, ..)) ->
+          run_subcommand_group(sub, i, state, invoked.sub)
+        _ -> Error(Nil)
+      }
+  }
+}
+
+fn run_subcommand_group(
+  subcommands: Dict(String, ChatInput(state)),
+  i: Interaction,
+  state: state,
+  invoked: option_value.Subcommand,
+) {
+  case dict.get(subcommands, invoked.name) {
+    Ok(chat_input) -> chat_input.handler(i, state, invoked.options) |> Ok
+    _ -> Error(Nil)
+  }
+}
+
+pub fn run_autocomplete(
+  commands: Dict(String, Command(state)),
+  i: Interaction,
+  state: state,
+) -> Result(response.AutocompleteResponse, Nil) {
+  case i {
+    Interaction(data: interaction.ChatInput(chat_input), ..) ->
+      case dict.get(commands, chat_input.name), chat_input.options {
+        Ok(ChatInputCommand(command)), option_value.Values(values) ->
+          run_chat_input_autocomplete(command, i, state, values)
+        Ok(ChatInputGroup(sub:, ..)), option_value.Group(group) ->
+          run_chat_input_group_autocomplete(sub, i, state, group)
+        _, _ -> Error(Nil)
+      }
+    _ -> Error(Nil)
+  }
+}
+
+fn run_chat_input_autocomplete(
+  chat_input: ChatInput(state),
+  i: interaction.Interaction,
+  state: state,
+  values: option_value.Values,
+) -> Result(response.AutocompleteResponse, Nil) {
+  let assert Ok(option) = dict.values(values) |> list.find(fn(o) { o.focused })
+    as "there should always be a focused option when autocomplete is called"
+
+  case dict.get(chat_input.options, option.name), option {
+    Ok(StringAutocompleteOption(autocomplete: autocomplete, ..)),
+      option_value.String(value: partial, ..)
+    ->
+      autocomplete(i, state, partial, values)
+      |> response.StringAutocomplete
+      |> Ok
+    Ok(IntegerAutocompleteOption(autocomplete:, ..)),
+      option_value.Integer(value: partial, ..)
+    ->
+      autocomplete(i, state, partial, values)
+      |> response.IntegerAutocomplete
+      |> Ok
+    Ok(NumberAutocompleteOption(autocomplete:, ..)),
+      option_value.Number(value: partial, ..)
+    ->
+      autocomplete(i, state, partial, values)
+      |> response.NumberAutocomplete
+      |> Ok
+    _, _ -> Error(Nil)
+  }
+}
+
+fn run_chat_input_group_autocomplete(
+  sub: Dict(String, Subcommand(state)),
+  i: Interaction,
+  state: state,
+  group: option_value.Group,
+) -> Result(response.AutocompleteResponse, Nil) {
+  case group {
+    option_value.Subcommand(invoked) ->
+      case dict.get(sub, invoked.name) {
+        Ok(Subcommand(chat_input)) ->
+          run_chat_input_autocomplete(chat_input, i, state, invoked.options)
+        _ -> Error(Nil)
+      }
+    option_value.SubcommandGroup(invoked) ->
+      case dict.get(sub, invoked.name) {
+        Ok(SubcommandGroup(sub:, ..)) ->
+          run_subcommand_group_autocomplete(sub, i, state, invoked.sub)
+        _ -> Error(Nil)
+      }
+  }
+}
+
+fn run_subcommand_group_autocomplete(
+  group_subcommands: Dict(String, ChatInput(state)),
+  i: Interaction,
+  state: state,
+  invoked: option_value.Subcommand,
+) -> Result(response.AutocompleteResponse, Nil) {
+  case dict.get(group_subcommands, invoked.name) {
+    Ok(chat_input) ->
+      run_chat_input_autocomplete(chat_input, i, state, invoked.options)
+    _ -> Error(Nil)
+  }
+}
