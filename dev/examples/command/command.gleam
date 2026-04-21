@@ -26,7 +26,7 @@ pub fn high_five() -> command.Command(state) {
   let assert interaction.User(data) = interaction.data
 
   { "High five <@" <> data.target_id <> "> !" }
-  |> message.NewText([])
+  |> message.NewText(flags: [])
   |> response.MessageWithSource
 }
 
@@ -41,7 +41,7 @@ pub fn report_message() -> command.Command(state) {
   // process.sleep(5000)
 
   { "Message reported" }
-  |> message.NewText([message.Ephemeral])
+  |> message.NewText(flags: [message.Ephemeral])
 }
 
 const hex_option = command.StringAutocompleteOption(
@@ -85,11 +85,11 @@ pub fn colour() -> command.ChatInput(state) {
   case int.base_parse(hex, 16) {
     Ok(value) if value >= 0 ->
       [colour_container(hex, value)]
-      |> message.NewComponent([message.SuppressNotifications])
+      |> message.NewComponent(flags: [message.SuppressNotifications])
       |> response.MessageWithSource
     _ ->
       "Invalid colour, please try again. Make sure all the characters are from 0-9 or a-f"
-      |> message.NewText([message.Ephemeral])
+      |> message.NewText(flags: [message.Ephemeral])
       |> response.MessageWithSource
   }
 }
@@ -136,7 +136,7 @@ pub fn adventure() {
     dict.get(options, game_title.name)
 
   { title <> " is a good adventure! Tell me more!" }
-  |> message.NewText([])
+  |> message.NewText(flags: [])
   |> response.MessageWithSource
 }
 
