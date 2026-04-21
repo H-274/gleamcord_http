@@ -14,7 +14,7 @@ pub fn ping() -> command.ChatInput(state) {
   use _interaction, _state, _options <- command.chat_input(sig:, opts: [])
 
   { "content: \"Pong!\"" }
-  |> message.Raw
+  |> message.Raw(json: _)
   |> response.MessageWithSource
 }
 
