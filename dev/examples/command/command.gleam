@@ -13,8 +13,8 @@ pub fn ping() -> command.ChatInput(state) {
 
   use _interaction, _state, _options <- command.chat_input(sig:, opts: [])
 
-  { "Pong!" }
-  |> message.NewText([])
+  { "content: \"Pong!\"" }
+  |> message.Raw
   |> response.MessageWithSource
 }
 
