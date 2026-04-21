@@ -8,33 +8,33 @@ import gleam/int
 import gleam/string
 import message
 
-pub fn ping() {
+pub fn ping() -> command.ChatInput(state) {
   let sig = command.simple_signature(name: "ping", desc: "Pongs!")
 
-  use _i, _s, _o <- command.chat_input(sig:, opts: [])
+  use _interaction, _state, _options <- command.chat_input(sig:, opts: [])
 
   { "Pong!" }
   |> message.NewText([])
   |> response.MessageWithSource
 }
 
-pub fn high_five() {
+pub fn high_five() -> command.Command(state) {
   let sig =
     command.simple_signature(name: "high_five", desc: "High five this user")
 
-  use i, _s <- command.user(sig:)
-  let assert interaction.User(data) = i.data
+  use interaction, _state <- command.user(sig:)
+  let assert interaction.User(data) = interaction.data
 
   { "High five <@" <> data.target_id <> "> !" }
   |> message.NewText([])
   |> response.MessageWithSource
 }
 
-pub fn report_message() {
+pub fn report_message() -> command.Command(state) {
   let sig =
     command.simple_signature(name: "report", desc: "Report this message")
 
-  use _i, _s <- command.message(sig:)
+  use _interaction, _state <- command.message(sig:)
 
   use <- response.DeferredMessageWithSource
 
@@ -53,7 +53,7 @@ const hex_option = command.StringAutocompleteOption(
   required: True,
 )
 
-fn colour_autocomplete(_i, _s, partial, _o) {
+fn colour_autocomplete(_interaction, _state, partial, _options) {
   case int.base_parse(partial, 16) {
     Ok(value) if value >= 0 -> {
       let suggestion_w = string.pad_end(partial, 6, "f")
@@ -73,14 +73,14 @@ fn colour_autocomplete(_i, _s, partial, _o) {
   }
 }
 
-pub fn colour() {
+pub fn colour() -> command.ChatInput(state) {
   let sig =
     command.simple_signature(name: "colour", desc: "choose your fav colour")
   let opts = [hex_option]
 
-  use _i, _s, o <- command.chat_input(sig:, opts:)
+  use _interaction, _state, options <- command.chat_input(sig:, opts:)
   let assert Ok(option_value.String(value: hex, ..)) =
-    dict.get(o, hex_option.name)
+    dict.get(options, hex_option.name)
 
   case int.base_parse(hex, 16) {
     Ok(value) if value >= 0 ->
@@ -94,7 +94,7 @@ pub fn colour() {
   }
 }
 
-fn colour_container(hex: String, value: Int) {
+fn colour_container(hex: String, value: Int) -> message.ComponentRoot {
   message.root_container(
     components: [
       layout.container_section(
@@ -131,9 +131,9 @@ pub fn adventure() {
     )
   let opts = [game_title]
 
-  use _i, _s, o <- command.chat_input(sig:, opts:)
+  use _interaction, _state, options <- command.chat_input(sig:, opts:)
   let assert Ok(option_value.String(value: title, ..)) =
-    dict.get(o, game_title.name)
+    dict.get(options, game_title.name)
 
   { title <> " is a good adventure! Tell me more!" }
   |> message.NewText([])
