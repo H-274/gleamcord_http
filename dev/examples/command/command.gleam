@@ -53,17 +53,6 @@ const hex_option = command.StringAutocompleteOption(
   required: True,
 )
 
-const default_suggestion = [
-  #("white", "ffffff"),
-  #("red", "ff0000"),
-  #("yellow", "ffff00"),
-  #("pink", "ff00ff"),
-  #("green", "00ff00"),
-  #("aqua", "00ffff"),
-  #("blue", "0000ff"),
-  #("black", "000000"),
-]
-
 fn colour_autocomplete(_i, _s, partial, _o) {
   case int.base_parse(partial, 16) {
     Ok(value) if value >= 0 -> {
@@ -71,14 +60,18 @@ fn colour_autocomplete(_i, _s, partial, _o) {
       let suggestion_b = string.pad_end(partial, 6, "0")
       [#(suggestion_w, suggestion_w), #(suggestion_b, suggestion_b)]
     }
-    _ -> default_suggestion
+    _ -> [
+      #("white", "ffffff"),
+      #("red", "ff0000"),
+      #("yellow", "ffff00"),
+      #("pink", "ff00ff"),
+      #("green", "00ff00"),
+      #("aqua", "00ffff"),
+      #("blue", "0000ff"),
+      #("black", "000000"),
+    ]
   }
 }
-
-const default_colour_response = message.NewText(
-  "Invalid colour",
-  [message.Ephemeral],
-)
 
 pub fn colour() {
   let sig =
@@ -94,7 +87,10 @@ pub fn colour() {
       [colour_container(hex, value)]
       |> message.NewComponent([message.SuppressNotifications])
       |> response.MessageWithSource
-    _ -> default_colour_response |> response.MessageWithSource
+    _ ->
+      "Invalid colour, please try again. Make sure all the characters are from 0-9 or a-f"
+      |> message.NewText([message.Ephemeral])
+      |> response.MessageWithSource
   }
 }
 
