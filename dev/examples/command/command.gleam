@@ -25,7 +25,7 @@ pub fn high_five() {
   use i, _s <- command.user(sig:)
   let assert interaction.User(data) = i.data
 
-  { "High five <@" <> data.target_id <> ">!" }
+  { "High five <@" <> data.target_id <> "> !" }
   |> message.NewText([])
   |> response.MessageWithSource
 }
@@ -47,34 +47,30 @@ pub fn report_message() {
 const hex_option = command.StringAutocompleteOption(
   name: "hex",
   description: "hex code of your colour",
-  min_len: 7,
-  max_len: 7,
+  min_len: 6,
+  max_len: 6,
   autocomplete: colour_autocomplete,
   required: True,
 )
 
 const default_suggestion = [
-  #("white", "#ffffff"),
-  #("red", "#ff0000"),
-  #("yellow", "#ffff00"),
-  #("pink", "#ff00ff"),
-  #("green", "#00ff00"),
-  #("aqua", "#00ffff"),
-  #("blue", "#0000ff"),
-  #("black", "#000000"),
+  #("white", "ffffff"),
+  #("red", "ff0000"),
+  #("yellow", "ffff00"),
+  #("pink", "ff00ff"),
+  #("green", "00ff00"),
+  #("aqua", "00ffff"),
+  #("blue", "0000ff"),
+  #("black", "000000"),
 ]
 
 fn colour_autocomplete(_i, _s, partial, _o) {
-  case partial {
-    "#" <> rest ->
-      case int.base_parse(rest, 16) {
-        Ok(value) if value >= 0 -> {
-          let suggestion_w = "#" <> string.pad_end(rest, 6, "f")
-          let suggestion_b = "#" <> string.pad_end(rest, 6, "0")
-          [#(suggestion_w, suggestion_w), #(suggestion_b, suggestion_b)]
-        }
-        _ -> default_suggestion
-      }
+  case int.base_parse(partial, 16) {
+    Ok(value) if value >= 0 -> {
+      let suggestion_w = string.pad_end(partial, 6, "f")
+      let suggestion_b = string.pad_end(partial, 6, "0")
+      [#(suggestion_w, suggestion_w), #(suggestion_b, suggestion_b)]
+    }
     _ -> default_suggestion
   }
 }
@@ -93,27 +89,23 @@ pub fn colour() {
   let assert Ok(option_value.String(value: hex, ..)) =
     dict.get(o, hex_option.name)
 
-  case hex {
-    "#" <> rest ->
-      case int.base_parse(rest, 16) {
-        Ok(value) if value >= 0 ->
-          [colour_container(hex, rest, value)]
-          |> message.NewComponent([message.SuppressNotifications])
-          |> response.MessageWithSource
-        _ -> default_colour_response |> response.MessageWithSource
-      }
+  case int.base_parse(hex, 16) {
+    Ok(value) if value >= 0 ->
+      [colour_container(hex, value)]
+      |> message.NewComponent([message.SuppressNotifications])
+      |> response.MessageWithSource
     _ -> default_colour_response |> response.MessageWithSource
   }
 }
 
-fn colour_container(hex: String, rest: String, value: Int) {
+fn colour_container(hex: String, value: Int) {
   message.root_container(
     components: [
       layout.container_section(
         components: ["Selected the following colour: " <> hex],
         accessories: [
           layout.section_thumbnail(
-            media: "https://placehold.co/150/" <> rest <> "/jpeg",
+            media: "https://placehold.co/150/" <> hex <> "/jpeg",
             description: hex,
             spoiler: False,
           ),
@@ -147,7 +139,7 @@ pub fn adventure() {
   let assert Ok(option_value.String(value: title, ..)) =
     dict.get(o, game_title.name)
 
-  { title <> " is a good choice! Tell me more!" }
+  { title <> " is a good adventure! Tell me more!" }
   |> message.NewText([])
   |> response.MessageWithSource
 }
