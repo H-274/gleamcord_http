@@ -6,18 +6,18 @@ import gleam/dynamic.{type Dynamic}
 import gleam/option
 import gleam/string
 import message
-import message_component/message_component as mc
-import message_component/response as mcr
+import message_component/message_component as m_component
+import message_component/response as c_response
 
 pub fn button() {
-  use _i, _state <- mc.Button(PrimaryButton(
+  use _interaction, _state <- m_component.Button(PrimaryButton(
     custom_id: "slow-update",
     label: "Slow",
     disabled: False,
     emoji: option.None,
   ))
 
-  use <- mcr.DeferredUpdateMessage()
+  use <- c_response.DeferredUpdateMessage()
 
   // process.sleep(5000)
 
@@ -26,48 +26,50 @@ pub fn button() {
 }
 
 pub fn string_select() {
-  use _i, _state, values <- mc.StringSelect(StringSelect)
+  use _interaction, _state, values <- m_component.StringSelect(StringSelect)
 
   { "You selected:\n" <> string.join(values, "\n") }
   |> message.NewText([])
-  |> mcr.MessageWithSource
+  |> c_response.MessageWithSource
 }
 
 pub fn user_select() {
-  use _i, _state, values <- mc.UserSelect(UserSelect)
+  use _interaction, _state, values <- m_component.UserSelect(UserSelect)
   let _users: List(Dynamic) = values.0
   let _members: List(Dynamic) = values.1
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> mcr.MessageWithSource
+  |> c_response.MessageWithSource
 }
 
 pub fn role_select() {
-  use _i, _state, values <- mc.RoleSelect(RoleSelect)
+  use _interaction, _state, values <- m_component.RoleSelect(RoleSelect)
   let _roles: List(Dynamic) = values
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> mcr.MessageWithSource
+  |> c_response.MessageWithSource
 }
 
 pub fn mentionable_select() {
-  use _i, _state, values <- mc.MentionableSelect(MentionableSelect)
+  use _interaction, _state, values <- m_component.MentionableSelect(
+    MentionableSelect,
+  )
   let _users: List(Dynamic) = values.0
   let _members: List(Dynamic) = values.1
   let _roles: List(Dynamic) = values.2
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> mcr.MessageWithSource
+  |> c_response.MessageWithSource
 }
 
 pub fn channel_select() {
-  use _i, _state, values <- mc.ChannelSelect(ChannelSelect)
+  use _interaction, _state, values <- m_component.ChannelSelect(ChannelSelect)
   let _channels: List(Dynamic) = values
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> mcr.MessageWithSource
+  |> c_response.MessageWithSource
 }

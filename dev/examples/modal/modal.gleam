@@ -36,7 +36,11 @@ pub fn about_me() {
       component: layout.LabelTextInput(description_input),
     ),
   ]
-  use _i, _s, values <- modal.new("about-me", "About me", components:)
+  use _interaction, _state, values <- modal.new(
+    id: "about-me",
+    title: "About me",
+    components:,
+  )
   let assert Ok(nickname) = dict.get(values, nickname_input.custom_id)
   let assert Ok(description) = dict.get(values, description_input.custom_id)
 
