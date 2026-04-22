@@ -54,13 +54,13 @@ const hex_option = command.StringAutocompleteOption(
 )
 
 fn colour_autocomplete(_interaction, _state, partial, _options) {
-  case int.base_parse(partial, 16) {
-    Ok(value) if value >= 0 -> {
+  case int.base_parse(partial, 16), partial {
+    Ok(value), p if value >= 0 && p != "" -> {
       let suggestion_w = string.pad_end(partial, 6, "f")
       let suggestion_b = string.pad_end(partial, 6, "0")
       [#(suggestion_w, suggestion_w), #(suggestion_b, suggestion_b)]
     }
-    _ -> [
+    _, _ -> [
       #("white", "ffffff"),
       #("red", "ff0000"),
       #("yellow", "ffff00"),
@@ -88,7 +88,7 @@ pub fn colour() -> command.ChatInput(state) {
       |> message.NewComponent(flags: [message.SuppressNotifications])
       |> response.MessageWithSource
     _ ->
-      "Invalid colour, please try again. Make sure all the characters are from 0-9 or a-f"
+      "Invalid colour, please try again. Make sure all the characters are from 0-9 and/or a-f"
       |> message.NewText(flags: [message.Ephemeral])
       |> response.MessageWithSource
   }
