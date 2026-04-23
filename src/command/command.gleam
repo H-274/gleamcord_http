@@ -2,15 +2,12 @@ import command/interaction.{type Interaction}
 import command/option_value
 import command/response.{type Response}
 import gleam/dict.{type Dict}
+import gleam/json
 import gleam/list
 
 pub opaque type Command(state) {
   ChatInputCommand(ChatInput(state))
-  ChatInputGroup(
-    name: String,
-    description: String,
-    sub: Dict(String, Subcommand(state)),
-  )
+  ChatInputGroup(signature: Signature, sub: Dict(String, Subcommand(state)))
   User(signature: Signature, handler: UserHandler(state))
   Message(signature: Signature, handler: MessageHandler(state))
 }
@@ -19,11 +16,7 @@ pub fn chat_input_command(chat_input: ChatInput(_)) {
   ChatInputCommand(chat_input)
 }
 
-pub fn chat_input_group(
-  name name: String,
-  desc description: String,
-  sub sub: List(Subcommand(_)),
-) {
+pub fn chat_input_group(sig signature: Signature, sub sub: List(Subcommand(_))) {
   let sub =
     list.map(sub, fn(s) {
       case s {
@@ -33,7 +26,7 @@ pub fn chat_input_group(
     })
     |> dict.from_list
 
-  ChatInputGroup(name:, description:, sub:)
+  ChatInputGroup(signature:, sub:)
 }
 
 pub fn user(sig signature: Signature, handler handler: UserHandler(_)) {
@@ -176,7 +169,7 @@ pub opaque type Subcommand(state) {
   SubcommandGroup(
     name: String,
     description: String,
-    sub: Dict(String, ChatInput(state)),
+    sub: Dict(String, Subcommand(state)),
   )
   Subcommand(ChatInput(state))
 }
@@ -184,9 +177,16 @@ pub opaque type Subcommand(state) {
 pub fn subcommand_group(
   name name: String,
   desc description: String,
-  sub sub: List(ChatInput(_)),
+  sub sub: List(Subcommand(_)),
 ) {
-  let sub = list.map(sub, fn(c) { #(c.signature.name, c) }) |> dict.from_list
+  let sub =
+    list.map(sub, fn(c) {
+      case c {
+        SubcommandGroup(name:, ..) -> #(name, c)
+        Subcommand(chat) -> #(chat.signature.name, c)
+      }
+    })
+    |> dict.from_list
 
   SubcommandGroup(name:, description:, sub:)
 }
@@ -251,13 +251,14 @@ fn run_chat_input_group(
 }
 
 fn run_subcommand_group(
-  subcommands: Dict(String, ChatInput(state)),
+  subcommands: Dict(String, Subcommand(state)),
   i: Interaction,
   state: state,
   invoked: option_value.Subcommand,
 ) {
   case dict.get(subcommands, invoked.name) {
-    Ok(chat_input) -> chat_input.handler(i, state, invoked.options) |> Ok
+    Ok(Subcommand(chat_input)) ->
+      chat_input.handler(i, state, invoked.options) |> Ok
     _ -> Error(Nil)
   }
 }
@@ -335,14 +336,178 @@ fn run_chat_input_group_autocomplete(
 }
 
 fn run_subcommand_group_autocomplete(
-  group_subcommands: Dict(String, ChatInput(state)),
+  group_subcommands: Dict(String, Subcommand(state)),
   i: Interaction,
   state: state,
   invoked: option_value.Subcommand,
 ) -> Result(response.AutocompleteResponse, Nil) {
   case dict.get(group_subcommands, invoked.name) {
-    Ok(chat_input) ->
+    Ok(Subcommand(chat_input)) ->
       run_chat_input_autocomplete(chat_input, i, state, invoked.options)
     _ -> Error(Nil)
   }
+}
+
+/// Encoding
+///
+/// TODO review subcommand groups to avoid setting unnecessary data
+pub fn json(command: Command(_)) {
+  case command {
+    ChatInputCommand(c) -> chat_input_json(c)
+    ChatInputGroup(signature:, sub:) -> chat_input_group_json(signature, sub)
+    User(signature:, ..) -> user_json(signature)
+    Message(signature:, ..) -> message_json(signature)
+  }
+}
+
+fn chat_input_json(command: ChatInput(_)) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integration_types:,
+    contexts:,
+    nsfw:,
+  ) = command.signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("options", options_json(command.options)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integration_types_json(integration_types)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(1)),
+    #("nsfw", json.bool(nsfw)),
+  ])
+}
+
+fn chat_input_group_json(signature: Signature, sub: Dict(String, Subcommand(_))) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integration_types:,
+    contexts:,
+    nsfw:,
+  ) = signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("options", subcommand_json(sub)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integration_types_json(integration_types)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(1)),
+    #("nsfw", json.bool(nsfw)),
+  ])
+}
+
+fn subcommand_json(sub: Dict(String, Subcommand(_))) {
+  let subcommands = dict.values(sub)
+
+  use sub <- json.array(subcommands)
+  case sub {
+    SubcommandGroup(name:, description:, sub:) -> {
+      json.object([
+        #("type", json.int(2)),
+        #("name", json.string(name)),
+        #("description", json.string(description)),
+        #("options", subcommand_json(sub)),
+      ])
+    }
+    Subcommand(c) ->
+      json.object([
+        #("type", json.int(1)),
+        #("name", json.string(c.signature.name)),
+        #("description", json.string(c.signature.description)),
+        #("options", options_json(c.options)),
+      ])
+  }
+}
+
+fn user_json(signature: Signature) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integration_types:,
+    contexts:,
+    nsfw:,
+  ) = signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integration_types_json(integration_types)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(2)),
+    #("nsfw", json.bool(nsfw)),
+  ])
+}
+
+fn message_json(signature: Signature) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integration_types:,
+    contexts:,
+    nsfw:,
+  ) = signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integration_types_json(integration_types)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(3)),
+    #("nsfw", json.bool(nsfw)),
+  ])
+}
+
+fn options_json(options: Dict(String, CommandOption(_))) {
+  let options = dict.values(options)
+  use opt <- json.array(options)
+  case opt {
+    StringOption(min_len:, max_len:, required:, ..) -> [
+      #("type", json.int(3)),
+      #("min_length", json.int(min_len)),
+      #("max_length", json.int(max_len)),
+      #("required", json.bool(required)),
+    ]
+    StringChoicesOption(choices:, required:, ..) -> todo
+    StringAutocompleteOption(min_len:, max_len:, autocomplete: _, required:, ..) ->
+      todo
+    IntegerOption(min_val:, max_val:, required:, ..) -> todo
+    IntegerChoicesOption(choices:, required:, ..) -> todo
+    IntegerAutocompleteOption(
+      min_val:,
+      max_value:,
+      autocomplete: _,
+      required:,
+      ..,
+    ) -> todo
+    UserOption(required:, ..) -> todo
+    ChannelOption(channel_types:, required:, ..) -> todo
+    RoleOption(required:, ..) -> todo
+    MentionableOption(required:, ..) -> todo
+    NumberOption(min_val:, max_val:, required:, ..) -> todo
+    NumberChoicesOption(choices:, required:, ..) -> todo
+    NumberAutocompleteOption(min_val:, max_val:, autocomplete: _, required:, ..) ->
+      todo
+    AttachmentOption(required:, ..) -> todo
+  }
+  |> list.append([
+    #("name", json.string(opt.name)),
+    #("description", json.string(opt.description)),
+  ])
+  |> json.object
+}
+
+fn integration_types_json(integration_types: List(Nil)) {
+  todo
+}
+
+pub fn contexts_json(contexts: List(Nil)) {
+  todo
 }

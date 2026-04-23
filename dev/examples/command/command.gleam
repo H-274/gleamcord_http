@@ -142,8 +142,10 @@ pub fn adventure() {
 
 pub fn favourite() {
   command.chat_input_group(
-    name: "favourite",
-    desc: "questions about favourites",
+    sig: command.simple_signature(
+      name: "favourite",
+      desc: "commands about your favourite things",
+    ),
     sub: [
       // --- /favourite colour <hex:string>
       colour() |> command.subcommand,
@@ -152,7 +154,7 @@ pub fn favourite() {
         desc: "questions about fav games",
         sub: [
           // --- /favourite games adventure <title:string>
-          adventure(),
+          adventure() |> command.subcommand,
         ],
       ),
     ],
