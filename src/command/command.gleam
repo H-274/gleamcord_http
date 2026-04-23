@@ -42,10 +42,21 @@ pub type Signature {
     name: String,
     description: String,
     default_member_permissions: String,
-    integration_types: List(Nil),
-    contexts: List(Nil),
+    integrations: List(Integration),
+    contexts: List(Context),
     nsfw: Bool,
   )
+}
+
+pub type Integration {
+  GuildInstall
+  UserInstall
+}
+
+pub type Context {
+  Guild
+  BotDM
+  PrivateChannel
 }
 
 pub fn simple_signature(name name: String, desc description: String) {
@@ -53,7 +64,7 @@ pub fn simple_signature(name name: String, desc description: String) {
     name:,
     description:,
     default_member_permissions: "",
-    integration_types: [],
+    integrations: [],
     contexts: [],
     nsfw: False,
   )
@@ -117,11 +128,12 @@ pub type CommandOption(state) {
     name: String,
     description: String,
     min_val: Int,
-    max_value: Int,
+    max_val: Int,
     autocomplete: fn(Interaction, state, Int, option_value.Values) ->
       List(#(String, Int)),
     required: Bool,
   )
+  BooleanOption(name: String, description: String, required: Bool)
   UserOption(name: String, description: String, required: Bool)
   ChannelOption(
     name: String,
@@ -351,6 +363,7 @@ fn run_subcommand_group_autocomplete(
 /// Encoding
 ///
 /// TODO review subcommand groups to avoid setting unnecessary data
+/// TODO review to ensure option order is maintained !!!
 pub fn json(command: Command(_)) {
   case command {
     ChatInputCommand(c) -> chat_input_json(c)
@@ -365,7 +378,7 @@ fn chat_input_json(command: ChatInput(_)) {
     name:,
     description:,
     default_member_permissions:,
-    integration_types:,
+    integrations:,
     contexts:,
     nsfw:,
   ) = command.signature
@@ -374,7 +387,7 @@ fn chat_input_json(command: ChatInput(_)) {
     #("description", json.string(description)),
     #("options", options_json(command.options)),
     #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integration_types_json(integration_types)),
+    #("integration_types", integrations_json(integrations)),
     #("contexts", contexts_json(contexts)),
     #("type", json.int(1)),
     #("nsfw", json.bool(nsfw)),
@@ -386,7 +399,7 @@ fn chat_input_group_json(signature: Signature, sub: Dict(String, Subcommand(_)))
     name:,
     description:,
     default_member_permissions:,
-    integration_types:,
+    integrations:,
     contexts:,
     nsfw:,
   ) = signature
@@ -395,7 +408,7 @@ fn chat_input_group_json(signature: Signature, sub: Dict(String, Subcommand(_)))
     #("description", json.string(description)),
     #("options", subcommand_json(sub)),
     #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integration_types_json(integration_types)),
+    #("integration_types", integrations_json(integrations)),
     #("contexts", contexts_json(contexts)),
     #("type", json.int(1)),
     #("nsfw", json.bool(nsfw)),
@@ -430,7 +443,7 @@ fn user_json(signature: Signature) {
     name:,
     description:,
     default_member_permissions:,
-    integration_types:,
+    integrations:,
     contexts:,
     nsfw:,
   ) = signature
@@ -438,7 +451,7 @@ fn user_json(signature: Signature) {
     #("name", json.string(name)),
     #("description", json.string(description)),
     #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integration_types_json(integration_types)),
+    #("integration_types", integrations_json(integrations)),
     #("contexts", contexts_json(contexts)),
     #("type", json.int(2)),
     #("nsfw", json.bool(nsfw)),
@@ -450,7 +463,7 @@ fn message_json(signature: Signature) {
     name:,
     description:,
     default_member_permissions:,
-    integration_types:,
+    integrations:,
     contexts:,
     nsfw:,
   ) = signature
@@ -458,7 +471,7 @@ fn message_json(signature: Signature) {
     #("name", json.string(name)),
     #("description", json.string(description)),
     #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integration_types_json(integration_types)),
+    #("integration_types", integrations_json(integrations)),
     #("contexts", contexts_json(contexts)),
     #("type", json.int(3)),
     #("nsfw", json.bool(nsfw)),
@@ -475,27 +488,103 @@ fn options_json(options: Dict(String, CommandOption(_))) {
       #("max_length", json.int(max_len)),
       #("required", json.bool(required)),
     ]
-    StringChoicesOption(choices:, required:, ..) -> todo
-    StringAutocompleteOption(min_len:, max_len:, autocomplete: _, required:, ..) ->
-      todo
-    IntegerOption(min_val:, max_val:, required:, ..) -> todo
-    IntegerChoicesOption(choices:, required:, ..) -> todo
+    StringChoicesOption(choices:, required:, ..) -> [
+      #("type", json.int(3)),
+      #(
+        "choices",
+        json.array(choices, fn(c) {
+          json.object([
+            #("name", json.string(c.0)),
+            #("value", json.string(c.1)),
+          ])
+        }),
+      ),
+      #("required", json.bool(required)),
+    ]
+    StringAutocompleteOption(min_len:, max_len:, autocomplete: _, required:, ..) -> [
+      #("type", json.int(3)),
+      #("min_length", json.int(min_len)),
+      #("max_length", json.int(max_len)),
+      #("autocomplete", json.bool(True)),
+      #("required", json.bool(required)),
+    ]
+    IntegerOption(min_val:, max_val:, required:, ..) -> [
+      #("type", json.int(4)),
+      #("min_value", json.int(min_val)),
+      #("max_value", json.int(max_val)),
+      #("required", json.bool(required)),
+    ]
+    IntegerChoicesOption(choices:, required:, ..) -> [
+      #("type", json.int(4)),
+      #(
+        "choices",
+        json.array(choices, fn(c) {
+          json.object([#("name", json.string(c.0)), #("value", json.int(c.1))])
+        }),
+      ),
+      #("required", json.bool(required)),
+    ]
     IntegerAutocompleteOption(
       min_val:,
-      max_value:,
+      max_val:,
       autocomplete: _,
       required:,
       ..,
-    ) -> todo
-    UserOption(required:, ..) -> todo
-    ChannelOption(channel_types:, required:, ..) -> todo
-    RoleOption(required:, ..) -> todo
-    MentionableOption(required:, ..) -> todo
-    NumberOption(min_val:, max_val:, required:, ..) -> todo
-    NumberChoicesOption(choices:, required:, ..) -> todo
-    NumberAutocompleteOption(min_val:, max_val:, autocomplete: _, required:, ..) ->
-      todo
-    AttachmentOption(required:, ..) -> todo
+    ) -> [
+      #("type", json.int(4)),
+      #("min_value", json.int(min_val)),
+      #("max_value", json.int(max_val)),
+      #("autocomplete", json.bool(True)),
+      #("required", json.bool(required)),
+    ]
+    BooleanOption(required:, ..) -> [
+      #("type", json.int(5)),
+      #("required", json.bool(required)),
+    ]
+    UserOption(required:, ..) -> [
+      #("type", json.int(6)),
+      #("required", json.bool(required)),
+    ]
+    ChannelOption(channel_types:, required:, ..) -> [
+      #("type", json.int(7)),
+      #("channel_types", json.array(channel_types, fn(_t) { json.object([]) })),
+      #("required", json.bool(required)),
+    ]
+    RoleOption(required:, ..) -> [
+      #("type", json.int(8)),
+      #("required", json.bool(required)),
+    ]
+    MentionableOption(required:, ..) -> [
+      #("type", json.int(9)),
+      #("required", json.bool(required)),
+    ]
+    NumberOption(min_val:, max_val:, required:, ..) -> [
+      #("type", json.int(10)),
+      #("min_value", json.float(min_val)),
+      #("max_length", json.float(max_val)),
+      #("required", json.bool(required)),
+    ]
+    NumberChoicesOption(choices:, required:, ..) -> [
+      #("type", json.int(10)),
+      #(
+        "choices",
+        json.array(choices, fn(c) {
+          json.object([#("name", json.string(c.0)), #("value", json.float(c.1))])
+        }),
+      ),
+      #("required", json.bool(required)),
+    ]
+    NumberAutocompleteOption(min_val:, max_val:, autocomplete: _, required:, ..) -> [
+      #("type", json.int(10)),
+      #("min_value", json.float(min_val)),
+      #("max_length", json.float(max_val)),
+      #("autocomplete", json.bool(True)),
+      #("required", json.bool(required)),
+    ]
+    AttachmentOption(required:, ..) -> [
+      #("type", json.int(11)),
+      #("required", json.bool(required)),
+    ]
   }
   |> list.append([
     #("name", json.string(opt.name)),
@@ -504,10 +593,19 @@ fn options_json(options: Dict(String, CommandOption(_))) {
   |> json.object
 }
 
-fn integration_types_json(integration_types: List(Nil)) {
-  todo
+fn integrations_json(integrations: List(Integration)) {
+  use i <- json.array(integrations)
+  case i {
+    GuildInstall -> json.int(0)
+    UserInstall -> json.int(1)
+  }
 }
 
-pub fn contexts_json(contexts: List(Nil)) {
-  todo
+pub fn contexts_json(contexts: List(Context)) {
+  use c <- json.array(contexts)
+  case c {
+    Guild -> json.int(0)
+    BotDM -> json.int(1)
+    PrivateChannel -> json.int(2)
+  }
 }
