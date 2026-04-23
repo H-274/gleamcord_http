@@ -188,6 +188,19 @@ pub opaque type Subcommand(state) {
   )
 }
 
+/// It is currently possible to define a subcommand group to a subcommand group due to
+/// the recursive nature of the type. **However**, you should not do this. Discord will 
+/// **not** accept this command structure
+/// 
+/// Avoid this
+/// >``` gleam
+/// >command.subcommand_group(name: "...", desc: "...", sub: [
+/// >  command.subcommand_group(name: "...", desc: "...", sub: [
+/// >    // ..
+/// >  ])
+/// >  // ...
+/// >])
+/// >```
 pub fn subcommand_group(
   name name: String,
   desc description: String,
