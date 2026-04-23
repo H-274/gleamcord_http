@@ -172,6 +172,8 @@ pub fn find_focused_option(options: option_value.Values) {
   |> list.find(fn(opt) { opt.focused })
 }
 
+/// TODO Update to avoid type recursion, currently allows for foot-guns since 
+/// discord only accepts a max depth of `CommandGroup -> SubcommandGroup -> Subcommand`
 pub opaque type Subcommand(state) {
   SubcommandGroup(
     name: String,
@@ -361,7 +363,6 @@ fn run_subcommand_group_autocomplete(
 
 /// Encoding
 ///
-/// TODO review subcommand groups to avoid setting unnecessary data
 /// TODO review to ensure option order is maintained when encoding
 pub fn json(command: Command(_)) {
   case command {
