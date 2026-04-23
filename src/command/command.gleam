@@ -363,7 +363,7 @@ fn run_subcommand_group_autocomplete(
 /// Encoding
 ///
 /// TODO review subcommand groups to avoid setting unnecessary data
-/// TODO review to ensure option order is maintained !!!
+/// TODO review to ensure option order is maintained when encoding
 pub fn json(command: Command(_)) {
   case command {
     ChatInputCommand(c) -> chat_input_json(c)
