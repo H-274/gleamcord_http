@@ -18,12 +18,7 @@ pub fn chat_input_command(chat_input: ChatInput(_)) {
 
 pub fn chat_input_group(sig signature: Signature, sub sub: List(Subcommand(_))) {
   let sub =
-    list.map(sub, fn(s) {
-      case s {
-        Subcommand(ChatInput(signature:, ..)) -> #(signature.name, s)
-        SubcommandGroup(name:, ..) -> #(name, s)
-      }
-    })
+    list.map(sub, fn(s) { #(s.name, s) })
     |> dict.from_list
 
   ChatInputGroup(signature:, sub:)
@@ -183,7 +178,12 @@ pub opaque type Subcommand(state) {
     description: String,
     sub: Dict(String, Subcommand(state)),
   )
-  Subcommand(ChatInput(state))
+  Subcommand(
+    name: String,
+    description: String,
+    options: Dict(String, CommandOption(state)),
+    handler: ChatInputHandler(state),
+  )
 }
 
 pub fn subcommand_group(
@@ -192,19 +192,20 @@ pub fn subcommand_group(
   sub sub: List(Subcommand(_)),
 ) {
   let sub =
-    list.map(sub, fn(c) {
-      case c {
-        SubcommandGroup(name:, ..) -> #(name, c)
-        Subcommand(chat) -> #(chat.signature.name, c)
-      }
-    })
+    list.map(sub, fn(s) { #(s.name, s) })
     |> dict.from_list
 
   SubcommandGroup(name:, description:, sub:)
 }
 
 pub fn subcommand(chat_input: ChatInput(_)) {
-  Subcommand(chat_input)
+  let Signature(name:, description:, ..) = chat_input.signature
+  Subcommand(
+    name:,
+    description:,
+    options: chat_input.options,
+    handler: chat_input.handler,
+  )
 }
 
 pub type UserHandler(state) =
@@ -249,8 +250,7 @@ fn run_chat_input_group(
   case group {
     option_value.Subcommand(invoked) ->
       case dict.get(subcommands, invoked.name) {
-        Ok(Subcommand(chat_input)) ->
-          chat_input.handler(i, state, invoked.options) |> Ok
+        Ok(Subcommand(handler:, ..)) -> handler(i, state, invoked.options) |> Ok
         _ -> Error(Nil)
       }
     option_value.SubcommandGroup(invoked) ->
@@ -269,8 +269,7 @@ fn run_subcommand_group(
   invoked: option_value.Subcommand,
 ) {
   case dict.get(subcommands, invoked.name) {
-    Ok(Subcommand(chat_input)) ->
-      chat_input.handler(i, state, invoked.options) |> Ok
+    Ok(Subcommand(handler:, ..)) -> handler(i, state, invoked.options) |> Ok
     _ -> Error(Nil)
   }
 }
@@ -284,7 +283,7 @@ pub fn run_autocomplete(
     interaction.ChatInput(chat_input) ->
       case dict.get(commands, chat_input.name), chat_input.options {
         Ok(ChatInputCommand(command)), option_value.Values(values) ->
-          run_chat_input_autocomplete(command, i, state, values)
+          run_options_autocomplete(command.options, i, state, values)
         Ok(ChatInputGroup(sub:, ..)), option_value.Group(group) ->
           run_chat_input_group_autocomplete(sub, i, state, group)
         _, _ -> Error(Nil)
@@ -293,8 +292,8 @@ pub fn run_autocomplete(
   }
 }
 
-fn run_chat_input_autocomplete(
-  chat_input: ChatInput(state),
+fn run_options_autocomplete(
+  options: Dict(String, CommandOption(state)),
   i: interaction.Interaction,
   state: state,
   values: option_value.Values,
@@ -302,7 +301,7 @@ fn run_chat_input_autocomplete(
   let assert Ok(option) = dict.values(values) |> list.find(fn(o) { o.focused })
     as "there should always be a focused option when autocomplete is called"
 
-  case dict.get(chat_input.options, option.name), option {
+  case dict.get(options, option.name), option {
     Ok(StringAutocompleteOption(autocomplete: autocomplete, ..)),
       option_value.String(value: partial, ..)
     ->
@@ -334,8 +333,8 @@ fn run_chat_input_group_autocomplete(
   case group {
     option_value.Subcommand(invoked) ->
       case dict.get(sub, invoked.name) {
-        Ok(Subcommand(chat_input)) ->
-          run_chat_input_autocomplete(chat_input, i, state, invoked.options)
+        Ok(Subcommand(options:, ..)) ->
+          run_options_autocomplete(options, i, state, invoked.options)
         _ -> Error(Nil)
       }
     option_value.SubcommandGroup(invoked) ->
@@ -354,8 +353,8 @@ fn run_subcommand_group_autocomplete(
   invoked: option_value.Subcommand,
 ) -> Result(response.AutocompleteResponse, Nil) {
   case dict.get(group_subcommands, invoked.name) {
-    Ok(Subcommand(chat_input)) ->
-      run_chat_input_autocomplete(chat_input, i, state, invoked.options)
+    Ok(Subcommand(options:, ..)) ->
+      run_options_autocomplete(options, i, state, invoked.options)
     _ -> Error(Nil)
   }
 }
@@ -428,12 +427,12 @@ fn subcommand_json(sub: Dict(String, Subcommand(_))) {
         #("options", subcommand_json(sub)),
       ])
     }
-    Subcommand(c) ->
+    Subcommand(name:, description:, options:, ..) ->
       json.object([
         #("type", json.int(1)),
-        #("name", json.string(c.signature.name)),
-        #("description", json.string(c.signature.description)),
-        #("options", options_json(c.options)),
+        #("name", json.string(name)),
+        #("description", json.string(description)),
+        #("options", options_json(options)),
       ])
   }
 }
