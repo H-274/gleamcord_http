@@ -118,7 +118,7 @@ pub fn section_premium_button(sku sku: String) {
   |> SectionButton
 }
 
-pub fn section_accessory_json(accessory: SectionAccessory) -> Json {
+fn section_accessory_json(accessory: SectionAccessory) -> Json {
   case accessory {
     SectionThumbnail(t) -> content.thumbnail_json(t)
     SectionButton(b) -> interactive.button_json(b)
