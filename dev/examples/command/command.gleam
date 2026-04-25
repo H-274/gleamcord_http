@@ -5,6 +5,7 @@ import command/response
 import component/layout
 import gleam/dict
 import gleam/int
+import gleam/json
 import gleam/string
 import message
 
@@ -13,8 +14,9 @@ pub fn ping() -> command.ChatInput(state) {
 
   use _interaction, _state, _options <- command.chat_input(sig:, opts: [])
 
-  { "content: \"Pong!\"" }
-  |> message.Raw(json: _)
+  [#("content", json.string("Pong!"))]
+  |> json.object()
+  |> message.Raw()
   |> response.MessageWithSource
 }
 
