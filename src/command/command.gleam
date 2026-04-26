@@ -12,6 +12,76 @@ pub opaque type Command(state) {
   Message(signature: Signature, handler: MessageHandler(state))
 }
 
+pub fn json(command: Command(_)) {
+  case command {
+    ChatInputCommand(c) -> chat_input_json(c)
+    ChatInputGroup(signature:, sub:) -> chat_input_group_json(signature, sub)
+    User(signature:, ..) -> user_json(signature)
+    Message(signature:, ..) -> message_json(signature)
+  }
+}
+
+fn chat_input_group_json(signature: Signature, sub: Dict(String, Subcommand(_))) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integrations:,
+    contexts:,
+    nsfw:,
+  ) = signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("options", subcommand_json(sub)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integrations_json(integrations)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(1)),
+    #("nsfw", json.bool(nsfw)),
+  ])
+}
+
+fn user_json(signature: Signature) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integrations:,
+    contexts:,
+    nsfw:,
+  ) = signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integrations_json(integrations)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(2)),
+    #("nsfw", json.bool(nsfw)),
+  ])
+}
+
+fn message_json(signature: Signature) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integrations:,
+    contexts:,
+    nsfw:,
+  ) = signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integrations_json(integrations)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(3)),
+    #("nsfw", json.bool(nsfw)),
+  ])
+}
+
 pub fn chat_input_command(chat_input: ChatInput(_)) {
   ChatInputCommand(chat_input)
 }
@@ -43,17 +113,6 @@ pub type Signature {
   )
 }
 
-pub type Integration {
-  GuildInstall
-  UserInstall
-}
-
-pub type Context {
-  Guild
-  BotDM
-  PrivateChannel
-}
-
 pub fn simple_signature(name name: String, desc description: String) {
   Signature(
     name:,
@@ -65,12 +124,61 @@ pub fn simple_signature(name name: String, desc description: String) {
   )
 }
 
+pub type Integration {
+  GuildInstall
+  UserInstall
+}
+
+fn integrations_json(integrations: List(Integration)) {
+  use i <- json.array(integrations)
+  case i {
+    GuildInstall -> json.int(0)
+    UserInstall -> json.int(1)
+  }
+}
+
+pub type Context {
+  Guild
+  BotDM
+  PrivateChannel
+}
+
+pub fn contexts_json(contexts: List(Context)) {
+  use c <- json.array(contexts)
+  case c {
+    Guild -> json.int(0)
+    BotDM -> json.int(1)
+    PrivateChannel -> json.int(2)
+  }
+}
+
 pub opaque type ChatInput(state) {
   ChatInput(
     signature: Signature,
     options: List(#(String, CommandOption(state))),
     handler: ChatInputHandler(state),
   )
+}
+
+fn chat_input_json(command: ChatInput(_)) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integrations:,
+    contexts:,
+    nsfw:,
+  ) = command.signature
+  json.object([
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("options", options_json(command.options)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", integrations_json(integrations)),
+    #("contexts", contexts_json(contexts)),
+    #("type", json.int(1)),
+    #("nsfw", json.bool(nsfw)),
+  ])
 }
 
 pub fn chat_input(
@@ -82,6 +190,89 @@ pub fn chat_input(
 
   ChatInput(signature:, options:, handler:)
 }
+
+/// TODO Update to avoid type recursion, currently allows for foot-guns since 
+/// discord only accepts a max depth of `CommandGroup -> SubcommandGroup -> Subcommand`
+pub opaque type Subcommand(state) {
+  SubcommandGroup(
+    name: String,
+    description: String,
+    sub: Dict(String, Subcommand(state)),
+  )
+  Subcommand(
+    name: String,
+    description: String,
+    options: List(#(String, CommandOption(state))),
+    handler: ChatInputHandler(state),
+  )
+}
+
+fn subcommand_json(sub: Dict(String, Subcommand(_))) {
+  let subcommands = dict.values(sub)
+
+  use sub <- json.array(subcommands)
+  case sub {
+    SubcommandGroup(name:, description:, sub:) -> {
+      json.object([
+        #("type", json.int(2)),
+        #("name", json.string(name)),
+        #("description", json.string(description)),
+        #("options", subcommand_json(sub)),
+      ])
+    }
+    Subcommand(name:, description:, options:, ..) ->
+      json.object([
+        #("type", json.int(1)),
+        #("name", json.string(name)),
+        #("description", json.string(description)),
+        #("options", options_json(options)),
+      ])
+  }
+}
+
+/// It is currently possible to define a subcommand group to a subcommand group due to
+/// the recursive nature of the type. **However**, you should not do this. Discord will 
+/// **not** accept this command structure
+/// 
+/// Avoid this
+/// >``` gleam
+/// >command.subcommand_group(name: "...", desc: "...", sub: [
+/// >  command.subcommand_group(name: "...", desc: "...", sub: [
+/// >    // ..
+/// >  ])
+/// >  // ...
+/// >])
+/// >```
+pub fn subcommand_group(
+  name name: String,
+  desc description: String,
+  sub sub: List(Subcommand(_)),
+) {
+  let sub =
+    list.map(sub, fn(s) { #(s.name, s) })
+    |> dict.from_list
+
+  SubcommandGroup(name:, description:, sub:)
+}
+
+pub fn subcommand(chat_input: ChatInput(_)) {
+  let Signature(name:, description:, ..) = chat_input.signature
+  Subcommand(
+    name:,
+    description:,
+    options: chat_input.options,
+    handler: chat_input.handler,
+  )
+}
+
+pub type ChatInputHandler(state) =
+  fn(Interaction, state, option_value.Values) -> Response(state)
+
+pub type UserHandler(state) =
+  fn(Interaction, state) -> Response(state)
+
+pub type MessageHandler(state) =
+  fn(Interaction, state) -> Response(state)
 
 pub type CommandOption(state) {
   StringOption(
@@ -164,70 +355,145 @@ pub type CommandOption(state) {
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
-pub type ChatInputHandler(state) =
-  fn(Interaction, state, option_value.Values) -> Response(state)
-
 pub fn find_focused_option(options: option_value.Values) {
   dict.values(options)
   |> list.find(fn(opt) { opt.focused })
 }
 
-/// TODO Update to avoid type recursion, currently allows for foot-guns since 
-/// discord only accepts a max depth of `CommandGroup -> SubcommandGroup -> Subcommand`
-pub opaque type Subcommand(state) {
-  SubcommandGroup(
-    name: String,
-    description: String,
-    sub: Dict(String, Subcommand(state)),
-  )
-  Subcommand(
-    name: String,
-    description: String,
-    options: List(#(String, CommandOption(state))),
-    handler: ChatInputHandler(state),
-  )
+fn options_json(options: List(#(String, CommandOption(_)))) {
+  use opt <- json.array(options)
+  case opt {
+    #(_, StringOption(min_len:, max_len:, required:, ..)) -> [
+      #("type", json.int(3)),
+      #("min_length", json.int(min_len)),
+      #("max_length", json.int(max_len)),
+      #("required", json.bool(required)),
+    ]
+    #(_, StringChoicesOption(choices:, required:, ..)) -> [
+      #("type", json.int(3)),
+      #(
+        "choices",
+        json.array(choices, fn(c) {
+          json.object([
+            #("name", json.string(c.0)),
+            #("value", json.string(c.1)),
+          ])
+        }),
+      ),
+      #("required", json.bool(required)),
+    ]
+    #(
+      _,
+      StringAutocompleteOption(
+        min_len:,
+        max_len:,
+        autocomplete: _,
+        required:,
+        ..,
+      ),
+    ) -> [
+      #("type", json.int(3)),
+      #("min_length", json.int(min_len)),
+      #("max_length", json.int(max_len)),
+      #("autocomplete", json.bool(True)),
+      #("required", json.bool(required)),
+    ]
+    #(_, IntegerOption(min_val:, max_val:, required:, ..)) -> [
+      #("type", json.int(4)),
+      #("min_value", json.int(min_val)),
+      #("max_value", json.int(max_val)),
+      #("required", json.bool(required)),
+    ]
+    #(_, IntegerChoicesOption(choices:, required:, ..)) -> [
+      #("type", json.int(4)),
+      #(
+        "choices",
+        json.array(choices, fn(c) {
+          json.object([#("name", json.string(c.0)), #("value", json.int(c.1))])
+        }),
+      ),
+      #("required", json.bool(required)),
+    ]
+    #(
+      _,
+      IntegerAutocompleteOption(
+        min_val:,
+        max_val:,
+        autocomplete: _,
+        required:,
+        ..,
+      ),
+    ) -> [
+      #("type", json.int(4)),
+      #("min_value", json.int(min_val)),
+      #("max_value", json.int(max_val)),
+      #("autocomplete", json.bool(True)),
+      #("required", json.bool(required)),
+    ]
+    #(_, BooleanOption(required:, ..)) -> [
+      #("type", json.int(5)),
+      #("required", json.bool(required)),
+    ]
+    #(_, UserOption(required:, ..)) -> [
+      #("type", json.int(6)),
+      #("required", json.bool(required)),
+    ]
+    #(_, ChannelOption(channel_types:, required:, ..)) -> [
+      #("type", json.int(7)),
+      #("channel_types", json.array(channel_types, fn(_t) { json.object([]) })),
+      #("required", json.bool(required)),
+    ]
+    #(_, RoleOption(required:, ..)) -> [
+      #("type", json.int(8)),
+      #("required", json.bool(required)),
+    ]
+    #(_, MentionableOption(required:, ..)) -> [
+      #("type", json.int(9)),
+      #("required", json.bool(required)),
+    ]
+    #(_, NumberOption(min_val:, max_val:, required:, ..)) -> [
+      #("type", json.int(10)),
+      #("min_value", json.float(min_val)),
+      #("max_length", json.float(max_val)),
+      #("required", json.bool(required)),
+    ]
+    #(_, NumberChoicesOption(choices:, required:, ..)) -> [
+      #("type", json.int(10)),
+      #(
+        "choices",
+        json.array(choices, fn(c) {
+          json.object([#("name", json.string(c.0)), #("value", json.float(c.1))])
+        }),
+      ),
+      #("required", json.bool(required)),
+    ]
+    #(
+      _,
+      NumberAutocompleteOption(
+        min_val:,
+        max_val:,
+        autocomplete: _,
+        required:,
+        ..,
+      ),
+    ) -> [
+      #("type", json.int(10)),
+      #("min_value", json.float(min_val)),
+      #("max_length", json.float(max_val)),
+      #("autocomplete", json.bool(True)),
+      #("required", json.bool(required)),
+    ]
+    #(_, AttachmentOption(required:, ..)) -> [
+      #("type", json.int(11)),
+      #("required", json.bool(required)),
+    ]
+  }
+  |> list.append([
+    #("name", json.string(opt.1.name)),
+    #("description", json.string(opt.1.description)),
+  ])
+  |> json.object
 }
-
-/// It is currently possible to define a subcommand group to a subcommand group due to
-/// the recursive nature of the type. **However**, you should not do this. Discord will 
-/// **not** accept this command structure
-/// 
-/// Avoid this
-/// >``` gleam
-/// >command.subcommand_group(name: "...", desc: "...", sub: [
-/// >  command.subcommand_group(name: "...", desc: "...", sub: [
-/// >    // ..
-/// >  ])
-/// >  // ...
-/// >])
-/// >```
-pub fn subcommand_group(
-  name name: String,
-  desc description: String,
-  sub sub: List(Subcommand(_)),
-) {
-  let sub =
-    list.map(sub, fn(s) { #(s.name, s) })
-    |> dict.from_list
-
-  SubcommandGroup(name:, description:, sub:)
-}
-
-pub fn subcommand(chat_input: ChatInput(_)) {
-  let Signature(name:, description:, ..) = chat_input.signature
-  Subcommand(
-    name:,
-    description:,
-    options: chat_input.options,
-    handler: chat_input.handler,
-  )
-}
-
-pub type UserHandler(state) =
-  fn(Interaction, state) -> Response(state)
-
-pub type MessageHandler(state) =
-  fn(Interaction, state) -> Response(state)
 
 pub fn run(
   commands: Dict(String, Command(state)),
@@ -386,272 +652,5 @@ fn run_subcommand_group_autocomplete(
         invoked.options,
       )
     _ -> Error(Nil)
-  }
-}
-
-/// Encoding
-pub fn json(command: Command(_)) {
-  case command {
-    ChatInputCommand(c) -> chat_input_json(c)
-    ChatInputGroup(signature:, sub:) -> chat_input_group_json(signature, sub)
-    User(signature:, ..) -> user_json(signature)
-    Message(signature:, ..) -> message_json(signature)
-  }
-}
-
-fn chat_input_json(command: ChatInput(_)) {
-  let Signature(
-    name:,
-    description:,
-    default_member_permissions:,
-    integrations:,
-    contexts:,
-    nsfw:,
-  ) = command.signature
-  json.object([
-    #("name", json.string(name)),
-    #("description", json.string(description)),
-    #("options", options_json(command.options)),
-    #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integrations_json(integrations)),
-    #("contexts", contexts_json(contexts)),
-    #("type", json.int(1)),
-    #("nsfw", json.bool(nsfw)),
-  ])
-}
-
-fn chat_input_group_json(signature: Signature, sub: Dict(String, Subcommand(_))) {
-  let Signature(
-    name:,
-    description:,
-    default_member_permissions:,
-    integrations:,
-    contexts:,
-    nsfw:,
-  ) = signature
-  json.object([
-    #("name", json.string(name)),
-    #("description", json.string(description)),
-    #("options", subcommand_json(sub)),
-    #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integrations_json(integrations)),
-    #("contexts", contexts_json(contexts)),
-    #("type", json.int(1)),
-    #("nsfw", json.bool(nsfw)),
-  ])
-}
-
-fn subcommand_json(sub: Dict(String, Subcommand(_))) {
-  let subcommands = dict.values(sub)
-
-  use sub <- json.array(subcommands)
-  case sub {
-    SubcommandGroup(name:, description:, sub:) -> {
-      json.object([
-        #("type", json.int(2)),
-        #("name", json.string(name)),
-        #("description", json.string(description)),
-        #("options", subcommand_json(sub)),
-      ])
-    }
-    Subcommand(name:, description:, options:, ..) ->
-      json.object([
-        #("type", json.int(1)),
-        #("name", json.string(name)),
-        #("description", json.string(description)),
-        #("options", options_json(options)),
-      ])
-  }
-}
-
-fn user_json(signature: Signature) {
-  let Signature(
-    name:,
-    description:,
-    default_member_permissions:,
-    integrations:,
-    contexts:,
-    nsfw:,
-  ) = signature
-  json.object([
-    #("name", json.string(name)),
-    #("description", json.string(description)),
-    #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integrations_json(integrations)),
-    #("contexts", contexts_json(contexts)),
-    #("type", json.int(2)),
-    #("nsfw", json.bool(nsfw)),
-  ])
-}
-
-fn message_json(signature: Signature) {
-  let Signature(
-    name:,
-    description:,
-    default_member_permissions:,
-    integrations:,
-    contexts:,
-    nsfw:,
-  ) = signature
-  json.object([
-    #("name", json.string(name)),
-    #("description", json.string(description)),
-    #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", integrations_json(integrations)),
-    #("contexts", contexts_json(contexts)),
-    #("type", json.int(3)),
-    #("nsfw", json.bool(nsfw)),
-  ])
-}
-
-fn options_json(options: List(#(String, CommandOption(_)))) {
-  use opt <- json.array(options)
-  case opt {
-    #(_, StringOption(min_len:, max_len:, required:, ..)) -> [
-      #("type", json.int(3)),
-      #("min_length", json.int(min_len)),
-      #("max_length", json.int(max_len)),
-      #("required", json.bool(required)),
-    ]
-    #(_, StringChoicesOption(choices:, required:, ..)) -> [
-      #("type", json.int(3)),
-      #(
-        "choices",
-        json.array(choices, fn(c) {
-          json.object([
-            #("name", json.string(c.0)),
-            #("value", json.string(c.1)),
-          ])
-        }),
-      ),
-      #("required", json.bool(required)),
-    ]
-    #(
-      _,
-      StringAutocompleteOption(
-        min_len:,
-        max_len:,
-        autocomplete: _,
-        required:,
-        ..,
-      ),
-    ) -> [
-      #("type", json.int(3)),
-      #("min_length", json.int(min_len)),
-      #("max_length", json.int(max_len)),
-      #("autocomplete", json.bool(True)),
-      #("required", json.bool(required)),
-    ]
-    #(_, IntegerOption(min_val:, max_val:, required:, ..)) -> [
-      #("type", json.int(4)),
-      #("min_value", json.int(min_val)),
-      #("max_value", json.int(max_val)),
-      #("required", json.bool(required)),
-    ]
-    #(_, IntegerChoicesOption(choices:, required:, ..)) -> [
-      #("type", json.int(4)),
-      #(
-        "choices",
-        json.array(choices, fn(c) {
-          json.object([#("name", json.string(c.0)), #("value", json.int(c.1))])
-        }),
-      ),
-      #("required", json.bool(required)),
-    ]
-    #(
-      _,
-      IntegerAutocompleteOption(
-        min_val:,
-        max_val:,
-        autocomplete: _,
-        required:,
-        ..,
-      ),
-    ) -> [
-      #("type", json.int(4)),
-      #("min_value", json.int(min_val)),
-      #("max_value", json.int(max_val)),
-      #("autocomplete", json.bool(True)),
-      #("required", json.bool(required)),
-    ]
-    #(_, BooleanOption(required:, ..)) -> [
-      #("type", json.int(5)),
-      #("required", json.bool(required)),
-    ]
-    #(_, UserOption(required:, ..)) -> [
-      #("type", json.int(6)),
-      #("required", json.bool(required)),
-    ]
-    #(_, ChannelOption(channel_types:, required:, ..)) -> [
-      #("type", json.int(7)),
-      #("channel_types", json.array(channel_types, fn(_t) { json.object([]) })),
-      #("required", json.bool(required)),
-    ]
-    #(_, RoleOption(required:, ..)) -> [
-      #("type", json.int(8)),
-      #("required", json.bool(required)),
-    ]
-    #(_, MentionableOption(required:, ..)) -> [
-      #("type", json.int(9)),
-      #("required", json.bool(required)),
-    ]
-    #(_, NumberOption(min_val:, max_val:, required:, ..)) -> [
-      #("type", json.int(10)),
-      #("min_value", json.float(min_val)),
-      #("max_length", json.float(max_val)),
-      #("required", json.bool(required)),
-    ]
-    #(_, NumberChoicesOption(choices:, required:, ..)) -> [
-      #("type", json.int(10)),
-      #(
-        "choices",
-        json.array(choices, fn(c) {
-          json.object([#("name", json.string(c.0)), #("value", json.float(c.1))])
-        }),
-      ),
-      #("required", json.bool(required)),
-    ]
-    #(
-      _,
-      NumberAutocompleteOption(
-        min_val:,
-        max_val:,
-        autocomplete: _,
-        required:,
-        ..,
-      ),
-    ) -> [
-      #("type", json.int(10)),
-      #("min_value", json.float(min_val)),
-      #("max_length", json.float(max_val)),
-      #("autocomplete", json.bool(True)),
-      #("required", json.bool(required)),
-    ]
-    #(_, AttachmentOption(required:, ..)) -> [
-      #("type", json.int(11)),
-      #("required", json.bool(required)),
-    ]
-  }
-  |> list.append([
-    #("name", json.string(opt.1.name)),
-    #("description", json.string(opt.1.description)),
-  ])
-  |> json.object
-}
-
-fn integrations_json(integrations: List(Integration)) {
-  use i <- json.array(integrations)
-  case i {
-    GuildInstall -> json.int(0)
-    UserInstall -> json.int(1)
-  }
-}
-
-pub fn contexts_json(contexts: List(Context)) {
-  use c <- json.array(contexts)
-  case c {
-    Guild -> json.int(0)
-    BotDM -> json.int(1)
-    PrivateChannel -> json.int(2)
   }
 }
