@@ -1,3 +1,5 @@
+//// TODO maybe split this into different files again?
+
 import command/interaction.{type Interaction}
 import command/option_value
 import command/response.{type Response}
@@ -152,6 +154,7 @@ pub fn contexts_json(contexts: List(Context)) {
   }
 }
 
+/// TODO think of different way to store options to avoid always rebuilding a dict when running autocomplete
 pub opaque type ChatInput(state) {
   ChatInput(
     signature: Signature,
