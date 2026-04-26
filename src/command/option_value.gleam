@@ -9,6 +9,12 @@ pub type OptionValue {
   Group(Group)
 }
 
+pub fn decoder() -> decode.Decoder(OptionValue) {
+  decode.one_of(group_decoder() |> decode.map(Group), [
+    values_decoder() |> decode.map(Values),
+  ])
+}
+
 pub fn command_option_decoder() -> decode.Decoder(OptionValue) {
   decode.one_of(
     decode.list(value_decoder() |> decode.map(fn(o) { #(o.name, o) }))
@@ -20,6 +26,11 @@ pub fn command_option_decoder() -> decode.Decoder(OptionValue) {
 
 pub type Values =
   Dict(String, Value)
+
+fn values_decoder() -> decode.Decoder(Values) {
+  decode.list(value_decoder() |> decode.map(fn(v) { #(v.name, v) }))
+  |> decode.map(dict.from_list)
+}
 
 pub type Value {
   String(name: String, value: String, focused: Bool)

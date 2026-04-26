@@ -68,7 +68,7 @@ pub fn simple_signature(name name: String, desc description: String) {
 pub opaque type ChatInput(state) {
   ChatInput(
     signature: Signature,
-    options: Dict(String, CommandOption(state)),
+    options: List(#(String, CommandOption(state))),
     handler: ChatInputHandler(state),
   )
 }
@@ -78,7 +78,7 @@ pub fn chat_input(
   opts options: List(CommandOption(state)),
   handler handler: ChatInputHandler(state),
 ) {
-  let options = list.map(options, fn(o) { #(o.name, o) }) |> dict.from_list
+  let options = list.map(options, fn(o) { #(o.name, o) })
 
   ChatInput(signature:, options:, handler:)
 }
@@ -183,7 +183,7 @@ pub opaque type Subcommand(state) {
   Subcommand(
     name: String,
     description: String,
-    options: Dict(String, CommandOption(state)),
+    options: List(#(String, CommandOption(state))),
     handler: ChatInputHandler(state),
   )
 }
@@ -298,7 +298,12 @@ pub fn run_autocomplete(
     interaction.ChatInput(chat_input) ->
       case dict.get(commands, chat_input.name), chat_input.options {
         Ok(ChatInputCommand(command)), option_value.Values(values) ->
-          run_options_autocomplete(command.options, i, state, values)
+          run_options_autocomplete(
+            dict.from_list(command.options),
+            i,
+            state,
+            values,
+          )
         Ok(ChatInputGroup(sub:, ..)), option_value.Group(group) ->
           run_chat_input_group_autocomplete(sub, i, state, group)
         _, _ -> Error(Nil)
@@ -349,7 +354,12 @@ fn run_chat_input_group_autocomplete(
     option_value.Subcommand(invoked) ->
       case dict.get(sub, invoked.name) {
         Ok(Subcommand(options:, ..)) ->
-          run_options_autocomplete(options, i, state, invoked.options)
+          run_options_autocomplete(
+            dict.from_list(options),
+            i,
+            state,
+            invoked.options,
+          )
         _ -> Error(Nil)
       }
     option_value.SubcommandGroup(invoked) ->
@@ -369,14 +379,17 @@ fn run_subcommand_group_autocomplete(
 ) -> Result(response.AutocompleteResponse, Nil) {
   case dict.get(group_subcommands, invoked.name) {
     Ok(Subcommand(options:, ..)) ->
-      run_options_autocomplete(options, i, state, invoked.options)
+      run_options_autocomplete(
+        dict.from_list(options),
+        i,
+        state,
+        invoked.options,
+      )
     _ -> Error(Nil)
   }
 }
 
 /// Encoding
-///
-/// TODO review to ensure option order is maintained when encoding
 pub fn json(command: Command(_)) {
   case command {
     ChatInputCommand(c) -> chat_input_json(c)
@@ -491,17 +504,16 @@ fn message_json(signature: Signature) {
   ])
 }
 
-fn options_json(options: Dict(String, CommandOption(_))) {
-  let options = dict.values(options)
+fn options_json(options: List(#(String, CommandOption(_)))) {
   use opt <- json.array(options)
   case opt {
-    StringOption(min_len:, max_len:, required:, ..) -> [
+    #(_, StringOption(min_len:, max_len:, required:, ..)) -> [
       #("type", json.int(3)),
       #("min_length", json.int(min_len)),
       #("max_length", json.int(max_len)),
       #("required", json.bool(required)),
     ]
-    StringChoicesOption(choices:, required:, ..) -> [
+    #(_, StringChoicesOption(choices:, required:, ..)) -> [
       #("type", json.int(3)),
       #(
         "choices",
@@ -514,20 +526,29 @@ fn options_json(options: Dict(String, CommandOption(_))) {
       ),
       #("required", json.bool(required)),
     ]
-    StringAutocompleteOption(min_len:, max_len:, autocomplete: _, required:, ..) -> [
+    #(
+      _,
+      StringAutocompleteOption(
+        min_len:,
+        max_len:,
+        autocomplete: _,
+        required:,
+        ..,
+      ),
+    ) -> [
       #("type", json.int(3)),
       #("min_length", json.int(min_len)),
       #("max_length", json.int(max_len)),
       #("autocomplete", json.bool(True)),
       #("required", json.bool(required)),
     ]
-    IntegerOption(min_val:, max_val:, required:, ..) -> [
+    #(_, IntegerOption(min_val:, max_val:, required:, ..)) -> [
       #("type", json.int(4)),
       #("min_value", json.int(min_val)),
       #("max_value", json.int(max_val)),
       #("required", json.bool(required)),
     ]
-    IntegerChoicesOption(choices:, required:, ..) -> [
+    #(_, IntegerChoicesOption(choices:, required:, ..)) -> [
       #("type", json.int(4)),
       #(
         "choices",
@@ -537,12 +558,15 @@ fn options_json(options: Dict(String, CommandOption(_))) {
       ),
       #("required", json.bool(required)),
     ]
-    IntegerAutocompleteOption(
-      min_val:,
-      max_val:,
-      autocomplete: _,
-      required:,
-      ..,
+    #(
+      _,
+      IntegerAutocompleteOption(
+        min_val:,
+        max_val:,
+        autocomplete: _,
+        required:,
+        ..,
+      ),
     ) -> [
       #("type", json.int(4)),
       #("min_value", json.int(min_val)),
@@ -550,34 +574,34 @@ fn options_json(options: Dict(String, CommandOption(_))) {
       #("autocomplete", json.bool(True)),
       #("required", json.bool(required)),
     ]
-    BooleanOption(required:, ..) -> [
+    #(_, BooleanOption(required:, ..)) -> [
       #("type", json.int(5)),
       #("required", json.bool(required)),
     ]
-    UserOption(required:, ..) -> [
+    #(_, UserOption(required:, ..)) -> [
       #("type", json.int(6)),
       #("required", json.bool(required)),
     ]
-    ChannelOption(channel_types:, required:, ..) -> [
+    #(_, ChannelOption(channel_types:, required:, ..)) -> [
       #("type", json.int(7)),
       #("channel_types", json.array(channel_types, fn(_t) { json.object([]) })),
       #("required", json.bool(required)),
     ]
-    RoleOption(required:, ..) -> [
+    #(_, RoleOption(required:, ..)) -> [
       #("type", json.int(8)),
       #("required", json.bool(required)),
     ]
-    MentionableOption(required:, ..) -> [
+    #(_, MentionableOption(required:, ..)) -> [
       #("type", json.int(9)),
       #("required", json.bool(required)),
     ]
-    NumberOption(min_val:, max_val:, required:, ..) -> [
+    #(_, NumberOption(min_val:, max_val:, required:, ..)) -> [
       #("type", json.int(10)),
       #("min_value", json.float(min_val)),
       #("max_length", json.float(max_val)),
       #("required", json.bool(required)),
     ]
-    NumberChoicesOption(choices:, required:, ..) -> [
+    #(_, NumberChoicesOption(choices:, required:, ..)) -> [
       #("type", json.int(10)),
       #(
         "choices",
@@ -587,21 +611,30 @@ fn options_json(options: Dict(String, CommandOption(_))) {
       ),
       #("required", json.bool(required)),
     ]
-    NumberAutocompleteOption(min_val:, max_val:, autocomplete: _, required:, ..) -> [
+    #(
+      _,
+      NumberAutocompleteOption(
+        min_val:,
+        max_val:,
+        autocomplete: _,
+        required:,
+        ..,
+      ),
+    ) -> [
       #("type", json.int(10)),
       #("min_value", json.float(min_val)),
       #("max_length", json.float(max_val)),
       #("autocomplete", json.bool(True)),
       #("required", json.bool(required)),
     ]
-    AttachmentOption(required:, ..) -> [
+    #(_, AttachmentOption(required:, ..)) -> [
       #("type", json.int(11)),
       #("required", json.bool(required)),
     ]
   }
   |> list.append([
-    #("name", json.string(opt.name)),
-    #("description", json.string(opt.description)),
+    #("name", json.string(opt.1.name)),
+    #("description", json.string(opt.1.description)),
   ])
   |> json.object
 }
