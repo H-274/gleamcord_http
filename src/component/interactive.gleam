@@ -94,8 +94,8 @@ pub fn string_select_json(string_select: StringSelect) -> Json {
 /// Text input interactive component
 /// 
 /// To have a valid text input, ensure the following:
-/// - required == True => min_len > 0
-/// - required == False => min_len == 0
+/// - required == True -> min_len > 0
+/// - required == False -> min_len == 0
 /// - 0 <= min_len < 4000
 /// - 0 < max_len <= 4000
 /// - min_len < max_len
