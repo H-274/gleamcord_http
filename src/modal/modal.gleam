@@ -26,9 +26,9 @@ pub fn get_id(modal: Modal(_)) {
   modal.custom_id
 }
 
-/// TODO replace Dynamic with values type to represent variants for different custom IDs
+// TODO eventually directly put values from resolved instead of string as dict value
 pub type Handler(state) =
-  fn(Interaction, state, Dict(String, Dynamic)) -> Response
+  fn(Interaction, state, Dict(String, String)) -> Response
 
 pub fn handle_interaction(
   modals: Dict(String, Modal(state)),

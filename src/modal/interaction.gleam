@@ -31,7 +31,7 @@ pub type Interaction {
 pub type Data {
   Data(
     custom_id: String,
-    components: Dict(String, Dynamic),
+    components: Dict(String, String),
     resolved: Option(Resolved),
   )
 }
