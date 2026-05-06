@@ -2,6 +2,7 @@ import component/interactive.{
   ChannelSelect, MentionableSelect, PrimaryButton, RoleSelect, StringSelect,
   UserSelect,
 }
+import emoji
 import gleam/dynamic.{type Dynamic}
 import gleam/option
 import gleam/string
@@ -32,21 +33,27 @@ const interactive_string_select = StringSelect(
       label: "opt1",
       value: "a",
       description: "",
-      emoji: option.None,
+      emoji: option.Some(
+        emoji.Partial(id: "", name: "thumbsup", animated: False),
+      ),
       default: False,
     ),
     interactive.SelectOption(
       label: "opt2",
       value: "b",
       description: "",
-      emoji: option.None,
+      emoji: option.Some(
+        emoji.Partial(id: "", name: "hand_splayed", animated: False),
+      ),
       default: False,
     ),
     interactive.SelectOption(
       label: "opt3",
       value: "c",
       description: "",
-      emoji: option.None,
+      emoji: option.Some(
+        emoji.Partial(id: "", name: "thumbsdown", animated: False),
+      ),
       default: False,
     ),
   ],

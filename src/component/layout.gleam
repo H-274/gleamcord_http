@@ -1,5 +1,6 @@
 import component/content
 import component/interactive
+import emoji
 import gleam/json.{type Json}
 import gleam/option.{type Option}
 
@@ -123,7 +124,7 @@ pub fn section_custom_button(custom_button: interactive.CustomButton) {
 pub fn section_link_button(
   label label: String,
   url url: String,
-  emoji emoji: Option(String),
+  emoji emoji: Option(emoji.Partial),
 ) {
   interactive.LinkButton(label:, url:, emoji:)
   |> SectionButton
