@@ -14,8 +14,6 @@ repository = { type = "github", user = "H-274", repo = "gleamcord_http" }
 # For a full reference of all the available options, you can have a look at
 # https://gleam.run/writing-gleam/gleam-toml/.
 
-internal_modules = ["gleamcord_http/internal"]
-
 gleam = ">= 1.16.0"
 
 [dependencies]
