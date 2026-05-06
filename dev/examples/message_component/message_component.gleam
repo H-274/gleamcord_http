@@ -6,11 +6,11 @@ import gleam/dynamic.{type Dynamic}
 import gleam/option
 import gleam/string
 import message
-import message_component/message_component as m_component
+import message_component/message_component as component
 import message_component/response as c_response
 
 pub fn button() {
-  use _interaction, _state <- m_component.Button(PrimaryButton(
+  use _interaction, _state <- component.Button(PrimaryButton(
     custom_id: "slow-update",
     label: "Slow",
     disabled: False,
@@ -25,16 +25,50 @@ pub fn button() {
   |> message.NewText([])
 }
 
-pub fn string_select() {
-  use _interaction, _state, values <- m_component.StringSelect(StringSelect)
+const interactive_string_select = StringSelect(
+  custom_id: "string-select-mc",
+  options: [
+    interactive.SelectOption(
+      label: "opt1",
+      value: "a",
+      description: "",
+      emoji: option.None,
+      default: False,
+    ),
+    interactive.SelectOption(
+      label: "opt2",
+      value: "b",
+      description: "",
+      emoji: option.None,
+      default: False,
+    ),
+    interactive.SelectOption(
+      label: "opt3",
+      value: "c",
+      description: "",
+      emoji: option.None,
+      default: False,
+    ),
+  ],
+  placeholder: "Pick some options",
+  min_values: 1,
+  max_values: 3,
+  required: False,
+  disabled: False,
+)
 
-  { "You selected:\n" <> string.join(values, "\n") }
+pub fn string_select() {
+  use _interaction, _state, values <- component.StringSelect(
+    interactive_string_select,
+  )
+
+  { "You selected:\n" <> string.join(values, ", ") }
   |> message.NewText([])
   |> c_response.MessageWithSource
 }
 
 pub fn user_select() {
-  use _interaction, _state, values <- m_component.UserSelect(UserSelect)
+  use _interaction, _state, values <- component.UserSelect(UserSelect)
   let _users: List(Dynamic) = values.0
   let _members: List(Dynamic) = values.1
 
@@ -44,7 +78,7 @@ pub fn user_select() {
 }
 
 pub fn role_select() {
-  use _interaction, _state, values <- m_component.RoleSelect(RoleSelect)
+  use _interaction, _state, values <- component.RoleSelect(RoleSelect)
   let _roles: List(Dynamic) = values
 
   { "Submitted successfully" }
@@ -53,7 +87,7 @@ pub fn role_select() {
 }
 
 pub fn mentionable_select() {
-  use _interaction, _state, values <- m_component.MentionableSelect(
+  use _interaction, _state, values <- component.MentionableSelect(
     MentionableSelect,
   )
   let _users: List(Dynamic) = values.0
@@ -66,7 +100,7 @@ pub fn mentionable_select() {
 }
 
 pub fn channel_select() {
-  use _interaction, _state, values <- m_component.ChannelSelect(ChannelSelect)
+  use _interaction, _state, values <- component.ChannelSelect(ChannelSelect)
   let _channels: List(Dynamic) = values
 
   { "Submitted successfully" }

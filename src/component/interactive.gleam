@@ -84,7 +84,15 @@ fn custom_button_json(c_btn: CustomButton) -> Json {
 }
 
 pub type StringSelect {
-  StringSelect
+  StringSelect(
+    custom_id: String,
+    options: List(SelectOption),
+    placeholder: String,
+    min_values: Int,
+    max_values: Int,
+    required: Bool,
+    disabled: Bool,
+  )
 }
 
 pub fn string_select_json(string_select: StringSelect) -> Json {
@@ -167,6 +175,16 @@ pub type ChannelSelect {
 
 pub fn channel_select_json(channel_select: ChannelSelect) -> Json {
   todo
+}
+
+pub type SelectOption {
+  SelectOption(
+    label: String,
+    value: String,
+    description: String,
+    emoji: Option(Nil),
+    default: Bool,
+  )
 }
 
 pub type FileUpload {

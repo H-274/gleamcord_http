@@ -12,8 +12,24 @@ pub type ActionRow {
   ChannelSelectRow(interactive.ChannelSelect)
 }
 
-pub fn string_select_row() {
-  StringSelectRow(interactive.StringSelect)
+pub fn string_select_row(
+  custom_id: String,
+  options: List(interactive.SelectOption),
+  placeholder: String,
+  min_values: Int,
+  max_values: Int,
+  required: Bool,
+  disabled: Bool,
+) {
+  StringSelectRow(interactive.StringSelect(
+    custom_id:,
+    options:,
+    placeholder:,
+    min_values:,
+    max_values:,
+    required:,
+    disabled:,
+  ))
 }
 
 pub fn user_select_row() {
@@ -168,8 +184,24 @@ pub fn container_button_row(buttons buttons: List(interactive.Button)) {
   |> ContainerRow
 }
 
-pub fn container_string_select_row() {
-  StringSelectRow(interactive.StringSelect)
+pub fn container_string_select_row(
+  custom_id: String,
+  options: List(interactive.SelectOption),
+  placeholder: String,
+  min_values: Int,
+  max_values: Int,
+  required: Bool,
+  disabled: Bool,
+) {
+  StringSelectRow(interactive.StringSelect(
+    custom_id:,
+    options:,
+    placeholder:,
+    min_values:,
+    max_values:,
+    required:,
+    disabled:,
+  ))
   |> ContainerRow
 }
 
