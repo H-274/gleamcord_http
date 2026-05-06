@@ -23,7 +23,10 @@ pub fn json(command: Command(_)) {
   }
 }
 
-fn chat_input_group_json(signature: Signature, sub: Dict(String, Subcommand(_))) {
+fn chat_input_group_json(
+  signature: Signature,
+  sub: Dict(String, Subcommand(_)),
+) {
   let Signature(
     name:,
     description:,
@@ -88,7 +91,10 @@ pub fn chat_input_command(chat_input: ChatInput(_)) {
   ChatInputCommand(chat_input)
 }
 
-pub fn chat_input_group(sig signature: Signature, sub sub: List(Subcommand(_))) {
+pub fn chat_input_group(
+  sig signature: Signature,
+  sub sub: List(Subcommand(_)),
+) {
   let sub =
     list.map(sub, fn(s) { #(s.name, s) })
     |> dict.from_list
