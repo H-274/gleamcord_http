@@ -35,6 +35,10 @@ pub fn new(
   )
 }
 
+pub fn get_key(bot: Bot(_)) {
+  bot.pub_key
+}
+
 pub fn handle_interaction(
   bot: Bot(_),
   i i: Interaction,
