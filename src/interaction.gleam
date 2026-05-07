@@ -15,9 +15,12 @@ pub type Interaction {
 
 /// TODO add other interaction decoders
 pub fn decoder() {
-  decode.one_of(ping_decoder(), [
-    command_interaction.decoder() |> decode.map(ApplicationCommand),
-  ])
+  use t <- decode.field("type", decode.int)
+  case t {
+    1 -> ping_decoder()
+    2 -> command_interaction.decoder() |> decode.map(ApplicationCommand)
+    _ -> todo
+  }
 }
 
 fn ping_decoder() {
