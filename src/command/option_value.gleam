@@ -35,12 +35,12 @@ pub type Value {
   String(name: String, value: String, focused: Bool)
   Integer(name: String, value: Int, focused: Bool)
   Boolean(name: String, value: Bool, focused: Bool)
-  User(name: String, value: Int, focused: Bool)
-  Channel(name: String, value: Int, focused: Bool)
-  Role(name: String, value: Int, focused: Bool)
-  Mentionable(name: String, value: Int, focused: Bool)
+  User(name: String, value: String, focused: Bool)
+  Channel(name: String, value: String, focused: Bool)
+  Role(name: String, value: String, focused: Bool)
+  Mentionable(name: String, value: String, focused: Bool)
   Number(name: String, value: Float, focused: Bool)
-  Attachment(name: String, value: Int, focused: Bool)
+  Attachment(name: String, value: String, focused: Bool)
 }
 
 pub fn value_decoder() -> decode.Decoder(Value) {
@@ -49,55 +49,55 @@ pub fn value_decoder() -> decode.Decoder(Value) {
     3 -> {
       use name <- decode.field("name", decode.string)
       use value <- decode.field("value", decode.string)
-      use focused <- decode.field("focused", decode.bool)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(String(name:, value:, focused:))
     }
     4 -> {
       use name <- decode.field("name", decode.string)
       use value <- decode.field("value", decode.int)
-      use focused <- decode.field("focused", decode.bool)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(Integer(name:, value:, focused:))
     }
     5 -> {
       use name <- decode.field("name", decode.string)
       use value <- decode.field("value", decode.bool)
-      use focused <- decode.field("focused", decode.bool)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(Boolean(name:, value:, focused:))
     }
     6 -> {
       use name <- decode.field("name", decode.string)
-      use value <- decode.field("value", decode.int)
-      use focused <- decode.field("focused", decode.bool)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(User(name:, value:, focused:))
     }
     7 -> {
       use name <- decode.field("name", decode.string)
-      use value <- decode.field("value", decode.int)
-      use focused <- decode.field("focused", decode.bool)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(Channel(name:, value:, focused:))
     }
     8 -> {
       use name <- decode.field("name", decode.string)
-      use value <- decode.field("value", decode.int)
-      use focused <- decode.field("focused", decode.bool)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(Role(name:, value:, focused:))
     }
     9 -> {
       use name <- decode.field("name", decode.string)
-      use value <- decode.field("value", decode.int)
-      use focused <- decode.field("focused", decode.bool)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(Mentionable(name:, value:, focused:))
     }
     10 -> {
       use name <- decode.field("name", decode.string)
       use value <- decode.field("value", decode.float)
-      use focused <- decode.field("focused", decode.bool)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(Number(name:, value:, focused:))
     }
     11 -> {
       use name <- decode.field("name", decode.string)
-      use value <- decode.field("value", decode.int)
-      use focused <- decode.field("focused", decode.bool)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(Attachment(name:, value:, focused:))
     }
     _ -> decode.failure(String(name: "", value: "", focused: False), "Value")
