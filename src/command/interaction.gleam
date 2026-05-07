@@ -112,8 +112,16 @@ fn chat_input_data_decoder() -> decode.Decoder(ChatInputData) {
   use name <- decode.field("name", decode.string)
   use resolved <- decode.field("resolved", resolved.decoder())
   use options <- decode.field("options", option_value.decoder())
-  use guild_id <- decode.field("guild_id", decode.optional(decode.string))
-  use target_id <- decode.field("target_id", decode.optional(decode.string))
+  use guild_id <- decode.optional_field(
+    "guild_id",
+    option.None,
+    decode.optional(decode.string),
+  )
+  use target_id <- decode.optional_field(
+    "target_id",
+    option.None,
+    decode.optional(decode.string),
+  )
   decode.success(ChatInputData(
     id:,
     name:,
