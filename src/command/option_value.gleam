@@ -10,18 +10,17 @@ pub type OptionValue {
 }
 
 pub fn decoder() -> decode.Decoder(OptionValue) {
-  decode.one_of(group_decoder() |> decode.map(Group), [
-    values_decoder() |> decode.map(Values),
-  ])
-}
-
-pub fn command_option_decoder() -> decode.Decoder(OptionValue) {
-  decode.one_of(
-    decode.list(value_decoder() |> decode.map(fn(o) { #(o.name, o) }))
-      |> decode.map(dict.from_list)
-      |> decode.map(Values),
-    [decode.at([0], group_decoder()) |> decode.map(Group)],
-  )
+  use t <- decode.field("type", decode.int)
+  case t {
+    1 -> subcommand_decoder() |> decode.map(Subcommand) |> decode.map(Group)
+    2 ->
+      subcommand_group_decoder()
+      |> decode.map(SubcommandGroup)
+      |> decode.map(Group)
+    _ ->
+      values_decoder()
+      |> decode.map(Values)
+  }
 }
 
 pub type Values =
