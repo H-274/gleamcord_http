@@ -1,6 +1,7 @@
 import component/layout
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
+import gleam/json
 import modal/interaction.{type Interaction}
 import modal/response.{type Response}
 
@@ -39,4 +40,15 @@ pub fn handle_interaction(
     Ok(modal) -> modal.handler(i, state, i.data.components) |> Ok
     _ -> Error(Nil)
   }
+}
+
+pub fn json(modal: Modal(_)) {
+  let Modal(custom_id:, title:, components:, handler: _) = modal
+
+  [
+    #("custom_id", json.string(custom_id)),
+    #("title", json.string(title)),
+    #("components", json.array(components, layout.label_json)),
+  ]
+  |> json.object
 }
