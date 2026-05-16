@@ -1,10 +1,7 @@
 import command/command.{type Command}
 import gleam/dict.{type Dict}
-import gleam/result
-import interaction.{type Interaction}
 import message_component/message_component.{type MessageComponent}
 import modal/modal.{type Modal}
-import response.{type Response}
 
 pub opaque type Bot(state) {
   Bot(
@@ -37,29 +34,4 @@ pub fn new(
 
 pub fn get_key(bot: Bot(_)) {
   bot.pub_key
-}
-
-pub fn handle_interaction(
-  bot: Bot(_),
-  i i: Interaction,
-) -> Result(Response(state), Nil) {
-  case i {
-    interaction.Ping(..) -> Ok(response.Pong)
-
-    interaction.ApplicationCommand(i) ->
-      command.run(bot.commands, bot.state, i)
-      |> result.map(response.Command)
-
-    interaction.MessageComponent(i) ->
-      message_component.handle_interaction(bot.components, bot.state, i)
-      |> result.map(response.MessageComponent)
-
-    interaction.ApplicationCommandAutocomplete(i) ->
-      command.run_autocomplete(bot.commands, i, bot.state)
-      |> result.map(response.Autocomplete)
-
-    interaction.ModalSubmit(i) ->
-      modal.handle_interaction(bot.modals, bot.state, i)
-      |> result.map(response.Modal)
-  }
 }

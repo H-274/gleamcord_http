@@ -1,13 +1,20 @@
-import command/response.{
-  type AutocompleteResponse, type Response as CommandResponse,
-}
-import message_component/response.{type Response as MessageComponentResponse} as _
-import modal/response.{type Response as ModalResponse} as _
+import message
 
-pub type Response(state) {
+pub type Pong {
   Pong
-  Command(CommandResponse(state))
-  Autocomplete(AutocompleteResponse)
-  MessageComponent(MessageComponentResponse(state))
-  Modal(ModalResponse)
 }
+
+pub type MessageWithSource =
+  message.New
+
+pub type DeferredMessageWithSource =
+  fn() -> message.New
+
+pub type UpdateMessage =
+  message.New
+
+pub type DeferredUpdateMessage =
+  message.New
+
+pub type Modal(modal) =
+  modal
