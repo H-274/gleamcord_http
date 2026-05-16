@@ -16,10 +16,6 @@ pub opaque type Command(state) {
   Message(signature: Signature, handler: MessageHandler(state))
 }
 
-pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
-  #(command.signature.name, command)
-}
-
 pub fn chat_input(
   sig signature: Signature,
   opts options: List(Option(_)),
@@ -61,6 +57,10 @@ pub fn message(
   handler handler: MessageHandler(_),
 ) -> Command(_) {
   Message(signature:, handler:)
+}
+
+pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
+  #(command.signature.name, command)
 }
 
 pub type Signature {
