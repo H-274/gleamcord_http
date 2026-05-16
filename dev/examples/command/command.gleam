@@ -78,10 +78,12 @@ pub fn group() {
   let sig = command.simple_signature(name: "hello", desc: "")
 
   command.group(sig:, elements: [
-    command.subcommand_group(name: "name", desc: "", sub: [
+    // --- /hello name ... (can't be called)
+    command.group_element(name: "name", desc: "", sub: [
       {
         let times_opt = command.Integer("times")
         let opts = [name_opt, times_opt]
+        // --- /hello name repeat <name:string> <times:int>
         use _i, o, _s <- command.subcommand(name: "repeat", desc: "", opts:)
         let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
         let assert Ok(IntVal(value: times, ..)) = dict.get(o, times_opt.name)
@@ -93,6 +95,7 @@ pub fn group() {
       },
       {
         let opts = [name_opt]
+        // --- /hello name caps <name:string>
         use _i, o, _s <- command.subcommand(name: "caps", desc: "", opts:)
         let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
 
@@ -102,6 +105,7 @@ pub fn group() {
       },
     ]),
     command.subcommand_element({
+      // --- /hello world
       use _i, _o, _s <- command.subcommand(name: "world", desc: "", opts: [])
       { "Hello world! " }
       |> message.NewText(flags: [message.Ephemeral])

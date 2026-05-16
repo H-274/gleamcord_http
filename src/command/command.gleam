@@ -122,7 +122,7 @@ pub opaque type GroupElement(state) {
   SubcommandElement(Subcommand(state))
 }
 
-pub fn subcommand_group(
+pub fn group_element(
   name name: String,
   desc description: String,
   sub subcommands: List(Subcommand(_)),
