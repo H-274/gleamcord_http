@@ -2,7 +2,7 @@ import command/command
 import command/interaction.{MessageData, UserData}
 import command/option_value.{IntegerValue as IntVal, StringValue as StrVal}
 import component/layout
-import gleam/dict
+import gleam/dict.{type Dict}
 import gleam/int
 import gleam/list
 import gleam/string
@@ -30,8 +30,37 @@ pub fn report() {
   |> command.MessageResponse
 }
 
-/// TODO complete
-const hex_opt = command.StringAutocomplete(name: "hex")
+const hex_opt = command.StringAutocompleteOption(
+  name: "hex",
+  description: "hex code for a colour",
+  min_len: 6,
+  max_len: 6,
+  required: True,
+  autocomplete: hex_autocomplete,
+)
+
+const color_suggestions = [
+  #("red", "ff0000"),
+  #("green", "00ff00"),
+  #("blue", "0000ff"),
+]
+
+fn hex_autocomplete(_interaction, _options, partial, _state) {
+  case int.base_parse(partial, 16) {
+    Ok(val) if val >= 0 -> {
+      let pad_0 = string.pad_end(partial, 6, "0")
+      let pad_f = string.pad_end(partial, 6, "f")
+      [#(pad_0, pad_0), #(pad_f, pad_f)]
+    }
+    Ok(val) -> {
+      let partial = int.to_base16(-val)
+      let pad_0 = string.pad_end(partial, 6, "0")
+      let pad_f = string.pad_end(partial, 6, "f")
+      [#(pad_0, pad_0), #(pad_f, pad_f)]
+    }
+    _ -> color_suggestions
+  }
+}
 
 pub fn colour() {
   let sig = command.simple_signature(name: "colour", desc: "choose a colour")
@@ -72,7 +101,13 @@ fn colour_container(hex: String, value: Int) -> message.ComponentRoot {
   )
 }
 
-const name_opt = command.String("name")
+const name_opt = command.StringOption(
+  name: "name",
+  description: "name to greet",
+  required: True,
+  min_len: 1,
+  max_len: 100,
+)
 
 pub fn group() {
   let sig = command.simple_signature(name: "hello", desc: "")
@@ -81,7 +116,7 @@ pub fn group() {
     // --- /hello name ... (can't be called)
     command.group_element(name: "name", desc: "", sub: [
       {
-        let times_opt = command.Integer("times")
+        let times_opt = command.IntegerOption("times", "", True, 0, 5)
         let opts = [name_opt, times_opt]
         // --- /hello name repeat <name:string> <times:int>
         use _i, o, _s <- command.subcommand(name: "repeat", desc: "", opts:)

@@ -8,7 +8,7 @@ import modal/modal
 pub opaque type Command(state) {
   ChatInput(
     signature: Signature,
-    options: List(#(String, Option)),
+    options: List(#(String, Option(state))),
     handler: ChatInputHandler(state),
   )
   Group(signature: Signature, elements: Dict(String, Element(state)))
@@ -22,7 +22,7 @@ pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
 
 pub fn chat_input(
   sig signature: Signature,
-  opts options: List(Option),
+  opts options: List(Option(_)),
   handler handler: ChatInputHandler(_),
 ) -> Command(_) {
   let options =
@@ -88,14 +88,81 @@ pub fn simple_signature(
   )
 }
 
-/// TODO complete
-pub type Option {
-  String(name: String)
-  StringChoice(name: String)
-  StringAutocomplete(name: String)
-  Integer(name: String)
-  IntegerChoice(name: String)
-  IntegerAutocomplete(name: String)
+pub type Option(state) {
+  StringOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_len: Int,
+    max_len: Int,
+  )
+  StringChoiceOption(
+    name: String,
+    description: String,
+    required: Bool,
+    choices: List(#(String, String)),
+  )
+  StringAutocompleteOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_len: Int,
+    max_len: Int,
+    autocomplete: AutocompleteHandler(state, String),
+  )
+  IntegerOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_val: Int,
+    max_val: Int,
+  )
+  IntegerChoiceOption(
+    name: String,
+    description: String,
+    required: Bool,
+    choices: List(#(String, Int)),
+  )
+  IntegerAutocompleteOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_val: Int,
+    max_val: Int,
+    autocomplete: AutocompleteHandler(state, Int),
+  )
+  BooleanOption(name: String, description: String, required: Bool)
+  UserOption(name: String, description: String, required: Bool)
+  ChannelOption(
+    name: String,
+    description: String,
+    required: Bool,
+    channel_types: List(Nil),
+  )
+  RoleOption(name: String, description: String, required: Bool)
+  MentionableOption(name: String, description: String, required: Bool)
+  NumberOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_val: Float,
+    max_val: Float,
+  )
+  NumberChoiceOption(
+    name: String,
+    description: String,
+    required: Bool,
+    chcoices: List(#(String, Float)),
+  )
+  NumberAutocompleteOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_val: Float,
+    max_val: Float,
+    autocomplete: AutocompleteHandler(state, Float),
+  )
+  AttachmentOption(name: String, description: String, required: Bool)
 }
 
 pub type ChatInputHandler(state) =
@@ -112,6 +179,10 @@ pub type Response(state) {
   DeferredMessageResponse(message.New)
   ModalResponse(modal.Modal(state))
 }
+
+pub type AutocompleteHandler(state, t) =
+  fn(Interaction, Dict(String, option_value.Value), t, state) ->
+    List(#(String, t))
 
 pub opaque type Element(state) {
   GroupElement(
@@ -143,7 +214,7 @@ pub opaque type Subcommand(state) {
   Subcommand(
     name: String,
     description: String,
-    options: List(#(String, Option)),
+    options: List(#(String, Option(state))),
     handler: ChatInputHandler(state),
   )
 }
@@ -151,7 +222,7 @@ pub opaque type Subcommand(state) {
 pub fn subcommand(
   name name: String,
   desc description: String,
-  opts options: List(Option),
+  opts options: List(Option(_)),
   handler handler: ChatInputHandler(_),
 ) -> Subcommand(_) {
   let options =
