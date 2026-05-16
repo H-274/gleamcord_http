@@ -1,3 +1,5 @@
+import gleam/dict.{type Dict}
+
 pub type OptionValue {
   Group(Group)
   Value(Value)
@@ -20,6 +22,10 @@ pub type Value {
 }
 
 pub type Group {
-  SubcommandGroup
-  Subcommand
+  GroupElement(name: String, subcommands: Dict(String, Subcommand))
+  SubcommandElement(Subcommand)
+}
+
+pub type Subcommand {
+  Subcommand(name: String, options: Dict(String, Value))
 }
