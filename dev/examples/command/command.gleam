@@ -25,7 +25,7 @@ pub fn report() {
   use i, _s <- command.message(sig:)
   let assert interaction.Message(MessageData(target_id: target, ..)) = i.data
 
-  { "Successfully reported <#" <> target <> ">" }
+  { "Successfully reported message with id: `" <> target <> "`" }
   |> message.NewText(flags: [message.Ephemeral])
   |> command.MessageResponse
 }
