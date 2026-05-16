@@ -1,4 +1,5 @@
 import command/interaction.{type Interaction}
+import command/option_value
 import gleam/dict.{type Dict}
 import gleam/list
 import message
@@ -15,22 +16,15 @@ pub opaque type Command(state) {
   Message(signature: Signature, handler: MessageHandler(state))
 }
 
-pub fn to_tuple(command: Command(_)) {
-  let key = case command {
-    ChatInput(signature:, ..) -> todo
-    Group(signature:, ..) -> todo
-    User(signature:, ..) -> todo
-    Message(signature:, ..) -> todo
-  }
-
-  #(key, command)
+pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
+  #(command.signature.name, command)
 }
 
 pub fn chat_input(
   sig signature: Signature,
   opts options: List(Option),
   handler handler: ChatInputHandler(_),
-) {
+) -> Command(_) {
   let options =
     options
     |> list.map(fn(o) { #(o.name, o) })
@@ -41,13 +35,13 @@ pub fn chat_input(
 pub fn group(
   sig signature: Signature,
   elements elements: List(GroupElement(_)),
-) {
+) -> Command(_) {
   let elements =
     elements
     |> list.map(fn(e) {
       case e {
-        SubcommandGroup(name:, ..) -> #(name, e)
-        SubcommandElement(_s) -> todo as "to tuple"
+        GroupElement(name:, ..) -> #(name, e)
+        SubcommandElement(s) -> #(s.name, e)
       }
     })
     |> dict.from_list
@@ -55,17 +49,43 @@ pub fn group(
   Group(signature:, elements:)
 }
 
-pub fn user(sig signature: Signature, handler handler: UserHandler(_)) {
+pub fn user(
+  sig signature: Signature,
+  handler handler: UserHandler(_),
+) -> Command(_) {
   User(signature:, handler:)
 }
 
-pub fn message(sig signature: Signature, handler handler: MessageHandler(_)) {
+pub fn message(
+  sig signature: Signature,
+  handler handler: MessageHandler(_),
+) -> Command(_) {
   Message(signature:, handler:)
 }
 
-/// TODO complete
 pub type Signature {
-  Signature
+  Signature(
+    name: String,
+    description: String,
+    default_member_permissions: String,
+    integrations: List(Nil),
+    contexts: List(Nil),
+    nsfw: Bool,
+  )
+}
+
+pub fn simple_signature(
+  name name: String,
+  desc description: String,
+) -> Signature {
+  Signature(
+    name:,
+    description:,
+    default_member_permissions: "",
+    integrations: [],
+    contexts: [],
+    nsfw: False,
+  )
 }
 
 /// TODO complete
@@ -79,7 +99,7 @@ pub type Option {
 }
 
 pub type ChatInputHandler(state) =
-  fn(Interaction, List(Nil), state) -> Response(state)
+  fn(Interaction, Dict(String, option_value.Value), state) -> Response(state)
 
 pub type UserHandler(state) =
   fn(Interaction, state) -> Response(state)
@@ -93,8 +113,8 @@ pub type Response(state) {
   ModalResponse(modal.Modal(state))
 }
 
-pub type GroupElement(state) {
-  SubcommandGroup(
+pub opaque type GroupElement(state) {
+  GroupElement(
     name: String,
     description: String,
     subcommands: Dict(String, Subcommand(state)),
@@ -102,11 +122,41 @@ pub type GroupElement(state) {
   SubcommandElement(Subcommand(state))
 }
 
-pub type Subcommand(state) {
+pub fn subcommand_group(
+  name name: String,
+  desc description: String,
+  sub subcommands: List(Subcommand(_)),
+) -> GroupElement(_) {
+  let subcommands =
+    subcommands
+    |> list.map(fn(s) { #(s.name, s) })
+    |> dict.from_list
+
+  GroupElement(name:, description:, subcommands:)
+}
+
+pub fn subcommand_element(subcommand: Subcommand(_)) -> GroupElement(_) {
+  SubcommandElement(subcommand)
+}
+
+pub opaque type Subcommand(state) {
   Subcommand(
     name: String,
     description: String,
-    options: List(#(String, Nil)),
+    options: List(#(String, Option)),
     handler: ChatInputHandler(state),
   )
+}
+
+pub fn subcommand(
+  name name: String,
+  desc description: String,
+  opts options: List(Option),
+  handler handler: ChatInputHandler(_),
+) -> Subcommand(_) {
+  let options =
+    options
+    |> list.map(fn(o) { #(o.name, o) })
+
+  Subcommand(name:, description:, options:, handler:)
 }
