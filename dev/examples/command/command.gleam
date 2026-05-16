@@ -2,7 +2,7 @@ import command/command
 import command/interaction.{MessageData, UserData}
 import command/option_value.{IntegerValue as IntVal, StringValue as StrVal}
 import component/layout
-import gleam/dict.{type Dict}
+import gleam/dict
 import gleam/int
 import gleam/list
 import gleam/string
