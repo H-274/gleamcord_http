@@ -1,5 +1,5 @@
 import command/command
-import command/interaction.{MessageData, UserData}
+import command/interaction
 import command/option_value.{IntegerValue as IntVal, StringValue as StrVal}
 import component/layout
 import gleam/dict
@@ -12,9 +12,9 @@ pub fn greet() {
   let sig = command.simple_signature(name: "greet", desc: "")
 
   use i, _s <- command.user(sig:)
-  let assert interaction.User(UserData(target_id: target, ..)) = i.data
+  let assert interaction.User(data) = i.data
 
-  { "Hello <@" <> target <> ">!" }
+  { "Hello <@" <> data.target_id <> ">!" }
   |> message.NewText(flags: [])
   |> command.MessageResponse
 }
@@ -23,9 +23,9 @@ pub fn report() {
   let sig = command.simple_signature(name: "report", desc: "")
 
   use i, _s <- command.message(sig:)
-  let assert interaction.Message(MessageData(target_id: target, ..)) = i.data
+  let assert interaction.Message(data) = i.data
 
-  { "Successfully reported message with id: `" <> target <> "`" }
+  { "Successfully reported message with id: `" <> data.target_id <> "`" }
   |> message.NewText(flags: [message.Ephemeral])
   |> command.MessageResponse
 }
