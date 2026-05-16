@@ -11,7 +11,7 @@ pub opaque type Command(state) {
     options: List(#(String, Option)),
     handler: ChatInputHandler(state),
   )
-  Group(signature: Signature, elements: Dict(String, GroupElement(state)))
+  Group(signature: Signature, elements: Dict(String, Element(state)))
   User(signature: Signature, handler: UserHandler(state))
   Message(signature: Signature, handler: MessageHandler(state))
 }
@@ -34,7 +34,7 @@ pub fn chat_input(
 
 pub fn group(
   sig signature: Signature,
-  elements elements: List(GroupElement(_)),
+  elements elements: List(Element(_)),
 ) -> Command(_) {
   let elements =
     elements
@@ -113,7 +113,7 @@ pub type Response(state) {
   ModalResponse(modal.Modal(state))
 }
 
-pub opaque type GroupElement(state) {
+pub opaque type Element(state) {
   GroupElement(
     name: String,
     description: String,
@@ -126,7 +126,7 @@ pub fn group_element(
   name name: String,
   desc description: String,
   sub subcommands: List(Subcommand(_)),
-) -> GroupElement(_) {
+) -> Element(_) {
   let subcommands =
     subcommands
     |> list.map(fn(s) { #(s.name, s) })
@@ -135,7 +135,7 @@ pub fn group_element(
   GroupElement(name:, description:, subcommands:)
 }
 
-pub fn subcommand_element(subcommand: Subcommand(_)) -> GroupElement(_) {
+pub fn subcommand_element(subcommand: Subcommand(_)) -> Element(_) {
   SubcommandElement(subcommand)
 }
 
