@@ -297,11 +297,8 @@ pub fn handle_autocomplete_interaction(
   case i.data {
     interaction.ChatInput(data) ->
       case dict.get(commands, data.name), data.options {
-        Ok(ChatInput(options:, ..)), option_value.Values(values) -> {
-          let assert Ok(focused) =
-            dict.values(values) |> option_value.find_focused
-          options_autocomplete(options, focused, i, values, state)
-        }
+        Ok(ChatInput(options:, ..)), option_value.Values(values) ->
+          options_autocomplete(options, i, values, state)
         Ok(Group(elements:, ..)), option_value.Group(g) ->
           handle_group_autocomplete_interaction(g, elements, i, state)
         _, _ -> Error(Nil)
@@ -319,29 +316,16 @@ fn handle_group_autocomplete_interaction(
   case g {
     option_value.SubcommandElement(invoked) ->
       case dict.get(elements, invoked.name) {
-        Ok(SubcommandElement(c)) -> {
-          let assert Ok(focused) =
-            dict.values(invoked.options) |> option_value.find_focused
-          options_autocomplete(c.options, focused, i, invoked.options, state)
-        }
+        Ok(SubcommandElement(s)) ->
+          options_autocomplete(s.options, i, invoked.options, state)
         _ -> Error(Nil)
       }
     option_value.GroupElement(name:, subcommand:) ->
       case dict.get(elements, name) {
         Ok(GroupElement(subcommands:, ..)) ->
           case dict.get(subcommands, subcommand.name) {
-            Ok(Subcommand(options:, ..)) -> {
-              let assert Ok(focused) =
-                dict.values(subcommand.options)
-                |> option_value.find_focused
-              options_autocomplete(
-                options,
-                focused,
-                i,
-                subcommand.options,
-                state,
-              )
-            }
+            Ok(Subcommand(options:, ..)) ->
+              options_autocomplete(options, i, subcommand.options, state)
             _ -> Error(Nil)
           }
         _ -> Error(Nil)
@@ -351,11 +335,11 @@ fn handle_group_autocomplete_interaction(
 
 fn options_autocomplete(
   options: List(#(String, Option(state))),
-  focused: option_value.Value,
   i: Interaction,
   values: Dict(String, option_value.Value),
   state: state,
 ) -> Result(AutocompleteResponse, Nil) {
+  let assert Ok(focused) = dict.values(values) |> option_value.find_focused
   case list.key_find(options, focused.name), focused {
     Ok(StringAutocompleteOption(autocomplete:, ..)),
       option_value.StringValue(value:, ..)
