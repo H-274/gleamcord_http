@@ -109,36 +109,47 @@ pub fn group() {
   command.group(sig:, elements: [
     // --- /hello name ... (can't be called)
     command.group_element(name: "name", desc: "", sub: [
-      {
-        let times_opt = command.IntegerOption("times", "", True, 0, 5)
-        let opts = [name_opt, times_opt]
-        // --- /hello name repeat <name:string> <times:int>
-        use _i, o, _s <- command.subcommand(name: "repeat", desc: "", opts:)
-        let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
-        let assert Ok(IntVal(value: times, ..)) = dict.get(o, times_opt.name)
-
-        list.repeat("Hello " <> name, times: times)
-        |> string.join(", ")
-        |> message.NewText(flags: [])
-        |> command.MessageResponse
-      },
-      {
-        let opts = [name_opt]
-        // --- /hello name caps <name:string>
-        use _i, o, _s <- command.subcommand(name: "caps", desc: "", opts:)
-        let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
-
-        string.capitalise(name)
-        |> message.NewText(flags: [])
-        |> command.MessageResponse
-      },
+      // --- /hello name repeat <name:string> <times:int>
+      hello_name_repeat(),
+      // --- /hello name caps <name:string>
+      hello_name_caps(),
     ]),
-    command.subcommand_element({
-      // --- /hello world
-      use _i, _o, _s <- command.subcommand(name: "world", desc: "", opts: [])
-      { "Hello world! " }
-      |> message.NewText(flags: [message.Ephemeral])
-      |> command.MessageResponse
-    }),
+    // --- /hello world
+    hello_world()
+      |> command.subcommand_element,
   ])
+}
+
+fn hello_name_repeat() {
+  let times_opt = command.IntegerOption("times", "", True, 0, 5)
+  let opts = [name_opt, times_opt]
+
+  use _i, o, _s <- command.subcommand(name: "repeat", desc: "", opts:)
+  let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
+  let assert Ok(IntVal(value: times, ..)) = dict.get(o, times_opt.name)
+
+  list.repeat("Hello " <> name, times:)
+  |> string.join(", ")
+  |> message.NewText(flags: [])
+  |> command.MessageResponse
+}
+
+fn hello_name_caps() {
+  let opts = [name_opt]
+
+  use _i, o, _s <- command.subcommand(name: "caps", desc: "", opts:)
+  let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
+
+  string.capitalise(name)
+  |> message.NewText(flags: [])
+  |> command.MessageResponse
+}
+
+fn hello_world() {
+  // --- /hello world
+  use _i, _o, _s <- command.subcommand(name: "world", desc: "", opts: [])
+
+  { "Hello world! " }
+  |> message.NewText(flags: [message.Ephemeral])
+  |> command.MessageResponse
 }
