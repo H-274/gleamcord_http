@@ -52,12 +52,6 @@ fn hex_autocomplete(_interaction, _options, partial, _state) {
       let pad_f = string.pad_end(partial, 6, "f")
       [#(pad_0, pad_0), #(pad_f, pad_f)]
     }
-    Ok(val) -> {
-      let partial = int.to_base16(-val)
-      let pad_0 = string.pad_end(partial, 6, "0")
-      let pad_f = string.pad_end(partial, 6, "f")
-      [#(pad_0, pad_0), #(pad_f, pad_f)]
-    }
     _ -> color_suggestions
   }
 }
