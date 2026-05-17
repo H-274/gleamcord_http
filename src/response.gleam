@@ -1,7 +1,12 @@
 import message
 
-pub type Pong {
+pub type Response(state) {
   Pong
+  MessageWithSource(MessageWithSource)
+  DeferredMessageWithSource(DeferredMessageWithSource)
+  UpdateMessage(UpdateMessage)
+  DeferredUpdateMessage(DeferredUpdateMessage)
+  Modal(Modal(state))
 }
 
 pub type MessageWithSource =

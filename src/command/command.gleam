@@ -184,6 +184,12 @@ pub type AutocompleteHandler(state, t) =
   fn(Interaction, Dict(String, option_value.Value), t, state) ->
     List(#(String, t))
 
+pub type AutocompleteResponse {
+  StringAutocompleteResponse(List(#(String, String)))
+  IntegerAutocompleteResponse(List(#(String, Int)))
+  NumberAutocompleteResponse(List(#(String, Float)))
+}
+
 pub opaque type Element(state) {
   GroupElement(
     name: String,
@@ -230,4 +236,145 @@ pub fn subcommand(
     |> list.map(fn(o) { #(o.name, o) })
 
   Subcommand(name:, description:, options:, handler:)
+}
+
+pub fn handle_interaction(
+  commands: Dict(String, Command(state)),
+  i: Interaction,
+  state: state,
+) {
+  case i.data {
+    interaction.ChatInput(data) ->
+      case dict.get(commands, data.name), data.options {
+        Ok(ChatInput(handler:, ..)), option_value.Values(v) ->
+          handler(i, v, state) |> Ok
+        Ok(Group(elements:, ..)), option_value.Group(g) ->
+          handle_group_interaction(i, state, elements, g)
+        _, _ -> Error(Nil)
+      }
+    interaction.User(data) ->
+      case dict.get(commands, data.name) {
+        Ok(User(_, handler:)) -> handler(i, state) |> Ok
+        _ -> Error(Nil)
+      }
+    interaction.Message(data) ->
+      case dict.get(commands, data.name) {
+        Ok(Message(_, handler:)) -> handler(i, state) |> Ok
+        _ -> Error(Nil)
+      }
+  }
+}
+
+fn handle_group_interaction(
+  i: Interaction,
+  state: _,
+  elements: Dict(String, Element(_)),
+  group: option_value.Group,
+) {
+  case group {
+    option_value.SubcommandElement(invoked) ->
+      case dict.get(elements, invoked.name) {
+        Ok(SubcommandElement(s)) -> s.handler(i, invoked.options, state) |> Ok
+        _ -> Error(Nil)
+      }
+    option_value.GroupElement(name:, subcommand:) ->
+      case dict.get(elements, name) {
+        Ok(GroupElement(subcommands:, ..)) ->
+          case dict.get(subcommands, subcommand.name) {
+            Ok(s) -> s.handler(i, subcommand.options, state) |> Ok
+            _ -> Error(Nil)
+          }
+        _ -> Error(Nil)
+      }
+  }
+}
+
+pub fn handle_autocomplete_interaction(
+  commands: Dict(String, Command(_)),
+  i: Interaction,
+  state: _,
+) {
+  case i.data {
+    interaction.ChatInput(data) ->
+      case dict.get(commands, data.name), data.options {
+        Ok(ChatInput(options:, ..)), option_value.Values(values) -> {
+          let assert Ok(focused) =
+            dict.values(values) |> option_value.find_focused
+          options_autocomplete(options, focused, i, values, state)
+        }
+        Ok(Group(elements:, ..)), option_value.Group(g) ->
+          handle_group_autocomplete_interaction(g, elements, i, state)
+        _, _ -> Error(Nil)
+      }
+    _ -> Error(Nil)
+  }
+}
+
+fn handle_group_autocomplete_interaction(
+  g: option_value.Group,
+  elements: Dict(String, Element(state)),
+  i: Interaction,
+  state: state,
+) -> Result(AutocompleteResponse, Nil) {
+  case g {
+    option_value.SubcommandElement(invoked) ->
+      case dict.get(elements, invoked.name) {
+        Ok(SubcommandElement(c)) -> {
+          let assert Ok(focused) =
+            dict.values(invoked.options) |> option_value.find_focused
+          options_autocomplete(c.options, focused, i, invoked.options, state)
+        }
+        _ -> Error(Nil)
+      }
+    option_value.GroupElement(name:, subcommand:) ->
+      case dict.get(elements, name) {
+        Ok(GroupElement(subcommands:, ..)) ->
+          case dict.get(subcommands, subcommand.name) {
+            Ok(Subcommand(options:, ..)) -> {
+              let assert Ok(focused) =
+                dict.values(subcommand.options)
+                |> option_value.find_focused
+              options_autocomplete(
+                options,
+                focused,
+                i,
+                subcommand.options,
+                state,
+              )
+            }
+            _ -> Error(Nil)
+          }
+        _ -> Error(Nil)
+      }
+  }
+}
+
+fn options_autocomplete(
+  options: List(#(String, Option(state))),
+  focused: option_value.Value,
+  i: Interaction,
+  values: Dict(String, option_value.Value),
+  state: state,
+) -> Result(AutocompleteResponse, Nil) {
+  case list.key_find(options, focused.name), focused {
+    Ok(StringAutocompleteOption(autocomplete:, ..)),
+      option_value.StringValue(value:, ..)
+    ->
+      autocomplete(i, values, value, state)
+      |> StringAutocompleteResponse
+      |> Ok
+    Ok(IntegerAutocompleteOption(autocomplete:, ..)),
+      option_value.IntegerValue(value:, ..)
+    ->
+      autocomplete(i, values, value, state)
+      |> IntegerAutocompleteResponse
+      |> Ok
+    Ok(NumberAutocompleteOption(autocomplete:, ..)),
+      option_value.NumberValue(value:, ..)
+    ->
+      autocomplete(i, values, value, state)
+      |> NumberAutocompleteResponse
+      |> Ok
+    _, _ -> Error(Nil)
+  }
 }

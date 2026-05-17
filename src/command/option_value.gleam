@@ -4,7 +4,7 @@ import gleam/list
 
 pub type OptionValue {
   Group(Group)
-  Value(Value)
+  Values(Dict(String, Value))
 }
 
 pub fn decoder() {
@@ -15,7 +15,10 @@ pub fn decoder() {
       |> decode.map(SubcommandElement)
       |> decode.map(Group)
     2 -> group_element_decoder() |> decode.map(Group)
-    _ -> value_decoder() |> decode.map(Value)
+    _ ->
+      decode.list(value_decoder() |> decode.map(fn(v) { #(v.name, v) }))
+      |> decode.map(dict.from_list)
+      |> decode.map(Values)
   }
 }
 
@@ -29,6 +32,16 @@ pub type Value {
   MentionableValue(name: String, value: String)
   NumberValue(name: String, value: Float, focused: Bool)
   AttachmentValue(name: String, value: String)
+}
+
+pub fn find_focused(values: List(Value)) {
+  use v <- list.find(values)
+  case v {
+    StringValue(focused:, ..) -> focused
+    IntegerValue(focused:, ..) -> focused
+    NumberValue(focused:, ..) -> focused
+    _ -> False
+  }
 }
 
 fn value_decoder() -> Decoder(Value) {
@@ -124,16 +137,14 @@ fn attachment_value_decoder() -> Decoder(Value) {
 
 pub type Group {
   SubcommandElement(Subcommand)
-  GroupElement(name: String, subcommands: Dict(String, Subcommand))
+  GroupElement(name: String, subcommand: Subcommand)
 }
 
 fn group_element_decoder() -> Decoder(Group) {
   use name <- decode.field("name", decode.string)
-  use subcommands <- decode.field("options", decode.list(subcommand_decoder()))
-  let subcommands =
-    subcommands |> list.map(fn(s) { #(s.name, s) }) |> dict.from_list
+  use subcommand <- decode.subfield(["options", "0"], subcommand_decoder())
 
-  GroupElement(name:, subcommands:)
+  GroupElement(name:, subcommand:)
   |> decode.success
 }
 
