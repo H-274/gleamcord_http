@@ -1,6 +1,5 @@
 import component/layout
 import gleam/dict.{type Dict}
-import gleam/dynamic.{type Dynamic}
 import gleam/json
 import modal/interaction.{type Interaction}
 import modal/response.{type Response}

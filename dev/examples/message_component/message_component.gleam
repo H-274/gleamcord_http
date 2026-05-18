@@ -76,8 +76,10 @@ pub fn string_select() {
 
 pub fn user_select() {
   use _interaction, _state, values <- component.UserSelect(UserSelect)
-  let _users: List(Dynamic) = values.0
-  let _members: List(Dynamic) = values.1
+  let users: List(Dynamic) = values.0
+  let members: List(Dynamic) = values.1
+
+  echo #(users, members)
 
   { "Submitted successfully" }
   |> message.NewText([])
@@ -86,7 +88,9 @@ pub fn user_select() {
 
 pub fn role_select() {
   use _interaction, _state, values <- component.RoleSelect(RoleSelect)
-  let _roles: List(Dynamic) = values
+  let roles: List(Dynamic) = values
+
+  echo roles
 
   { "Submitted successfully" }
   |> message.NewText([])
@@ -97,9 +101,11 @@ pub fn mentionable_select() {
   use _interaction, _state, values <- component.MentionableSelect(
     MentionableSelect,
   )
-  let _users: List(Dynamic) = values.0
-  let _members: List(Dynamic) = values.1
-  let _roles: List(Dynamic) = values.2
+  let users: List(Dynamic) = values.0
+  let members: List(Dynamic) = values.1
+  let roles: List(Dynamic) = values.2
+
+  echo #(users, members, roles)
 
   { "Submitted successfully" }
   |> message.NewText([])
@@ -108,7 +114,9 @@ pub fn mentionable_select() {
 
 pub fn channel_select() {
   use _interaction, _state, values <- component.ChannelSelect(ChannelSelect)
-  let _channels: List(Dynamic) = values
+  let channels: List(Dynamic) = values
+
+  echo channels
 
   { "Submitted successfully" }
   |> message.NewText([])

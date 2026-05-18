@@ -146,7 +146,6 @@ fn hello_name_caps() {
 }
 
 fn hello_world() {
-  // --- /hello world
   use _i, _o, _s <- command.subcommand(name: "world", desc: "", opts: [])
 
   { "Hello world! " }

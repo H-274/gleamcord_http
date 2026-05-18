@@ -24,6 +24,8 @@ const description_input = LongTextInput(
 )
 
 pub fn about_me() {
+  let id = "about-me"
+  let title = "About me"
   let components = [
     layout.Label(
       label: "Nickname",
@@ -36,11 +38,8 @@ pub fn about_me() {
       component: layout.LabelTextInput(description_input),
     ),
   ]
-  use _interaction, _state, values <- modal.new(
-    id: "about-me",
-    title: "About me",
-    components:,
-  )
+
+  use _interaction, _state, values <- modal.new(id:, title:, components:)
   let assert Ok(nickname) = dict.get(values, nickname_input.custom_id)
   let assert Ok(description) = dict.get(values, description_input.custom_id)
 
