@@ -51,8 +51,8 @@ pub type SelectHandler(state, values) =
 
 pub fn handle_interaction(
   components: Dict(String, MessageComponent(state)),
-  state: state,
   i: Interaction,
+  state: state,
 ) {
   case i.data {
     interaction.Button(button) ->

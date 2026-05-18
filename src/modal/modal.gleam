@@ -32,8 +32,8 @@ pub type Handler(state) =
 
 pub fn handle_interaction(
   modals: Dict(String, Modal(state)),
-  state: state,
   i: Interaction,
+  state: state,
 ) -> Result(Response, Nil) {
   case dict.get(modals, i.data.custom_id) {
     Ok(modal) -> modal.handler(i, state, i.data.components) |> Ok

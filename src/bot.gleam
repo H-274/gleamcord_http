@@ -1,8 +1,11 @@
 import command/command.{type Command}
 import gleam/dict.{type Dict}
 import gleam/list
+import gleam/result
+import interaction.{type Interaction}
 import message_component/message_component.{type MessageComponent}
 import modal/modal.{type Modal}
+import response.{type Response}
 
 pub opaque type Bot(state) {
   Bot(
@@ -96,4 +99,22 @@ pub fn add_modals(bot bot: Bot(_), modals modals: List(Modal(_))) {
   let updated = dict.combine(bot.modals, new_modals, fn(_, b) { b })
 
   Bot(..bot, modals: updated)
+}
+
+pub fn handle_interaction(bot bot: Bot(_), i interaction: Interaction) {
+  case interaction {
+    interaction.Ping(..) -> response.Pong |> Ok
+    interaction.ApplicationCommand(i) ->
+      command.handle_interaction(bot.commands, i, bot.state)
+      |> result.map(command.map_response)
+    interaction.MessageComponent(i) ->
+      message_component.handle_interaction(bot.components, bot.state, i)
+      |> todo
+    interaction.ApplicationCommandAutocomplete(i) ->
+      command.handle_autocomplete_interaction(bot.commands, i, bot.state)
+      |> todo
+    interaction.ModalSubmit(i) ->
+      modal.handle_interaction(bot.modals, i, bot.state)
+      |> todo
+  }
 }

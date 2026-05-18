@@ -4,6 +4,7 @@ import gleam/dict.{type Dict}
 import gleam/list
 import message
 import modal/modal
+import response
 
 pub opaque type Command(state) {
   ChatInput(
@@ -176,8 +177,16 @@ pub type MessageHandler(state) =
 
 pub type Response(state) {
   MessageResponse(message.New)
-  DeferredMessageResponse(message.New)
+  DeferredMessageResponse(fn() -> message.New)
   ModalResponse(modal.Modal(state))
+}
+
+pub fn map_response(response response: Response(_)) {
+  case response {
+    MessageResponse(r) -> response.MessageWithSource(r)
+    DeferredMessageResponse(r) -> response.DeferredMessageWithSource(r)
+    ModalResponse(r) -> response.Modal(r)
+  }
 }
 
 pub type AutocompleteHandler(state, t) =
