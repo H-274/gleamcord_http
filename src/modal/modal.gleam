@@ -22,8 +22,8 @@ pub fn new(
   Modal(custom_id:, title:, components:, handler:)
 }
 
-pub fn get_id(modal: Modal(_)) {
-  modal.custom_id
+pub fn to_tuple(modal modal: Modal(_)) {
+  #(modal.custom_id, modal)
 }
 
 // TODO eventually directly put values from resolved instead of string as dict value

@@ -32,6 +32,17 @@ pub type MessageComponent(state) {
   )
 }
 
+pub fn to_tuple(component: MessageComponent(_)) {
+  case component {
+    Button(signature:, ..) -> #(signature.custom_id, component)
+    StringSelect(signature:, ..) -> #(signature.custom_id, component)
+    UserSelect(signature: _, ..) -> #(todo, component)
+    RoleSelect(signature: _, ..) -> #(todo, component)
+    MentionableSelect(signature: _, ..) -> #(todo, component)
+    ChannelSelect(signature: _, ..) -> #(todo, component)
+  }
+}
+
 pub type ButtonHandler(state) =
   fn(Interaction, state) -> Response(state)
 

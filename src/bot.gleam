@@ -1,5 +1,6 @@
 import command/command.{type Command}
 import gleam/dict.{type Dict}
+import gleam/list
 import message_component/message_component.{type MessageComponent}
 import modal/modal.{type Modal}
 
@@ -34,4 +35,65 @@ pub fn new(
 
 pub fn get_key(bot: Bot(_)) {
   bot.pub_key
+}
+
+pub fn commands(bot: Bot(_)) {
+  bot.commands
+}
+
+pub fn add_command(bot: Bot(_), command command: Command(_)) {
+  let tuple = command.to_tuple(command)
+  let updated = dict.insert(bot.commands, tuple.0, tuple.1)
+
+  Bot(..bot, commands: updated)
+}
+
+pub fn add_commands(bot: Bot(_), commands commands: List(Command(_))) {
+  let new_commands = list.map(commands, command.to_tuple) |> dict.from_list
+  let updated = dict.combine(bot.commands, new_commands, fn(_, b) { b })
+
+  Bot(..bot, commands: updated)
+}
+
+pub fn components(bot bot: Bot(_)) {
+  bot.components
+}
+
+pub fn add_component(
+  bot bot: Bot(_),
+  component component: MessageComponent(_),
+) {
+  let tuple = message_component.to_tuple(component)
+  let updated = dict.insert(bot.components, tuple.0, tuple.1)
+
+  Bot(..bot, components: updated)
+}
+
+pub fn add_components(
+  bot bot: Bot(_),
+  components components: List(MessageComponent(_)),
+) {
+  let new_components =
+    list.map(components, message_component.to_tuple) |> dict.from_list
+  let updated = dict.combine(bot.components, new_components, fn(_, b) { b })
+
+  Bot(..bot, components: updated)
+}
+
+pub fn modals(bot bot: Bot(_)) {
+  bot.modals
+}
+
+pub fn add_modal(bot bot: Bot(_), modal modal: Modal(_)) {
+  let tuple = modal.to_tuple(modal)
+  let updated = dict.insert(bot.modals, tuple.0, tuple.1)
+
+  Bot(..bot, modals: updated)
+}
+
+pub fn add_modals(bot bot: Bot(_), modals modals: List(Modal(_))) {
+  let new_modals = list.map(modals, modal.to_tuple) |> dict.from_list
+  let updated = dict.combine(bot.modals, new_modals, fn(_, b) { b })
+
+  Bot(..bot, modals: updated)
 }

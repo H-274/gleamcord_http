@@ -1,1 +1,30 @@
+import bot
+import examples/command/command
+import examples/message_component/message_component
+import examples/modal/modal
 
+pub fn bot() {
+  let app_id = ""
+  let pub_key = ""
+  let token = ""
+
+  let bot =
+    bot.new(app_id:, pub_key:, token:, state: Nil)
+    |> bot.add_commands([
+      command.greet(),
+      command.report(),
+      command.colour(),
+      command.group(),
+    ])
+    |> bot.add_components([
+      message_component.button(),
+      message_component.string_select(),
+      message_component.user_select(),
+      message_component.role_select(),
+      message_component.mentionable_select(),
+      message_component.channel_select(),
+    ])
+    |> bot.add_modal(modal.about_me())
+
+  echo bot
+}
