@@ -1,8 +1,8 @@
 import component/layout
 import gleam/dict.{type Dict}
 import gleam/json
+import message
 import modal/interaction.{type Interaction}
-import modal/response.{type Response}
 
 pub opaque type Modal(state) {
   Modal(
@@ -26,21 +26,6 @@ pub fn to_tuple(modal modal: Modal(_)) {
   #(modal.custom_id, modal)
 }
 
-// TODO eventually directly put values from resolved instead of string as dict value
-pub type Handler(state) =
-  fn(Interaction, state, Dict(String, String)) -> Response
-
-pub fn handle_interaction(
-  modals: Dict(String, Modal(state)),
-  i: Interaction,
-  state: state,
-) -> Result(Response, Nil) {
-  case dict.get(modals, i.data.custom_id) {
-    Ok(modal) -> modal.handler(i, state, i.data.components) |> Ok
-    _ -> Error(Nil)
-  }
-}
-
 pub fn json(modal: Modal(_)) {
   let Modal(custom_id:, title:, components:, handler: _) = modal
 
@@ -50,4 +35,26 @@ pub fn json(modal: Modal(_)) {
     #("components", json.array(components, layout.label_json)),
   ]
   |> json.object
+}
+
+// TODO eventually directly put values from resolved instead of string as dict value
+pub type Handler(state) =
+  fn(Interaction, state, Dict(String, String)) -> Response
+
+pub type Response {
+  MessageResponse(message.New)
+  DeferredMessageResponse(fn() -> message.New)
+  UpdateResponse(message.New)
+  DeferredUpdateResponse(fn() -> message.New)
+}
+
+pub fn handle_interaction(
+  modals: Dict(String, Modal(_)),
+  i: Interaction,
+  state: _,
+) -> Result(Response, Nil) {
+  case dict.get(modals, i.data.custom_id) {
+    Ok(modal) -> modal.handler(i, state, i.data.components) |> Ok
+    _ -> Error(Nil)
+  }
 }

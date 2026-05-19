@@ -1,8 +1,9 @@
 import component/interactive
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
+import message
 import message_component/interaction.{type Interaction}
-import message_component/response.{type Response}
+import modal/modal
 
 // TODO create proper handlers
 pub type MessageComponent(state) {
@@ -41,6 +42,14 @@ pub fn to_tuple(component: MessageComponent(_)) {
     MentionableSelect(signature: _, ..) -> #(todo, component)
     ChannelSelect(signature: _, ..) -> #(todo, component)
   }
+}
+
+pub type Response(state) {
+  MessageResponse(message.New)
+  DeferredMessageResponse(fn() -> message.New)
+  UpdateResponse(message.New)
+  DeferredUpdateResponse(fn() -> message.New)
+  ModalResponse(modal.Modal(state))
 }
 
 pub type ButtonHandler(state) =

@@ -8,7 +8,6 @@ import gleam/option
 import gleam/string
 import message
 import message_component/message_component as component
-import message_component/response as c_response
 
 pub fn button() {
   use _interaction, _state <- component.Button(PrimaryButton(
@@ -18,7 +17,7 @@ pub fn button() {
     emoji: option.None,
   ))
 
-  use <- c_response.DeferredUpdateMessage()
+  use <- component.DeferredUpdateResponse
 
   // process.sleep(5000)
 
@@ -71,7 +70,7 @@ pub fn string_select() {
 
   { "You selected:\n" <> string.join(values, ", ") }
   |> message.NewText([])
-  |> c_response.MessageWithSource
+  |> component.MessageResponse
 }
 
 pub fn user_select() {
@@ -83,7 +82,7 @@ pub fn user_select() {
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> c_response.MessageWithSource
+  |> component.MessageResponse
 }
 
 pub fn role_select() {
@@ -94,7 +93,7 @@ pub fn role_select() {
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> c_response.MessageWithSource
+  |> component.MessageResponse
 }
 
 pub fn mentionable_select() {
@@ -109,7 +108,7 @@ pub fn mentionable_select() {
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> c_response.MessageWithSource
+  |> component.MessageResponse
 }
 
 pub fn channel_select() {
@@ -120,5 +119,5 @@ pub fn channel_select() {
 
   { "Submitted successfully" }
   |> message.NewText([])
-  |> c_response.MessageWithSource
+  |> component.MessageResponse
 }

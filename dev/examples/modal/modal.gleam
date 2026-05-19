@@ -3,7 +3,6 @@ import component/layout
 import gleam/dict
 import message
 import modal/modal
-import modal/response
 
 const nickname_input = ShortTextInput(
   custom_id: "nickname",
@@ -47,5 +46,5 @@ pub fn about_me() {
 
   { "Form submitted!" }
   |> message.NewText([])
-  |> response.MessageWithSource
+  |> modal.MessageResponse
 }
