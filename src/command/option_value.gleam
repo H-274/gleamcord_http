@@ -8,13 +8,13 @@ pub type OptionValue {
 }
 
 pub fn decoder() {
-  use t <- decode.field("type", decode.int)
+  use t <- decode.field(0, decode.at(["type"], decode.int))
   case t {
     1 ->
-      subcommand_decoder()
+      decode.at([0], subcommand_decoder())
       |> decode.map(SubcommandElement)
       |> decode.map(Group)
-    2 -> group_element_decoder() |> decode.map(Group)
+    2 -> decode.at([0], group_element_decoder()) |> decode.map(Group)
     _ ->
       decode.list(value_decoder() |> decode.map(fn(v) { #(v.name, v) }))
       |> decode.map(dict.from_list)
@@ -63,7 +63,7 @@ fn value_decoder() -> Decoder(Value) {
 fn string_value_decoder() -> Decoder(Value) {
   use name <- decode.field("name", decode.string)
   use value <- decode.field("value", decode.string)
-  use focused <- decode.field("focused", decode.bool)
+  use focused <- decode.optional_field("focused", False, decode.bool)
 
   StringValue(name:, value:, focused:)
   |> decode.success
@@ -72,7 +72,7 @@ fn string_value_decoder() -> Decoder(Value) {
 fn integer_value_decoder() -> Decoder(Value) {
   use name <- decode.field("name", decode.string)
   use value <- decode.field("value", decode.int)
-  use focused <- decode.field("focused", decode.bool)
+  use focused <- decode.optional_field("focused", False, decode.bool)
 
   IntegerValue(name:, value:, focused:)
   |> decode.success
@@ -121,7 +121,7 @@ fn mentionable_value_decoder() -> Decoder(Value) {
 fn number_value_decoder() -> Decoder(Value) {
   use name <- decode.field("name", decode.string)
   use value <- decode.field("value", decode.float)
-  use focused <- decode.field("focused", decode.bool)
+  use focused <- decode.optional_field("focused", False, decode.bool)
 
   NumberValue(name:, value:, focused:)
   |> decode.success
