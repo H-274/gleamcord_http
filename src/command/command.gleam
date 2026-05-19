@@ -248,9 +248,9 @@ pub fn subcommand(
 }
 
 pub fn handle_interaction(
-  commands: Dict(String, Command(state)),
+  commands: Dict(String, Command(_)),
   i: Interaction,
-  state: state,
+  state: _,
 ) {
   case i.data {
     interaction.ChatInput(data) ->
@@ -318,9 +318,9 @@ pub fn handle_autocomplete_interaction(
 
 fn handle_group_autocomplete_interaction(
   g: option_value.Group,
-  elements: Dict(String, Element(state)),
+  elements: Dict(String, Element(_)),
   i: Interaction,
-  state: state,
+  state: _,
 ) -> Result(AutocompleteResponse, Nil) {
   case g {
     option_value.SubcommandElement(invoked) ->
@@ -343,10 +343,10 @@ fn handle_group_autocomplete_interaction(
 }
 
 fn options_autocomplete(
-  options: List(#(String, Option(state))),
+  options: List(#(String, Option(_))),
   i: Interaction,
   values: Dict(String, option_value.Value),
-  state: state,
+  state: _,
 ) -> Result(AutocompleteResponse, Nil) {
   let assert Ok(focused) = dict.values(values) |> option_value.find_focused
   case list.key_find(options, focused.name), focused {

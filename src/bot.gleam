@@ -5,7 +5,7 @@ import gleam/result
 import interaction.{type Interaction}
 import message_component/message_component.{type MessageComponent}
 import modal/modal.{type Modal}
-import response.{type Response}
+import response
 
 pub opaque type Bot(state) {
   Bot(
