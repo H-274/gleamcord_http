@@ -3,7 +3,7 @@ import command/option_value
 import gleam/dict.{type Dict}
 import gleam/list
 import message
-import modal/modal
+import modal/modal.{type Modal}
 import response
 
 pub opaque type Command(state) {
@@ -178,7 +178,7 @@ pub type MessageHandler(state) =
 pub type Response(state) {
   MessageResponse(message.New)
   DeferredMessageResponse(fn() -> message.New)
-  ModalResponse(modal.Modal(state))
+  ModalResponse(Modal(state))
 }
 
 pub fn map_response(response response: Response(_)) {
@@ -192,12 +192,6 @@ pub fn map_response(response response: Response(_)) {
 pub type AutocompleteHandler(state, t) =
   fn(Interaction, Dict(String, option_value.Value), t, state) ->
     List(#(String, t))
-
-pub type AutocompleteResponse {
-  StringAutocompleteResponse(List(#(String, String)))
-  IntegerAutocompleteResponse(List(#(String, Int)))
-  NumberAutocompleteResponse(List(#(String, Float)))
-}
 
 pub opaque type Element(state) {
   GroupElement(
@@ -321,7 +315,7 @@ fn handle_group_autocomplete_interaction(
   elements: Dict(String, Element(_)),
   i: Interaction,
   state: _,
-) -> Result(AutocompleteResponse, Nil) {
+) -> Result(response.Autocomplete, Nil) {
   case g {
     option_value.SubcommandElement(invoked) ->
       case dict.get(elements, invoked.name) {
@@ -347,26 +341,26 @@ fn options_autocomplete(
   i: Interaction,
   values: Dict(String, option_value.Value),
   state: _,
-) -> Result(AutocompleteResponse, Nil) {
+) -> Result(response.Autocomplete, Nil) {
   let assert Ok(focused) = dict.values(values) |> option_value.find_focused
   case list.key_find(options, focused.name), focused {
     Ok(StringAutocompleteOption(autocomplete:, ..)),
       option_value.StringValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
-      |> StringAutocompleteResponse
+      |> response.StringAutocomplete
       |> Ok
     Ok(IntegerAutocompleteOption(autocomplete:, ..)),
       option_value.IntegerValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
-      |> IntegerAutocompleteResponse
+      |> response.IntegerAutocomplete
       |> Ok
     Ok(NumberAutocompleteOption(autocomplete:, ..)),
       option_value.NumberValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
-      |> NumberAutocompleteResponse
+      |> response.NumberAutocomplete
       |> Ok
     _, _ -> Error(Nil)
   }

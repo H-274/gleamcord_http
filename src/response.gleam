@@ -1,12 +1,13 @@
 import message
 
-pub type Response(state) {
+pub type Response(modal) {
   Pong
   MessageWithSource(MessageWithSource)
   DeferredMessageWithSource(DeferredMessageWithSource)
   UpdateMessage(UpdateMessage)
   DeferredUpdateMessage(DeferredUpdateMessage)
-  Modal(Modal(state))
+  Autocomplete(Autocomplete)
+  Modal(Modal(modal))
 }
 
 pub type MessageWithSource =
@@ -19,7 +20,13 @@ pub type UpdateMessage =
   message.New
 
 pub type DeferredUpdateMessage =
-  message.New
+  fn() -> message.New
 
 pub type Modal(modal) =
   modal
+
+pub type Autocomplete {
+  StringAutocomplete(List(#(String, String)))
+  IntegerAutocomplete(List(#(String, Int)))
+  NumberAutocomplete(List(#(String, Float)))
+}

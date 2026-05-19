@@ -109,12 +109,12 @@ pub fn handle_interaction(bot bot: Bot(_), i interaction: Interaction) {
       |> result.map(command.map_response)
     interaction.MessageComponent(i) ->
       message_component.handle_interaction(bot.components, i, bot.state)
-      |> todo
+      |> result.map(message_component.map_response)
     interaction.ApplicationCommandAutocomplete(i) ->
       command.handle_autocomplete_interaction(bot.commands, i, bot.state)
-      |> todo
+      |> result.map(response.Autocomplete)
     interaction.ModalSubmit(i) ->
       modal.handle_interaction(bot.modals, i, bot.state)
-      |> todo
+      |> result.map(modal.map_response)
   }
 }

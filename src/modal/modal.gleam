@@ -3,6 +3,7 @@ import gleam/dict.{type Dict}
 import gleam/json
 import message
 import modal/interaction.{type Interaction}
+import response
 
 pub opaque type Modal(state) {
   Modal(
@@ -46,6 +47,15 @@ pub type Response {
   DeferredMessageResponse(fn() -> message.New)
   UpdateResponse(message.New)
   DeferredUpdateResponse(fn() -> message.New)
+}
+
+pub fn map_response(response response: Response) {
+  case response {
+    MessageResponse(r) -> response.MessageWithSource(r)
+    DeferredMessageResponse(r) -> response.DeferredMessageWithSource(r)
+    UpdateResponse(r) -> response.UpdateMessage(r)
+    DeferredUpdateResponse(r) -> response.DeferredUpdateMessage(r)
+  }
 }
 
 pub fn handle_interaction(
