@@ -108,7 +108,7 @@ pub fn handle_interaction(bot bot: Bot(_), i interaction: Interaction) {
       command.handle_interaction(bot.commands, i, bot.state)
       |> result.map(command.map_response)
     interaction.MessageComponent(i) ->
-      message_component.handle_interaction(bot.components, bot.state, i)
+      message_component.handle_interaction(bot.components, i, bot.state)
       |> todo
     interaction.ApplicationCommandAutocomplete(i) ->
       command.handle_autocomplete_interaction(bot.commands, i, bot.state)
