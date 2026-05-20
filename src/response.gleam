@@ -1,17 +1,17 @@
 import gleam/json.{type Json}
 import message
 
-pub type Response(modal) {
+pub type Response(modal, modal_to_json) {
   Pong
   MessageWithSource(MessageWithSource)
   DeferredMessageWithSource(DeferredMessageWithSource)
   UpdateMessage(UpdateMessage)
   DeferredUpdateMessage(DeferredUpdateMessage)
   Autocomplete(Autocomplete)
-  Modal(Modal(modal))
+  Modal(Modal(modal), modal_to_json)
 }
 
-pub fn json(response: Response(_)) {
+pub fn json(response: Response(_, _)) {
   case response {
     Pong -> [#("type", json.int(1))]
     MessageWithSource(m) -> [
@@ -25,7 +25,7 @@ pub fn json(response: Response(_)) {
       #("type", json.int(8)),
       #("data", autocomplete_json(a)),
     ]
-    Modal(_) -> todo as "somehow"
+    Modal(m, to_json) -> to_json(m)
   }
   |> json.object
 }

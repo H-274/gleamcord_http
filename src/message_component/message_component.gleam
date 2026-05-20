@@ -59,7 +59,7 @@ pub fn map_response(response response: Response(_)) {
     DeferredMessageResponse(r) -> response.DeferredMessageWithSource(r)
     UpdateResponse(r) -> response.UpdateMessage(r)
     DeferredUpdateResponse(r) -> response.DeferredUpdateMessage(r)
-    ModalResponse(r) -> response.Modal(r)
+    ModalResponse(r) -> response.Modal(r, modal.json)
   }
 }
 

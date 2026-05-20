@@ -3,7 +3,7 @@ import gleam/dynamic/decode
 import message_component/interaction.{
   type Interaction as MessageComponentInteraction,
 } as _
-import modal/interaction.{type Interaction as ModalInteraction} as _
+import modal/interaction.{type Interaction as ModalInteraction} as modal_interaction
 
 pub type Interaction {
   Ping(id: String, application_id: String, token: String, version: Int)
@@ -19,6 +19,7 @@ pub fn decoder() {
   case t {
     1 -> ping_decoder()
     2 -> command_interaction.decoder() |> decode.map(ApplicationCommand)
+    5 -> todo as "modal_interaction.decoder()" |> decode.map(ModalSubmit)
     _ -> todo
   }
 }

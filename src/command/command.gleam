@@ -185,7 +185,7 @@ pub fn map_response(response response: Response(_)) {
   case response {
     MessageResponse(r) -> response.MessageWithSource(r)
     DeferredMessageResponse(r) -> response.DeferredMessageWithSource(r)
-    ModalResponse(r) -> response.Modal(r)
+    ModalResponse(r) -> response.Modal(r, modal.json)
   }
 }
 
