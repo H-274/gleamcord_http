@@ -90,9 +90,9 @@ pub fn section_json(section: Section) -> Json {
     "components",
     json.array(section.components, content.text_display_json),
   )
-  let accessories = #("accessory", section_accessory_json(section.accessory))
+  let accessory = #("accessory", section_accessory_json(section.accessory))
 
-  [#("type", json.int(9)), components, accessories]
+  [#("type", json.int(9)), components, accessory]
   |> json.object
 }
 
