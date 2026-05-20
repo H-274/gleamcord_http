@@ -1,17 +1,20 @@
+import command/command
 import gleam/json.{type Json}
 import message
+import message_component/message_component
+import modal/modal
 
-pub type Response(modal, modal_to_json) {
+pub type Response(state) {
   Pong
   MessageWithSource(MessageWithSource)
   DeferredMessageWithSource(DeferredMessageWithSource)
   UpdateMessage(UpdateMessage)
   DeferredUpdateMessage(DeferredUpdateMessage)
-  Autocomplete(Autocomplete)
-  Modal(Modal(modal), modal_to_json)
+  Autocomplete(command.Autocomplete)
+  Modal(modal.Modal(state))
 }
 
-pub fn json(response: Response(_, _)) {
+pub fn json(response: Response(_)) {
   case response {
     Pong -> [#("type", json.int(1))]
     MessageWithSource(m) -> [
@@ -23,12 +26,38 @@ pub fn json(response: Response(_, _)) {
     DeferredUpdateMessage(_) -> todo
     Autocomplete(a) -> [
       #("type", json.int(8)),
-      #("data", autocomplete_json(a)),
+      #("data", command.autocomplete_json(a)),
     ]
-
-    Modal(m, to_json) -> [#("type", json.int(9)), #("data", to_json(m))]
+    Modal(m) -> [#("type", json.int(9)), #("data", modal.json(m))]
   }
   |> json.object
+}
+
+pub fn map_command(response: command.Response(_)) {
+  case response {
+    command.MessageResponse(r) -> MessageWithSource(r)
+    command.DeferredMessageResponse(r) -> DeferredMessageWithSource(r)
+    command.ModalResponse(r) -> Modal(r)
+  }
+}
+
+pub fn map_message_component(response: message_component.Response(_)) {
+  case response {
+    message_component.MessageResponse(r) -> MessageWithSource(r)
+    message_component.DeferredMessageResponse(r) -> DeferredMessageWithSource(r)
+    message_component.UpdateResponse(r) -> UpdateMessage(r)
+    message_component.DeferredUpdateResponse(r) -> DeferredUpdateMessage(r)
+    message_component.ModalResponse(r) -> Modal(r)
+  }
+}
+
+pub fn map_modal(response: modal.Response) {
+  case response {
+    modal.MessageResponse(r) -> MessageWithSource(r)
+    modal.DeferredMessageResponse(r) -> DeferredMessageWithSource(r)
+    modal.UpdateResponse(r) -> UpdateMessage(r)
+    modal.DeferredUpdateResponse(r) -> DeferredUpdateMessage(r)
+  }
 }
 
 pub type MessageWithSource =
@@ -45,35 +74,3 @@ pub type DeferredUpdateMessage =
 
 pub type Modal(modal) =
   modal
-
-pub type Autocomplete {
-  StringAutocomplete(List(#(String, String)))
-  IntegerAutocomplete(List(#(String, Int)))
-  NumberAutocomplete(List(#(String, Float)))
-}
-
-fn autocomplete_json(autocomplete: Autocomplete) -> Json {
-  [
-    #("choices", case autocomplete {
-      StringAutocomplete(a) -> json.array(a, string_choice_json)
-      IntegerAutocomplete(a) -> json.array(a, integer_choice_json)
-      NumberAutocomplete(a) -> json.array(a, number_choice_json)
-    }),
-  ]
-  |> json.object
-}
-
-fn string_choice_json(choice: #(String, String)) {
-  [#("name", json.string(choice.0)), #("value", json.string(choice.1))]
-  |> json.object
-}
-
-fn integer_choice_json(choice: #(String, Int)) {
-  [#("name", json.string(choice.0)), #("value", json.int(choice.1))]
-  |> json.object
-}
-
-fn number_choice_json(choice: #(String, Float)) {
-  [#("name", json.string(choice.0)), #("value", json.float(choice.1))]
-  |> json.object
-}

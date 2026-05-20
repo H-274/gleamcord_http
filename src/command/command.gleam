@@ -1,10 +1,10 @@
 import command/interaction.{type Interaction}
 import command/option_value
 import gleam/dict.{type Dict}
+import gleam/json.{type Json}
 import gleam/list
 import message
 import modal/modal.{type Modal}
-import response
 
 pub opaque type Command(state) {
   ChatInput(
@@ -181,17 +181,41 @@ pub type Response(state) {
   ModalResponse(Modal(state))
 }
 
-pub fn map_response(response response: Response(_)) {
-  case response {
-    MessageResponse(r) -> response.MessageWithSource(r)
-    DeferredMessageResponse(r) -> response.DeferredMessageWithSource(r)
-    ModalResponse(r) -> response.Modal(r, modal.json)
-  }
-}
-
 pub type AutocompleteHandler(state, t) =
   fn(Interaction, Dict(String, option_value.Value), t, state) ->
     List(#(String, t))
+
+pub type Autocomplete {
+  StringAutocomplete(List(#(String, String)))
+  IntegerAutocomplete(List(#(String, Int)))
+  NumberAutocomplete(List(#(String, Float)))
+}
+
+pub fn autocomplete_json(autocomplete: Autocomplete) -> Json {
+  [
+    #("choices", case autocomplete {
+      StringAutocomplete(a) -> json.array(a, string_choice_json)
+      IntegerAutocomplete(a) -> json.array(a, integer_choice_json)
+      NumberAutocomplete(a) -> json.array(a, number_choice_json)
+    }),
+  ]
+  |> json.object
+}
+
+fn string_choice_json(choice: #(String, String)) {
+  [#("name", json.string(choice.0)), #("value", json.string(choice.1))]
+  |> json.object
+}
+
+fn integer_choice_json(choice: #(String, Int)) {
+  [#("name", json.string(choice.0)), #("value", json.int(choice.1))]
+  |> json.object
+}
+
+fn number_choice_json(choice: #(String, Float)) {
+  [#("name", json.string(choice.0)), #("value", json.float(choice.1))]
+  |> json.object
+}
 
 pub opaque type Element(state) {
   GroupElement(
@@ -315,7 +339,7 @@ fn handle_group_autocomplete_interaction(
   elements: Dict(String, Element(_)),
   i: Interaction,
   state: _,
-) -> Result(response.Autocomplete, Nil) {
+) -> Result(Autocomplete, Nil) {
   case g {
     option_value.SubcommandElement(invoked) ->
       case dict.get(elements, invoked.name) {
@@ -341,26 +365,26 @@ fn options_autocomplete(
   i: Interaction,
   values: Dict(String, option_value.Value),
   state: _,
-) -> Result(response.Autocomplete, Nil) {
+) -> Result(Autocomplete, Nil) {
   let assert Ok(focused) = dict.values(values) |> option_value.find_focused
   case list.key_find(options, focused.name), focused {
     Ok(StringAutocompleteOption(autocomplete:, ..)),
       option_value.StringValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
-      |> response.StringAutocomplete
+      |> StringAutocomplete
       |> Ok
     Ok(IntegerAutocompleteOption(autocomplete:, ..)),
       option_value.IntegerValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
-      |> response.IntegerAutocomplete
+      |> IntegerAutocomplete
       |> Ok
     Ok(NumberAutocompleteOption(autocomplete:, ..)),
       option_value.NumberValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
-      |> response.NumberAutocomplete
+      |> NumberAutocomplete
       |> Ok
     _, _ -> Error(Nil)
   }

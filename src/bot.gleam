@@ -106,15 +106,15 @@ pub fn handle_interaction(bot bot: Bot(_), i interaction: Interaction) {
     interaction.Ping(..) -> response.Pong |> Ok
     interaction.ApplicationCommand(i) ->
       command.handle_interaction(bot.commands, i, bot.state)
-      |> result.map(command.map_response)
+      |> result.map(response.map_command)
     interaction.MessageComponent(i) ->
       message_component.handle_interaction(bot.components, i, bot.state)
-      |> result.map(message_component.map_response)
+      |> result.map(response.map_message_component)
     interaction.ApplicationCommandAutocomplete(i) ->
       command.handle_autocomplete_interaction(bot.commands, i, bot.state)
       |> result.map(response.Autocomplete)
     interaction.ModalSubmit(i) ->
       modal.handle_interaction(bot.modals, i, bot.state)
-      |> result.map(modal.map_response)
+      |> result.map(response.map_modal)
   }
 }

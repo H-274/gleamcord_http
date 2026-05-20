@@ -4,7 +4,6 @@ import gleam/dynamic.{type Dynamic}
 import message
 import message_component/interaction.{type Interaction}
 import modal/modal.{type Modal}
-import response
 
 // TODO create proper handlers
 pub type MessageComponent(state) {
@@ -51,16 +50,6 @@ pub type Response(state) {
   UpdateResponse(message.New)
   DeferredUpdateResponse(fn() -> message.New)
   ModalResponse(Modal(state))
-}
-
-pub fn map_response(response response: Response(_)) {
-  case response {
-    MessageResponse(r) -> response.MessageWithSource(r)
-    DeferredMessageResponse(r) -> response.DeferredMessageWithSource(r)
-    UpdateResponse(r) -> response.UpdateMessage(r)
-    DeferredUpdateResponse(r) -> response.DeferredUpdateMessage(r)
-    ModalResponse(r) -> response.Modal(r, modal.json)
-  }
 }
 
 pub type ButtonHandler(state) =
