@@ -13,25 +13,22 @@ pub type Response(modal, modal_to_json) {
 
 pub fn json(response: Response(_, _)) {
   case response {
-    Pong -> [#("type", json.int(1))] |> json.object
-    MessageWithSource(m) ->
-      [
-        #("type", json.int(4)),
-        #("data", message.new_json(m)),
-      ]
-      |> json.object
+    Pong -> [#("type", json.int(1))]
+    MessageWithSource(m) -> [
+      #("type", json.int(4)),
+      #("data", message.new_json(m)),
+    ]
     DeferredMessageWithSource(_) -> todo
-    UpdateMessage(m) ->
-      [#("type", json.int(7)), #("data", message.new_json(m))] |> json.object
+    UpdateMessage(m) -> [#("type", json.int(7)), #("data", message.new_json(m))]
     DeferredUpdateMessage(_) -> todo
-    Autocomplete(a) ->
-      [
-        #("type", json.int(8)),
-        #("data", autocomplete_json(a)),
-      ]
-      |> json.object
-    Modal(m, to_json) -> to_json(m)
+    Autocomplete(a) -> [
+      #("type", json.int(8)),
+      #("data", autocomplete_json(a)),
+    ]
+
+    Modal(m, to_json) -> [#("type", json.int(9)), #("data", to_json(m))]
   }
+  |> json.object
 }
 
 pub type MessageWithSource =
