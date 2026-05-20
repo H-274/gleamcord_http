@@ -18,7 +18,7 @@ pub type Interaction {
     user: Option(Dynamic),
     token: String,
     version: Int,
-    message: Dynamic,
+    message: Option(Dynamic),
     permissions: String,
     locale: Option(Locale),
     guild_locale: Option(Locale),
@@ -45,7 +45,11 @@ pub fn decoder() -> decode.Decoder(Interaction) {
   )
   use token <- decode.field("token", decode.string)
   use version <- decode.field("version", decode.int)
-  use message <- decode.field("message", decode.dynamic)
+  use message <- decode.optional_field(
+    "message",
+    option.None,
+    decode.optional(decode.dynamic),
+  )
   use permissions <- decode.optional_field("app_permissions", "", decode.string)
   use locale <- decode.field("locale", decode.optional(locale.decoder()))
   use guild_locale <- decode.field(
@@ -94,8 +98,20 @@ fn data_decoder() -> decode.Decoder(Data) {
   use custom_id <- decode.field("custom_id", decode.string)
   use components <- decode.field(
     "components",
-    decode.dict(decode.string, decode.string),
+    decode.list({
+      use custom_id <- decode.subfield(
+        ["component", "custom_id"],
+        decode.string,
+      )
+      use value <- decode.subfield(["component", "value"], decode.string)
+      decode.success(#(custom_id, value))
+    })
+      |> decode.map(dict.from_list),
   )
-  use resolved <- decode.field("resolved", decode.optional(resolved.decoder()))
+  use resolved <- decode.optional_field(
+    "resolved",
+    option.None,
+    decode.optional(resolved.decoder()),
+  )
   decode.success(Data(custom_id:, components:, resolved:))
 }
