@@ -82,10 +82,7 @@ pub fn action_row_json(row: ActionRow) -> Json {
 }
 
 pub type Section {
-  Section(
-    components: List(content.TextDisplay),
-    accessories: List(SectionAccessory),
-  )
+  Section(components: List(content.TextDisplay), accessory: SectionAccessory)
 }
 
 pub fn section_json(section: Section) -> Json {
@@ -93,10 +90,7 @@ pub fn section_json(section: Section) -> Json {
     "components",
     json.array(section.components, content.text_display_json),
   )
-  let accessories = #(
-    "accessories",
-    json.array(section.accessories, section_accessory_json),
-  )
+  let accessories = #("accessory", section_accessory_json(section.accessory))
 
   [#("type", json.int(9)), components, accessories]
   |> json.object
@@ -228,9 +222,9 @@ pub fn container_channel_select_row() {
 
 pub fn container_section(
   components components: List(content.TextDisplay),
-  accessories accessories: List(SectionAccessory),
+  accessory accessory: SectionAccessory,
 ) {
-  ContainerSection(Section(components:, accessories:))
+  ContainerSection(Section(components:, accessory:))
 }
 
 pub fn container_gallery() {

@@ -79,13 +79,11 @@ fn colour_container(hex: String, value: Int) -> message.ComponentRoot {
     components: [
       layout.container_section(
         components: ["Selected the following colour: " <> hex],
-        accessories: [
-          layout.section_thumbnail(
-            media: "https://placehold.co/150/" <> hex <> "/jpeg",
-            description: hex,
-            spoiler: False,
-          ),
-        ],
+        accessory: layout.section_thumbnail(
+          media: "https://placehold.co/150/" <> hex <> "/jpeg",
+          description: hex,
+          spoiler: False,
+        ),
       ),
       layout.container_large_separator(divider: True),
       layout.ContainerText("**Great choice!**"),
