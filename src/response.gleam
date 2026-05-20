@@ -11,10 +11,10 @@ pub type Response(state) {
   UpdateMessage(UpdateMessage)
   DeferredUpdateMessage(DeferredUpdateMessage)
   Autocomplete(command.Autocomplete)
-  Modal(modal.Modal(state))
+  Modal(Modal(state))
 }
 
-pub fn json(response: Response(_)) {
+pub fn json(response: Response(_)) -> Json {
   case response {
     Pong -> [#("type", json.int(1))]
     MessageWithSource(m) -> [
@@ -72,5 +72,5 @@ pub type UpdateMessage =
 pub type DeferredUpdateMessage =
   fn() -> message.New
 
-pub type Modal(modal) =
-  modal
+pub type Modal(state) =
+  modal.Modal(state)
