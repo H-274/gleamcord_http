@@ -19,7 +19,7 @@ pub fn decoder() {
   case t {
     1 -> ping_decoder()
     2 -> command_interaction.decoder() |> decode.map(ApplicationCommand)
-    5 -> todo as "modal_interaction.decoder()" |> decode.map(ModalSubmit)
+    5 -> modal_interaction.decoder() |> decode.map(ModalSubmit)
     _ -> todo
   }
 }
