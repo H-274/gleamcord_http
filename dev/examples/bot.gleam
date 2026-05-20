@@ -4,12 +4,8 @@ import examples/message_component/message_component
 import examples/modal/modal
 
 pub fn bot() {
-  let app_id = ""
-  let pub_key = ""
-  let token = ""
-
   let bot =
-    bot.new(app_id:, pub_key:, token:, state: Nil)
+    bot.new(creds: Nil, state: Nil)
     |> bot.add_commands([
       command.greet(),
       command.report(),
