@@ -19,7 +19,8 @@ pub fn decoder() {
   case t {
     1 -> ping_decoder()
     2 -> command_interaction.decoder() |> decode.map(ApplicationCommand)
-    3 -> todo as "" |> decode.map(MessageComponent)
+    3 ->
+      todo as "component_interaction.decoder()" |> decode.map(MessageComponent)
     4 ->
       command_interaction.decoder()
       |> decode.map(ApplicationCommandAutocomplete)
