@@ -64,6 +64,25 @@ pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
   #(command.signature.name, command)
 }
 
+pub fn json(command: Command(_)) -> Json {
+  let signature_json = signature_json(command.signature)
+  case command {
+    ChatInput(options:, ..) -> [
+      #("type", json.int(1)),
+      #("options", options_json(options)),
+      ..signature_json
+    ]
+    Group(elements:, ..) -> [
+      #("type", json.int(1)),
+      #("options", elements_json(elements)),
+      ..signature_json
+    ]
+    User(..) -> [#("type", json.int(2)), ..signature_json]
+    Message(..) -> [#("type", json.int(3)), ..signature_json]
+  }
+  |> json.object
+}
+
 pub type Signature {
   Signature(
     name: String,
@@ -87,6 +106,26 @@ pub fn simple_signature(
     contexts: [],
     nsfw: False,
   )
+}
+
+fn signature_json(signature: Signature) -> List(#(String, Json)) {
+  let Signature(
+    name:,
+    description:,
+    default_member_permissions:,
+    integrations:,
+    contexts:,
+    nsfw:,
+  ) = signature
+
+  [
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integrations", json.array(integrations, todo)),
+    #("contexts", json.array(contexts, todo)),
+    #("nsfw", json.bool(nsfw)),
+  ]
 }
 
 pub type Option(state) {
@@ -166,6 +205,80 @@ pub type Option(state) {
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
+fn options_json(options: List(#(String, Option(_)))) -> Json {
+  list.map(options, fn(o) { o.1 }) |> json.array(option_json)
+}
+
+fn option_json(option: Option(_)) -> Json {
+  let name = option.name
+  let description = option.description
+  let required = option.required
+  let distinct_fields = case option {
+    StringOption(min_len:, max_len:, ..) -> [
+      #("type", json.int(3)),
+      #("min_length", json.int(min_len)),
+      #("max_length", json.int(max_len)),
+    ]
+    StringChoiceOption(choices:, ..) -> [
+      #("type", json.int(3)),
+      #("choices", json.array(choices, string_choice_json)),
+    ]
+    StringAutocompleteOption(min_len:, max_len:, ..) -> [
+      #("type", json.int(3)),
+      #("min_length", json.int(min_len)),
+      #("max_length", json.int(max_len)),
+      #("autocomplete", json.bool(True)),
+    ]
+    IntegerOption(min_val:, max_val:, ..) -> [
+      #("type", json.int(4)),
+      #("min_value", json.int(min_val)),
+      #("max_value", json.int(max_val)),
+    ]
+    IntegerChoiceOption(choices:, ..) -> [
+      #("type", json.int(4)),
+      #("choices", json.array(choices, integer_choice_json)),
+    ]
+    IntegerAutocompleteOption(min_val:, max_val:, ..) -> [
+      #("type", json.int(4)),
+      #("min_value", json.int(min_val)),
+      #("max_value", json.int(max_val)),
+      #("autocomplete", json.bool(True)),
+    ]
+    BooleanOption(..) -> [#("type", json.int(5))]
+    UserOption(..) -> [#("type", json.int(6))]
+    ChannelOption(channel_types:, ..) -> [
+      #("type", json.int(7)),
+      #("channel_types", todo),
+    ]
+    RoleOption(..) -> [#("type", json.int(8))]
+    MentionableOption(..) -> [#("type", json.int(9))]
+    NumberOption(min_val:, max_val:, ..) -> [
+      #("type", json.int(10)),
+      #("min_value", json.float(min_val)),
+      #("max_value", json.float(max_val)),
+    ]
+    NumberChoiceOption(chcoices:, ..) -> [
+      #("type", json.int(10)),
+      #("choices", json.array(chcoices, number_choice_json)),
+    ]
+    NumberAutocompleteOption(min_val:, max_val:, ..) -> [
+      #("type", json.int(10)),
+      #("min_value", json.float(min_val)),
+      #("max_value", json.float(max_val)),
+      #("autocomplet", json.bool(True)),
+    ]
+    AttachmentOption(..) -> [#("type", json.int(11))]
+  }
+
+  [
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("required", json.bool(required)),
+    ..distinct_fields
+  ]
+  |> json.object
+}
+
 pub type ChatInputHandler(state) =
   fn(Interaction, Dict(String, option_value.Value), state) -> Response(state)
 
@@ -243,6 +356,24 @@ pub fn subcommand_element(subcommand: Subcommand(_)) -> Element(_) {
   SubcommandElement(subcommand)
 }
 
+fn elements_json(elements: Dict(String, Element(_))) -> Json {
+  dict.values(elements) |> json.array(element_json)
+}
+
+fn element_json(element: Element(_)) -> Json {
+  case element {
+    GroupElement(name:, description:, subcommands:) ->
+      [
+        #("type", json.int(2)),
+        #("name", json.string(name)),
+        #("description", json.string(description)),
+        #("options", json.array(dict.values(subcommands), subcommand_json)),
+      ]
+      |> json.object
+    SubcommandElement(subcommand) -> subcommand_json(subcommand)
+  }
+}
+
 pub opaque type Subcommand(state) {
   Subcommand(
     name: String,
@@ -263,6 +394,18 @@ pub fn subcommand(
     |> list.map(fn(o) { #(o.name, o) })
 
   Subcommand(name:, description:, options:, handler:)
+}
+
+fn subcommand_json(subcommand: Subcommand(_)) -> Json {
+  let Subcommand(name:, description:, options:, ..) = subcommand
+
+  [
+    #("type", json.int(1)),
+    #("name", json.string(name)),
+    #("description", json.string(description)),
+    #("options", options_json(options)),
+  ]
+  |> json.object
 }
 
 pub fn handle_interaction(
