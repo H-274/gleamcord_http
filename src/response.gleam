@@ -21,9 +21,15 @@ pub fn json(response: Response(_)) -> Json {
       #("type", json.int(4)),
       #("data", message.new_json(m)),
     ]
-    DeferredMessageWithSource(_) -> todo
+    DeferredMessageWithSource(f) -> [
+      #("type", json.int(4)),
+      #("data", message.new_json(f())),
+    ]
     UpdateMessage(m) -> [#("type", json.int(7)), #("data", message.new_json(m))]
-    DeferredUpdateMessage(_) -> todo
+    DeferredUpdateMessage(f) -> [
+      #("type", json.int(7)),
+      #("data", message.new_json(f())),
+    ]
     Autocomplete(a) -> [
       #("type", json.int(8)),
       #("data", command.autocomplete_json(a)),
