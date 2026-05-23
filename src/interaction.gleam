@@ -13,7 +13,6 @@ pub type Interaction {
   ModalSubmit(ModalInteraction)
 }
 
-/// TODO add other interaction decoders
 pub fn decoder() {
   use t <- decode.field("type", decode.int)
   case t {

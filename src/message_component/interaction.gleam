@@ -1,3 +1,4 @@
+import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
@@ -21,7 +22,7 @@ pub type Interaction {
     locale: Option(Locale),
     guild_locale: Option(Locale),
     entitlements: List(Dynamic),
-    authorizing_integration_owners: List(#(String, Dynamic)),
+    authorizing_integration_owners: Dict(String, Dynamic),
     context: Dynamic,
     attachment_size_limit: Int,
   )
@@ -36,11 +37,15 @@ pub fn decoder() -> decode.Decoder(Interaction) {
   use channel <- decode.field("channel", decode.optional(decode.dynamic))
   use channel_id <- decode.field("channel_id", decode.optional(decode.string))
   use member <- decode.field("member", decode.optional(decode.dynamic))
-  use user <- decode.field("user", decode.optional(decode.dynamic))
+  use user <- decode.optional_field(
+    "user",
+    option.None,
+    decode.optional(decode.dynamic),
+  )
   use token <- decode.field("token", decode.string)
   use version <- decode.field("version", decode.int)
   use message <- decode.field("message", decode.dynamic)
-  use permissions <- decode.field("permissions", decode.string)
+  use permissions <- decode.field("app_permissions", decode.string)
   use locale <- decode.field("locale", decode.optional(locale.decoder()))
   use guild_locale <- decode.field(
     "guild_locale",
@@ -49,12 +54,7 @@ pub fn decoder() -> decode.Decoder(Interaction) {
   use entitlements <- decode.field("entitlements", decode.list(decode.dynamic))
   use authorizing_integration_owners <- decode.field(
     "authorizing_integration_owners",
-    decode.list({
-      use a <- decode.field(0, decode.string)
-      use b <- decode.field(1, decode.dynamic)
-
-      decode.success(#(a, b))
-    }),
+    decode.dict(decode.string, decode.dynamic),
   )
   use context <- decode.field("context", decode.dynamic)
   use attachment_size_limit <- decode.field("attachment_size_limit", decode.int)
