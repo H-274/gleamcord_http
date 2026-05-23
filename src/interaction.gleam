@@ -2,7 +2,7 @@ import command/interaction.{type Interaction as ApplicationCommandInteraction} a
 import gleam/dynamic/decode
 import message_component/interaction.{
   type Interaction as MessageComponentInteraction,
-} as _
+} as component_interaction
 import modal/interaction.{type Interaction as ModalInteraction} as modal_interaction
 
 pub type Interaction {
@@ -19,8 +19,7 @@ pub fn decoder() {
   case t {
     1 -> ping_decoder()
     2 -> command_interaction.decoder() |> decode.map(ApplicationCommand)
-    3 ->
-      todo as "component_interaction.decoder()" |> decode.map(MessageComponent)
+    3 -> component_interaction.decoder() |> decode.map(MessageComponent)
     4 ->
       command_interaction.decoder()
       |> decode.map(ApplicationCommandAutocomplete)
