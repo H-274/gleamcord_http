@@ -121,6 +121,7 @@ pub type ChatInputData {
   )
 }
 
+/// TODO see why `group subcommand_group subcommand` decoding doesn't work
 fn chat_input_data_decoder() -> decode.Decoder(ChatInputData) {
   use id <- decode.field("id", decode.string)
   use name <- decode.field("name", decode.string)
