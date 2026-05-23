@@ -66,6 +66,7 @@ pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
 
 pub fn json(command: Command(_)) -> Json {
   let signature_json = signature_json(command.signature)
+  let context_signature_json = context_signature_json(command.signature)
   case command {
     ChatInput(options:, ..) -> [
       #("type", json.int(1)),
@@ -77,8 +78,8 @@ pub fn json(command: Command(_)) -> Json {
       #("options", elements_json(elements)),
       ..signature_json
     ]
-    User(..) -> [#("type", json.int(2)), ..signature_json]
-    Message(..) -> [#("type", json.int(3)), ..signature_json]
+    User(..) -> [#("type", json.int(2)), ..context_signature_json]
+    Message(..) -> [#("type", json.int(3)), ..context_signature_json]
   }
   |> json.object
 }
@@ -101,14 +102,14 @@ pub fn simple_signature(
   Signature(
     name:,
     description:,
-    default_member_permissions: "",
-    integrations: [],
-    contexts: [],
+    default_member_permissions: "0",
+    integrations: [GuildInstall],
+    contexts: [Guild, BotDM, PrivateChannel],
     nsfw: False,
   )
 }
 
-fn signature_json(signature: Signature) -> List(#(String, Json)) {
+fn signature_json(signature: Signature) {
   let Signature(
     name:,
     description:,
@@ -121,6 +122,25 @@ fn signature_json(signature: Signature) -> List(#(String, Json)) {
   [
     #("name", json.string(name)),
     #("description", json.string(description)),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integrations", json.array(integrations, integration_json)),
+    #("contexts", json.array(contexts, context_json)),
+    #("nsfw", json.bool(nsfw)),
+  ]
+}
+
+fn context_signature_json(signature: Signature) {
+  let Signature(
+    name:,
+    description: _,
+    default_member_permissions:,
+    integrations:,
+    contexts:,
+    nsfw:,
+  ) = signature
+
+  [
+    #("name", json.string(name)),
     #("default_member_permissions", json.string(default_member_permissions)),
     #("integrations", json.array(integrations, integration_json)),
     #("contexts", json.array(contexts, context_json)),

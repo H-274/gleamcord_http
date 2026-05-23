@@ -154,7 +154,11 @@ pub type Subcommand {
 
 fn subcommand_decoder() -> Decoder(Subcommand) {
   use name <- decode.field("name", decode.string)
-  use options <- decode.field("options", decode.list(value_decoder()))
+  use options <- decode.optional_field(
+    "options",
+    [],
+    decode.list(value_decoder()),
+  )
   let options = options |> list.map(fn(o) { #(o.name, o) }) |> dict.from_list
 
   Subcommand(name:, options:)

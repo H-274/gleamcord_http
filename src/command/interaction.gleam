@@ -90,17 +90,31 @@ pub type Data {
 }
 
 fn data_decoder() -> decode.Decoder(Data) {
-  decode.one_of(chat_input_data_decoder() |> decode.map(ChatInput), [
-    user_data_decoder() |> decode.map(User),
-    message_data_decoder() |> decode.map(Message),
-  ])
+  use t <- decode.field("type", decode.int)
+  case t {
+    1 -> chat_input_data_decoder() |> decode.map(ChatInput)
+    2 -> user_data_decoder() |> decode.map(User)
+    3 -> message_data_decoder() |> decode.map(Message)
+    _ ->
+      decode.failure(
+        ChatInput(ChatInputData(
+          "",
+          "",
+          option.None,
+          option_value.Values(dict.new()),
+          option.None,
+          option.None,
+        )),
+        "Data",
+      )
+  }
 }
 
 pub type ChatInputData {
   ChatInputData(
     id: String,
     name: String,
-    resolved: Resolved,
+    resolved: Option(Resolved),
     options: OptionValue,
     guild_id: Option(String),
     target_id: Option(String),
@@ -110,8 +124,16 @@ pub type ChatInputData {
 fn chat_input_data_decoder() -> decode.Decoder(ChatInputData) {
   use id <- decode.field("id", decode.string)
   use name <- decode.field("name", decode.string)
-  use resolved <- decode.field("resolved", resolved.decoder())
-  use options <- decode.field("options", option_value.decoder())
+  use resolved <- decode.optional_field(
+    "resolved",
+    option.None,
+    decode.optional(resolved.decoder()),
+  )
+  use options <- decode.optional_field(
+    "options",
+    option_value.Values(dict.new()),
+    option_value.decoder(),
+  )
   use guild_id <- decode.optional_field(
     "guild_id",
     option.None,
