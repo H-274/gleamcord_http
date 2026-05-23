@@ -88,8 +88,8 @@ pub type Signature {
     name: String,
     description: String,
     default_member_permissions: String,
-    integrations: List(Nil),
-    contexts: List(Nil),
+    integrations: List(Integration),
+    contexts: List(Context),
     nsfw: Bool,
   )
 }
@@ -122,10 +122,36 @@ fn signature_json(signature: Signature) -> List(#(String, Json)) {
     #("name", json.string(name)),
     #("description", json.string(description)),
     #("default_member_permissions", json.string(default_member_permissions)),
-    #("integrations", json.array(integrations, todo)),
-    #("contexts", json.array(contexts, todo)),
+    #("integrations", json.array(integrations, integration_json)),
+    #("contexts", json.array(contexts, context_json)),
     #("nsfw", json.bool(nsfw)),
   ]
+}
+
+pub type Integration {
+  GuildInstall
+  UserInstall
+}
+
+fn integration_json(integration: Integration) {
+  case integration {
+    GuildInstall -> json.int(0)
+    UserInstall -> json.int(1)
+  }
+}
+
+pub type Context {
+  Guild
+  BotDM
+  PrivateChannel
+}
+
+fn context_json(context: Context) {
+  case context {
+    Guild -> json.int(0)
+    BotDM -> json.int(1)
+    PrivateChannel -> json.int(2)
+  }
 }
 
 pub type Option(state) {
