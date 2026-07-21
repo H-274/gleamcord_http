@@ -1,4 +1,10 @@
+import gleam/dict.{type Dict}
 import gleam/dynamic/decode
+
+pub type Translator {
+  Translator(Dict(String, Dict(Locale, String)))
+  DynamicTranslator(fn() -> Dict(String, Dict(Locale, String)))
+}
 
 pub type Locale {
   Indonesian
