@@ -340,6 +340,7 @@ fn option_json(option: Option(_), translator: locale.Translator) -> Json {
     json.dict(translator(name), locale.to_string, json.string)
   let description_localizations =
     json.dict(translator(description), locale.to_string, json.string)
+
   [
     #("name", json.string(name)),
     #("name_localizations", name_localizations),
