@@ -273,13 +273,6 @@ fn options_json(
 }
 
 fn option_json(option: Option(_), translator: locale.Translator) -> Json {
-  let name = option.name
-  let description = option.description
-  let required = option.required
-  let name_localizations =
-    json.dict(translator(name), locale.to_string, json.string)
-  let description_localizations =
-    json.dict(translator(description), locale.to_string, json.string)
   let distinct_fields = case option {
     StringOption(min_len:, max_len:, ..) -> [
       #("type", json.int(3)),
@@ -340,6 +333,13 @@ fn option_json(option: Option(_), translator: locale.Translator) -> Json {
     AttachmentOption(..) -> [#("type", json.int(11))]
   }
 
+  let name = option.name
+  let description = option.description
+  let required = option.required
+  let name_localizations =
+    json.dict(translator(name), locale.to_string, json.string)
+  let description_localizations =
+    json.dict(translator(description), locale.to_string, json.string)
   [
     #("name", json.string(name)),
     #("name_localizations", name_localizations),
