@@ -73,8 +73,20 @@ pub fn string_select() {
   |> component.MessageResponse
 }
 
+const interactive_user_select = UserSelect(
+  custom_id: "user-select-mc",
+  placeholder: "Pick a user",
+  default_values: [],
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
+
 pub fn user_select() {
-  use _interaction, _state, values <- component.UserSelect(UserSelect)
+  use _interaction, _state, values <- component.UserSelect(
+    interactive_user_select,
+  )
   let users: List(Dynamic) = values.0
   let members: List(Dynamic) = values.1
 
@@ -85,8 +97,20 @@ pub fn user_select() {
   |> component.MessageResponse
 }
 
+const interactive_role_slect = RoleSelect(
+  custom_id: "role-select-mc",
+  placeholder: "Pick a role",
+  default_values: [],
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
+
 pub fn role_select() {
-  use _interaction, _state, values <- component.RoleSelect(RoleSelect)
+  use _interaction, _state, values <- component.RoleSelect(
+    interactive_role_slect,
+  )
   let roles: List(Dynamic) = values
 
   echo roles
@@ -96,9 +120,19 @@ pub fn role_select() {
   |> component.MessageResponse
 }
 
+const interactive_mentionable_select = MentionableSelect(
+  custom_id: "mentionable-select-mc",
+  placeholder: "Select a mentionable",
+  default_values: [],
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
+
 pub fn mentionable_select() {
   use _interaction, _state, values <- component.MentionableSelect(
-    MentionableSelect,
+    interactive_mentionable_select,
   )
   let users: List(Dynamic) = values.0
   let members: List(Dynamic) = values.1
@@ -111,8 +145,21 @@ pub fn mentionable_select() {
   |> component.MessageResponse
 }
 
+const interactive_channel_select = ChannelSelect(
+  custom_id: "channel-select-mc",
+  channel_types: [],
+  placeholder: "Choose a channel",
+  default_values: [],
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
+
 pub fn channel_select() {
-  use _interaction, _state, values <- component.ChannelSelect(ChannelSelect)
+  use _interaction, _state, values <- component.ChannelSelect(
+    interactive_channel_select,
+  )
   let channels: List(Dynamic) = values
 
   echo channels
