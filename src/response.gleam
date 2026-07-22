@@ -14,7 +14,6 @@ pub type Response(state) {
   Modal(Modal(state))
 }
 
-/// TODO test deferred responses
 pub fn json(response: Response(_)) -> Json {
   case response {
     Pong -> [#("type", json.int(1))]
