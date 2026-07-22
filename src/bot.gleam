@@ -3,7 +3,6 @@ import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
 import interaction.{type Interaction}
-import locale
 import message_component/message_component.{type MessageComponent}
 import modal/modal.{type Modal}
 import response
@@ -15,7 +14,6 @@ pub opaque type Bot(credentials, state) {
     commands: Dict(String, Command(state)),
     components: Dict(String, MessageComponent(state)),
     modals: Dict(String, Modal(state)),
-    translator: locale.Translator,
   )
 }
 
@@ -26,22 +24,6 @@ pub fn new(creds credentials: credentials, state state: state) {
     commands: dict.new(),
     components: dict.new(),
     modals: dict.new(),
-    translator: fn(_) { dict.new() },
-  )
-}
-
-pub fn new_localized(
-  creds credentials,
-  state state,
-  translator translator: locale.Translator,
-) {
-  Bot(
-    credentials:,
-    state:,
-    commands: dict.new(),
-    components: dict.new(),
-    modals: dict.new(),
-    translator:,
   )
 }
 

@@ -8,8 +8,12 @@ import gleam/list
 import gleam/string
 import message
 
+pub const greet_name = "greet"
+
+pub const greet_desc = "greets user"
+
 pub fn greet() {
-  let sig = command.simple_signature(name: "greet", desc: "")
+  let sig = command.simple_signature(name: greet_name, desc: greet_desc)
 
   use i, _s <- command.user(sig:)
   let assert interaction.User(data) = i.data
