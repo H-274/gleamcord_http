@@ -2,6 +2,7 @@ import component/interactive.{
   ChannelSelect, MentionableSelect, PrimaryButton, RoleSelect, StringSelect,
   UserSelect,
 }
+import component/layout
 import emoji
 import gleam/dynamic.{type Dynamic}
 import gleam/option
@@ -9,20 +10,27 @@ import gleam/string
 import message
 import message_component/message_component as component
 
+const slow_button = PrimaryButton(
+  custom_id: "slow-update",
+  label: "Slow",
+  disabled: False,
+  emoji: option.None,
+)
+
 pub fn button() {
-  use _interaction, _state <- component.Button(PrimaryButton(
-    custom_id: "slow-update",
-    label: "Slow",
-    disabled: False,
-    emoji: option.None,
-  ))
+  use _interaction, _state <- component.Button(slow_button)
 
   use <- component.DeferredUpdateResponse
 
   // process.sleep(5000)
 
-  "Updated message!"
-  |> message.NewText([])
+  [
+    message.RootSection(layout.Section(
+      ["Updated Message"],
+      accessory: layout.section_thumbnail("", "", False),
+    )),
+  ]
+  |> message.NewComponent([])
 }
 
 const interactive_string_select = StringSelect(
