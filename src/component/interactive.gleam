@@ -1,5 +1,6 @@
 //// TODO update definitions
 
+import channel
 import emoji
 import gleam/json.{type Json}
 import gleam/option.{type Option}
@@ -246,7 +247,7 @@ pub fn mentionable_select_json(mentionable_select: MentionableSelect) -> Json {
 pub type ChannelSelect {
   ChannelSelect(
     custom_id: String,
-    channel_types: List(Nil),
+    channel_types: List(channel.Type),
     placeholder: String,
     default_values: List(Nil),
     min_values: Int,
@@ -260,7 +261,12 @@ pub fn channel_select_json(channel_select: ChannelSelect) -> Json {
   [
     #("type", json.int(7)),
     #("custom_id", json.string(channel_select.custom_id)),
-    #("channel_types", todo),
+    #(
+      "channel_types",
+      json.array(channel_select.channel_types, fn(t) {
+        channel.type_to_id(t) |> json.int
+      }),
+    ),
     #("placeholder", json.string(channel_select.placeholder)),
     #("default_values", todo),
     #("min_values", json.int(channel_select.min_values)),

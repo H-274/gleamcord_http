@@ -1,3 +1,4 @@
+import channel
 import command/command_options
 import command/interaction.{type Interaction}
 import gleam/dict.{type Dict}
@@ -236,7 +237,7 @@ pub type Option(state) {
     name: String,
     description: String,
     required: Bool,
-    channel_types: List(Nil),
+    channel_types: List(channel.Type),
   )
   RoleOption(name: String, description: String, required: Bool)
   MentionableOption(name: String, description: String, required: Bool)
@@ -314,7 +315,10 @@ fn option_json(option: Option(_), translator: locale.Translator) -> Json {
     UserOption(..) -> [#("type", json.int(6))]
     ChannelOption(channel_types:, ..) -> [
       #("type", json.int(7)),
-      #("channel_types", todo),
+      #(
+        "channel_types",
+        json.array(channel_types, fn(t) { channel.type_to_id(t) |> json.int }),
+      ),
     ]
     RoleOption(..) -> [#("type", json.int(8))]
     MentionableOption(..) -> [#("type", json.int(9))]
