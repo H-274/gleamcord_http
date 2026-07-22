@@ -1,5 +1,5 @@
+import command/command_options
 import command/interaction.{type Interaction}
-import command/option_value
 import gleam/dict.{type Dict}
 import gleam/json.{type Json}
 import gleam/list
@@ -348,7 +348,7 @@ fn option_json(option: Option(_), translator: locale.Translator) -> Json {
 }
 
 pub type ChatInputHandler(state) =
-  fn(Interaction, Dict(String, option_value.Value), state) -> Response(state)
+  fn(Interaction, Dict(String, command_options.Value), state) -> Response(state)
 
 pub type UserHandler(state) =
   fn(Interaction, state) -> Response(state)
@@ -363,7 +363,7 @@ pub type Response(state) {
 }
 
 pub type AutocompleteHandler(state, t) =
-  fn(Interaction, Dict(String, option_value.Value), t, state) ->
+  fn(Interaction, Dict(String, command_options.Value), t, state) ->
     List(#(String, t))
 
 pub type Autocomplete {
@@ -506,9 +506,9 @@ pub fn handle_interaction(
   case i.data {
     interaction.ChatInput(data) ->
       case dict.get(commands, data.name), data.options {
-        Ok(ChatInput(handler:, ..)), option_value.Values(v) ->
+        Ok(ChatInput(handler:, ..)), command_options.Values(v) ->
           handler(i, v, state) |> Ok
-        Ok(Group(elements:, ..)), option_value.Group(g) ->
+        Ok(Group(elements:, ..)), command_options.Group(g) ->
           handle_group_interaction(i, state, elements, g)
         _, _ -> Error(Nil)
       }
@@ -529,15 +529,15 @@ fn handle_group_interaction(
   i: Interaction,
   state: _,
   elements: Dict(String, Element(_)),
-  group: option_value.Group,
+  group: command_options.Group,
 ) {
   case group {
-    option_value.SubcommandElement(invoked) ->
+    command_options.SubcommandElement(invoked) ->
       case dict.get(elements, invoked.name) {
         Ok(SubcommandElement(s)) -> s.handler(i, invoked.options, state) |> Ok
         _ -> Error(Nil)
       }
-    option_value.GroupElement(name:, subcommand:) ->
+    command_options.GroupElement(name:, subcommand:) ->
       case dict.get(elements, name) {
         Ok(GroupElement(subcommands:, ..)) ->
           case dict.get(subcommands, subcommand.name) {
@@ -557,9 +557,9 @@ pub fn handle_autocomplete_interaction(
   case i.data {
     interaction.ChatInput(data) ->
       case dict.get(commands, data.name), data.options {
-        Ok(ChatInput(options:, ..)), option_value.Values(values) ->
+        Ok(ChatInput(options:, ..)), command_options.Values(values) ->
           options_autocomplete(options, i, values, state)
-        Ok(Group(elements:, ..)), option_value.Group(g) ->
+        Ok(Group(elements:, ..)), command_options.Group(g) ->
           handle_group_autocomplete_interaction(g, elements, i, state)
         _, _ -> Error(Nil)
       }
@@ -568,19 +568,19 @@ pub fn handle_autocomplete_interaction(
 }
 
 fn handle_group_autocomplete_interaction(
-  g: option_value.Group,
+  g: command_options.Group,
   elements: Dict(String, Element(_)),
   i: Interaction,
   state: _,
 ) -> Result(Autocomplete, Nil) {
   case g {
-    option_value.SubcommandElement(invoked) ->
+    command_options.SubcommandElement(invoked) ->
       case dict.get(elements, invoked.name) {
         Ok(SubcommandElement(s)) ->
           options_autocomplete(s.options, i, invoked.options, state)
         _ -> Error(Nil)
       }
-    option_value.GroupElement(name:, subcommand:) ->
+    command_options.GroupElement(name:, subcommand:) ->
       case dict.get(elements, name) {
         Ok(GroupElement(subcommands:, ..)) ->
           case dict.get(subcommands, subcommand.name) {
@@ -596,25 +596,25 @@ fn handle_group_autocomplete_interaction(
 fn options_autocomplete(
   options: List(#(String, Option(_))),
   i: Interaction,
-  values: Dict(String, option_value.Value),
+  values: Dict(String, command_options.Value),
   state: _,
 ) -> Result(Autocomplete, Nil) {
-  let assert Ok(focused) = dict.values(values) |> option_value.find_focused
+  let assert Ok(focused) = dict.values(values) |> command_options.find_focused
   case list.key_find(options, focused.name), focused {
     Ok(StringAutocompleteOption(autocomplete:, ..)),
-      option_value.StringValue(value:, ..)
+      command_options.StringValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
       |> StringAutocomplete
       |> Ok
     Ok(IntegerAutocompleteOption(autocomplete:, ..)),
-      option_value.IntegerValue(value:, ..)
+      command_options.IntegerValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
       |> IntegerAutocomplete
       |> Ok
     Ok(NumberAutocompleteOption(autocomplete:, ..)),
-      option_value.NumberValue(value:, ..)
+      command_options.NumberValue(value:, ..)
     ->
       autocomplete(i, values, value, state)
       |> NumberAutocomplete

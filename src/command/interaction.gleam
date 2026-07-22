@@ -1,7 +1,7 @@
 //// Based on:
 //// - https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object
 
-import command/option_value.{type OptionValue}
+import command/command_options.{type CommandOption as CommandOptions}
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
@@ -101,7 +101,7 @@ fn data_decoder() -> decode.Decoder(Data) {
           "",
           "",
           option.None,
-          option_value.Values(dict.new()),
+          command_options.Values(dict.new()),
           option.None,
           option.None,
         )),
@@ -115,7 +115,7 @@ pub type ChatInputData {
     id: String,
     name: String,
     resolved: Option(Resolved),
-    options: OptionValue,
+    options: CommandOptions,
     guild_id: Option(String),
     target_id: Option(String),
   )
@@ -132,8 +132,8 @@ fn chat_input_data_decoder() -> decode.Decoder(ChatInputData) {
   )
   use options <- decode.optional_field(
     "options",
-    option_value.Values(dict.new()),
-    option_value.decoder(),
+    command_options.Values(dict.new()),
+    command_options.decoder(),
   )
   use guild_id <- decode.optional_field(
     "guild_id",

@@ -1,6 +1,6 @@
 import command/command
+import command/command_options.{IntegerValue as IntVal, StringValue as StrVal}
 import command/interaction
-import command/option_value.{IntegerValue as IntVal, StringValue as StrVal}
 import component/layout
 import gleam/dict
 import gleam/int

@@ -2,7 +2,7 @@ import gleam/dict.{type Dict}
 import gleam/dynamic/decode.{type Decoder}
 import gleam/list
 
-pub type OptionValue {
+pub type CommandOption {
   Group(Group)
   Values(Dict(String, Value))
 }
