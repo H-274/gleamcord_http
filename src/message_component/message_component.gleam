@@ -37,10 +37,10 @@ pub fn to_tuple(component: MessageComponent(_)) {
   case component {
     Button(signature:, ..) -> #(signature.custom_id, component)
     StringSelect(signature:, ..) -> #(signature.custom_id, component)
-    UserSelect(signature: _, ..) -> #(todo, component)
-    RoleSelect(signature: _, ..) -> #(todo, component)
-    MentionableSelect(signature: _, ..) -> #(todo, component)
-    ChannelSelect(signature: _, ..) -> #(todo, component)
+    UserSelect(signature:, ..) -> #(signature.custom_id, component)
+    RoleSelect(signature:, ..) -> #(signature.custom_id, component)
+    MentionableSelect(signature:, ..) -> #(signature.custom_id, component)
+    ChannelSelect(signature:, ..) -> #(signature.custom_id, component)
   }
 }
 

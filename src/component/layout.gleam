@@ -33,20 +33,22 @@ pub fn string_select_row(
   ))
 }
 
-pub fn user_select_row() {
-  UserSelectRow(interactive.UserSelect)
+pub fn user_select_row(user_select: interactive.UserSelect) {
+  UserSelectRow(user_select)
 }
 
-pub fn role_select_row() {
-  RoleSelectRow(interactive.RoleSelect)
+pub fn role_select_row(role_select: interactive.RoleSelect) {
+  RoleSelectRow(role_select)
 }
 
-pub fn mentionable_select_row() {
-  MentionableSelectRow(interactive.MentionableSelect)
+pub fn mentionable_select_row(
+  mentionable_select: interactive.MentionableSelect,
+) {
+  MentionableSelectRow(mentionable_select)
 }
 
-pub fn channel_select_row() {
-  ChannelSelectRow(interactive.ChannelSelect)
+pub fn channel_select_row(channel_select: interactive.ChannelSelect) {
+  ChannelSelectRow(channel_select)
 }
 
 pub fn action_row_json(row: ActionRow) -> Json {
@@ -200,23 +202,25 @@ pub fn container_string_select_row(
   |> ContainerRow
 }
 
-pub fn container_user_select_row() {
-  UserSelectRow(interactive.UserSelect)
+pub fn container_user_select_row(user_select: interactive.UserSelect) {
+  UserSelectRow(user_select)
   |> ContainerRow
 }
 
-pub fn container_role_select_row() {
-  RoleSelectRow(interactive.RoleSelect)
+pub fn container_role_select_row(role_select: interactive.RoleSelect) {
+  RoleSelectRow(role_select)
   |> ContainerRow
 }
 
-pub fn container_mentionable_select_row() {
-  MentionableSelectRow(interactive.MentionableSelect)
+pub fn container_mentionable_select_row(
+  mentionable_select: interactive.MentionableSelect,
+) {
+  MentionableSelectRow(mentionable_select)
   |> ContainerRow
 }
 
-pub fn container_channel_select_row() {
-  ChannelSelectRow(interactive.ChannelSelect)
+pub fn container_channel_select_row(channel_select: interactive.ChannelSelect) {
+  ChannelSelectRow(channel_select)
   |> ContainerRow
 }
 

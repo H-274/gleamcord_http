@@ -166,35 +166,109 @@ pub fn text_input_json(text_input: TextInput) -> Json {
 }
 
 pub type UserSelect {
-  UserSelect
+  UserSelect(
+    custom_id: String,
+    placeholder: String,
+    default_values: List(Nil),
+    min_values: Int,
+    max_values: Int,
+    required: Bool,
+    disabled: Bool,
+  )
 }
 
 pub fn user_select_json(user_select: UserSelect) -> Json {
-  todo
+  [
+    #("type", json.int(5)),
+    #("custom_id", json.string(user_select.custom_id)),
+    #("placeholder", json.string(user_select.placeholder)),
+    #("default_values", todo),
+    #("min_values", json.int(user_select.min_values)),
+    #("max_values", json.int(user_select.max_values)),
+    #("required", json.bool(user_select.required)),
+    #("disabled", json.bool(user_select.disabled)),
+  ]
+  |> json.object
 }
 
 pub type RoleSelect {
-  RoleSelect
+  RoleSelect(
+    custom_id: String,
+    placeholder: String,
+    default_values: List(Nil),
+    min_values: Int,
+    max_values: Int,
+    required: Bool,
+    disabled: Bool,
+  )
 }
 
 pub fn role_select_json(role_select: RoleSelect) -> Json {
-  todo
+  [
+    #("type", json.int(6)),
+    #("custom_id", json.string(role_select.custom_id)),
+    #("placeholder", json.string(role_select.placeholder)),
+    #("default_values", todo),
+    #("min_values", json.int(role_select.min_values)),
+    #("max_values", json.int(role_select.max_values)),
+    #("required", json.bool(role_select.required)),
+    #("disabled", json.bool(role_select.disabled)),
+  ]
+  |> json.object
 }
 
 pub type MentionableSelect {
-  MentionableSelect
+  MentionableSelect(
+    custom_id: String,
+    placeholder: String,
+    default_values: List(Nil),
+    min_values: Int,
+    max_values: Int,
+    required: Bool,
+    disabled: Bool,
+  )
 }
 
 pub fn mentionable_select_json(mentionable_select: MentionableSelect) -> Json {
-  todo
+  [
+    #("type", json.int(7)),
+    #("custom_id", json.string(mentionable_select.custom_id)),
+    #("placeholder", json.string(mentionable_select.placeholder)),
+    #("default_values", todo),
+    #("min_values", json.int(mentionable_select.min_values)),
+    #("max_values", json.int(mentionable_select.max_values)),
+    #("required", json.bool(mentionable_select.required)),
+    #("disabled", json.bool(mentionable_select.disabled)),
+  ]
+  |> json.object
 }
 
 pub type ChannelSelect {
-  ChannelSelect
+  ChannelSelect(
+    custom_id: String,
+    channel_types: List(Nil),
+    placeholder: String,
+    default_values: List(Nil),
+    min_values: Int,
+    max_values: Int,
+    required: Bool,
+    disabled: Bool,
+  )
 }
 
 pub fn channel_select_json(channel_select: ChannelSelect) -> Json {
-  todo
+  [
+    #("type", json.int(7)),
+    #("custom_id", json.string(channel_select.custom_id)),
+    #("channel_types", todo),
+    #("placeholder", json.string(channel_select.placeholder)),
+    #("default_values", todo),
+    #("min_values", json.int(channel_select.min_values)),
+    #("max_values", json.int(channel_select.max_values)),
+    #("required", json.bool(channel_select.required)),
+    #("disabled", json.bool(channel_select.disabled)),
+  ]
+  |> json.object
 }
 
 /// Select option for string select interactive component
