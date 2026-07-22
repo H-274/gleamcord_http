@@ -142,7 +142,10 @@ pub type Group {
 
 fn group_element_decoder() -> Decoder(Group) {
   use name <- decode.field("name", decode.string)
-  use subcommand <- decode.subfield(["options", "0"], subcommand_decoder())
+  use subcommand <- decode.field(
+    "options",
+    decode.at([0], subcommand_decoder()),
+  )
 
   GroupElement(name:, subcommand:)
   |> decode.success
@@ -159,7 +162,7 @@ fn subcommand_decoder() -> Decoder(Subcommand) {
     [],
     decode.list(value_decoder()),
   )
-  let options = options |> list.map(fn(o) { #(o.name, o) }) |> dict.from_list
+  let options = options |> list.map(fn(v) { #(v.name, v) }) |> dict.from_list
 
   Subcommand(name:, options:)
   |> decode.success
