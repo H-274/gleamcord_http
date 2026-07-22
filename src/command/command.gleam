@@ -3,6 +3,7 @@ import command/option_value
 import gleam/dict.{type Dict}
 import gleam/json.{type Json}
 import gleam/list
+import locale
 import message
 import modal/modal.{type Modal}
 
@@ -64,22 +65,26 @@ pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
   #(command.signature.name, command)
 }
 
-pub fn json(command: Command(_)) -> Json {
-  let signature_json = signature_json(command.signature)
-  let context_signature_json = context_signature_json(command.signature)
+pub fn json(command: Command(_), translator: locale.Translator) -> Json {
   case command {
     ChatInput(options:, ..) -> [
       #("type", json.int(1)),
-      #("options", options_json(options)),
-      ..signature_json
+      #("options", options_json(options, translator)),
+      ..signature_json(command.signature, translator)
     ]
     Group(elements:, ..) -> [
       #("type", json.int(1)),
-      #("options", elements_json(elements)),
-      ..signature_json
+      #("options", elements_json(elements, translator)),
+      ..signature_json(command.signature, translator)
     ]
-    User(..) -> [#("type", json.int(2)), ..context_signature_json]
-    Message(..) -> [#("type", json.int(3)), ..context_signature_json]
+    User(..) -> [
+      #("type", json.int(2)),
+      ..context_signature_json(command.signature, translator)
+    ]
+    Message(..) -> [
+      #("type", json.int(3)),
+      ..context_signature_json(command.signature, translator)
+    ]
   }
   |> json.object
 }
@@ -109,7 +114,7 @@ pub fn simple_signature(
   )
 }
 
-fn signature_json(signature: Signature) {
+fn signature_json(signature: Signature, translator: locale.Translator) {
   let Signature(
     name:,
     description:,
@@ -118,10 +123,16 @@ fn signature_json(signature: Signature) {
     contexts:,
     nsfw:,
   ) = signature
+  let name_localizations =
+    json.dict(translator(name), locale.to_string, json.string)
+  let description_localizations =
+    json.dict(translator(description), locale.to_string, json.string)
 
   [
     #("name", json.string(name)),
+    #("name_localizations", name_localizations),
     #("description", json.string(description)),
+    #("description_localization", description_localizations),
     #("default_member_permissions", json.string(default_member_permissions)),
     #("integrations", json.array(integrations, integration_json)),
     #("contexts", json.array(contexts, context_json)),
@@ -129,7 +140,7 @@ fn signature_json(signature: Signature) {
   ]
 }
 
-fn context_signature_json(signature: Signature) {
+fn context_signature_json(signature: Signature, translator: locale.Translator) {
   let Signature(
     name:,
     description: _,
@@ -138,9 +149,11 @@ fn context_signature_json(signature: Signature) {
     contexts:,
     nsfw:,
   ) = signature
-
+  let name_localizations =
+    json.dict(translator(name), locale.to_string, json.string)
   [
     #("name", json.string(name)),
+    #("name_localizations", name_localizations),
     #("default_member_permissions", json.string(default_member_permissions)),
     #("integrations", json.array(integrations, integration_json)),
     #("contexts", json.array(contexts, context_json)),
@@ -251,14 +264,21 @@ pub type Option(state) {
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
-fn options_json(options: List(#(String, Option(_)))) -> Json {
-  list.map(options, fn(o) { o.1 }) |> json.array(option_json)
+fn options_json(
+  options: List(#(String, Option(_))),
+  translator: locale.Translator,
+) -> Json {
+  list.map(options, fn(o) { o.1 }) |> json.array(option_json(_, translator))
 }
 
-fn option_json(option: Option(_)) -> Json {
+fn option_json(option: Option(_), translator: locale.Translator) -> Json {
   let name = option.name
   let description = option.description
   let required = option.required
+  let name_localizations =
+    json.dict(translator(name), locale.to_string, json.string)
+  let description_localizations =
+    json.dict(translator(description), locale.to_string, json.string)
   let distinct_fields = case option {
     StringOption(min_len:, max_len:, ..) -> [
       #("type", json.int(3)),
@@ -318,7 +338,9 @@ fn option_json(option: Option(_)) -> Json {
 
   [
     #("name", json.string(name)),
+    #("name_localizations", name_localizations),
     #("description", json.string(description)),
+    #("description_localizations", description_localizations),
     #("required", json.bool(required)),
     ..distinct_fields
   ]
@@ -402,21 +424,34 @@ pub fn subcommand_element(subcommand: Subcommand(_)) -> Element(_) {
   SubcommandElement(subcommand)
 }
 
-fn elements_json(elements: Dict(String, Element(_))) -> Json {
-  dict.values(elements) |> json.array(element_json)
+fn elements_json(
+  elements: Dict(String, Element(_)),
+  translator: locale.Translator,
+) -> Json {
+  dict.values(elements) |> json.array(element_json(_, translator))
 }
 
-fn element_json(element: Element(_)) -> Json {
+fn element_json(element: Element(_), translator: locale.Translator) -> Json {
   case element {
-    GroupElement(name:, description:, subcommands:) ->
+    GroupElement(name:, description:, subcommands:) -> {
+      let name_localizations =
+        json.dict(translator(name), locale.to_string, json.string)
+      let description_localization =
+        json.dict(translator(description), locale.to_string, json.string)
       [
         #("type", json.int(2)),
         #("name", json.string(name)),
+        #("name_localizations", name_localizations),
         #("description", json.string(description)),
-        #("options", json.array(dict.values(subcommands), subcommand_json)),
+        #("description_localizations", description_localization),
+        #(
+          "options",
+          json.array(dict.values(subcommands), subcommand_json(_, translator)),
+        ),
       ]
       |> json.object
-    SubcommandElement(subcommand) -> subcommand_json(subcommand)
+    }
+    SubcommandElement(subcommand) -> subcommand_json(subcommand, translator)
   }
 }
 
@@ -442,14 +477,23 @@ pub fn subcommand(
   Subcommand(name:, description:, options:, handler:)
 }
 
-fn subcommand_json(subcommand: Subcommand(_)) -> Json {
+fn subcommand_json(
+  subcommand: Subcommand(_),
+  translator: locale.Translator,
+) -> Json {
   let Subcommand(name:, description:, options:, ..) = subcommand
+  let name_localizations =
+    json.dict(translator(name), locale.to_string, json.string)
+  let description_localizations =
+    json.dict(translator(description), locale.to_string, json.string)
 
   [
     #("type", json.int(1)),
     #("name", json.string(name)),
+    #("name_localizations", name_localizations),
     #("description", json.string(description)),
-    #("options", options_json(options)),
+    #("description_localizations", description_localizations),
+    #("options", options_json(options, translator)),
   ]
   |> json.object
 }

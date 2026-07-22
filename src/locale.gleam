@@ -1,10 +1,8 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic/decode
 
-pub type Translator {
-  Translator(Dict(String, Dict(Locale, String)))
-  DynamicTranslator(fn() -> Dict(String, Dict(Locale, String)))
-}
+pub type Translator =
+  fn(String) -> Dict(Locale, String)
 
 pub type Locale {
   Indonesian
@@ -105,7 +103,7 @@ const chinese_tw = "zh-TW"
 
 const korean = "ko"
 
-pub fn string(locale: Locale) {
+pub fn to_string(locale: Locale) {
   case locale {
     Indonesian -> indonesian
     Danish -> danish

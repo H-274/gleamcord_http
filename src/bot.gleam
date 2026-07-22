@@ -15,13 +15,6 @@ pub opaque type Bot(credentials, state) {
     commands: Dict(String, Command(state)),
     components: Dict(String, MessageComponent(state)),
     modals: Dict(String, Modal(state)),
-  )
-  LocalizedBot(
-    credentials: credentials,
-    state: state,
-    commands: Dict(String, Command(state)),
-    components: Dict(String, MessageComponent(state)),
-    modals: Dict(String, Modal(state)),
     translator: locale.Translator,
   )
 }
@@ -33,6 +26,7 @@ pub fn new(creds credentials: credentials, state state: state) {
     commands: dict.new(),
     components: dict.new(),
     modals: dict.new(),
+    translator: fn(_) { dict.new() },
   )
 }
 
@@ -41,7 +35,7 @@ pub fn new_localized(
   state state,
   translator translator: locale.Translator,
 ) {
-  LocalizedBot(
+  Bot(
     credentials:,
     state:,
     commands: dict.new(),
@@ -63,20 +57,14 @@ pub fn add_command(bot: Bot(_, _), command command: Command(_)) {
   let tuple = command.to_tuple(command)
   let updated = dict.insert(bot.commands, tuple.0, tuple.1)
 
-  case bot {
-    Bot(..) -> Bot(..bot, commands: updated)
-    LocalizedBot(..) -> LocalizedBot(..bot, commands: updated)
-  }
+  Bot(..bot, commands: updated)
 }
 
 pub fn add_commands(bot: Bot(_, _), commands commands: List(Command(_))) {
   let new_commands = list.map(commands, command.to_tuple) |> dict.from_list
   let updated = dict.combine(bot.commands, new_commands, fn(_, b) { b })
 
-  case bot {
-    Bot(..) -> Bot(..bot, commands: updated)
-    LocalizedBot(..) -> LocalizedBot(..bot, commands: updated)
-  }
+  Bot(..bot, commands: updated)
 }
 
 pub fn components(bot bot: Bot(_, _)) {
@@ -90,10 +78,7 @@ pub fn add_component(
   let tuple = message_component.to_tuple(component)
   let updated = dict.insert(bot.components, tuple.0, tuple.1)
 
-  case bot {
-    Bot(..) -> Bot(..bot, components: updated)
-    LocalizedBot(..) -> LocalizedBot(..bot, components: updated)
-  }
+  Bot(..bot, components: updated)
 }
 
 pub fn add_components(
@@ -104,10 +89,7 @@ pub fn add_components(
     list.map(components, message_component.to_tuple) |> dict.from_list
   let updated = dict.combine(bot.components, new_components, fn(_, b) { b })
 
-  case bot {
-    Bot(..) -> Bot(..bot, components: updated)
-    LocalizedBot(..) -> LocalizedBot(..bot, components: updated)
-  }
+  Bot(..bot, components: updated)
 }
 
 pub fn modals(bot bot: Bot(_, _)) {
@@ -118,20 +100,14 @@ pub fn add_modal(bot bot: Bot(_, _), modal modal: Modal(_)) {
   let tuple = modal.to_tuple(modal)
   let updated = dict.insert(bot.modals, tuple.0, tuple.1)
 
-  case bot {
-    Bot(..) -> Bot(..bot, modals: updated)
-    LocalizedBot(..) -> LocalizedBot(..bot, modals: updated)
-  }
+  Bot(..bot, modals: updated)
 }
 
 pub fn add_modals(bot bot: Bot(_, _), modals modals: List(Modal(_))) {
   let new_modals = list.map(modals, modal.to_tuple) |> dict.from_list
   let updated = dict.combine(bot.modals, new_modals, fn(_, b) { b })
 
-  case bot {
-    Bot(..) -> Bot(..bot, modals: updated)
-    LocalizedBot(..) -> LocalizedBot(..bot, modals: updated)
-  }
+  Bot(..bot, modals: updated)
 }
 
 pub fn handle_interaction(bot bot: Bot(_, _), i interaction: Interaction) {
