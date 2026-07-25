@@ -5,7 +5,7 @@ import gleamcord_http/bot
 
 pub fn bot() {
   let bot =
-    bot.new(creds: Nil, state: Nil)
+    bot.new(state: Nil)
     |> bot.add_commands([
       command.greet(),
       command.report(),

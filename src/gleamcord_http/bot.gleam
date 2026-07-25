@@ -7,9 +7,8 @@ import gleamcord_http/message_component.{type MessageComponent}
 import gleamcord_http/modal.{type Modal}
 import gleamcord_http/response
 
-pub opaque type Bot(credentials, state) {
+pub opaque type Bot(state) {
   Bot(
-    credentials: credentials,
     state: state,
     commands: Dict(String, Command(state)),
     components: Dict(String, MessageComponent(state)),
@@ -17,44 +16,38 @@ pub opaque type Bot(credentials, state) {
   )
 }
 
-pub fn new(creds credentials: credentials, state state: state) {
-  Bot(
-    credentials:,
-    state:,
-    commands: dict.new(),
-    components: dict.new(),
-    modals: dict.new(),
-  )
+pub fn new(state state: state) {
+  Bot(state:, commands: dict.new(), components: dict.new(), modals: dict.new())
 }
 
-pub fn credentials(bot: Bot(_, _)) {
-  bot.credentials
+pub fn state(bot: Bot(_)) {
+  bot.state
 }
 
-pub fn commands(bot: Bot(_, _)) {
+pub fn commands(bot: Bot(_)) {
   bot.commands
 }
 
-pub fn add_command(bot: Bot(_, _), command command: Command(_)) {
+pub fn add_command(bot: Bot(_), command command: Command(_)) {
   let tuple = command.to_tuple(command)
   let updated = dict.insert(bot.commands, tuple.0, tuple.1)
 
   Bot(..bot, commands: updated)
 }
 
-pub fn add_commands(bot: Bot(_, _), commands commands: List(Command(_))) {
+pub fn add_commands(bot: Bot(_), commands commands: List(Command(_))) {
   let new_commands = list.map(commands, command.to_tuple) |> dict.from_list
   let updated = dict.combine(bot.commands, new_commands, fn(_, b) { b })
 
   Bot(..bot, commands: updated)
 }
 
-pub fn components(bot bot: Bot(_, _)) {
+pub fn components(bot bot: Bot(_)) {
   bot.components
 }
 
 pub fn add_component(
-  bot bot: Bot(_, _),
+  bot bot: Bot(_),
   component component: MessageComponent(_),
 ) {
   let tuple = message_component.to_tuple(component)
@@ -64,7 +57,7 @@ pub fn add_component(
 }
 
 pub fn add_components(
-  bot bot: Bot(_, _),
+  bot bot: Bot(_),
   components components: List(MessageComponent(_)),
 ) {
   let new_components =
@@ -74,25 +67,25 @@ pub fn add_components(
   Bot(..bot, components: updated)
 }
 
-pub fn modals(bot bot: Bot(_, _)) {
+pub fn modals(bot bot: Bot(_)) {
   bot.modals
 }
 
-pub fn add_modal(bot bot: Bot(_, _), modal modal: Modal(_)) {
+pub fn add_modal(bot bot: Bot(_), modal modal: Modal(_)) {
   let tuple = modal.to_tuple(modal)
   let updated = dict.insert(bot.modals, tuple.0, tuple.1)
 
   Bot(..bot, modals: updated)
 }
 
-pub fn add_modals(bot bot: Bot(_, _), modals modals: List(Modal(_))) {
+pub fn add_modals(bot bot: Bot(_), modals modals: List(Modal(_))) {
   let new_modals = list.map(modals, modal.to_tuple) |> dict.from_list
   let updated = dict.combine(bot.modals, new_modals, fn(_, b) { b })
 
   Bot(..bot, modals: updated)
 }
 
-pub fn handle_interaction(bot bot: Bot(_, _), i interaction: Interaction) {
+pub fn handle_interaction(bot bot: Bot(_), i interaction: Interaction) {
   case interaction {
     interaction.Ping(..) -> response.Pong |> Ok
     interaction.ApplicationCommand(i) ->
