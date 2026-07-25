@@ -4,6 +4,10 @@ import gleam/dynamic/decode
 pub type Translator =
   fn(String) -> Dict(Locale, String)
 
+pub fn default_translator(_: String) -> Dict(Locale, String) {
+  dict.new()
+}
+
 pub type Locale {
   Indonesian
   Danish
