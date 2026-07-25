@@ -2,8 +2,7 @@ import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
-import locale.{type Locale}
-import resolved.{type Resolved}
+import gleamcord_http/locale.{type Locale}
 
 pub type Interaction {
   Interaction(
@@ -18,7 +17,7 @@ pub type Interaction {
     user: Option(Dynamic),
     token: String,
     version: Int,
-    message: Option(Dynamic),
+    message: Dynamic,
     permissions: String,
     locale: Option(Locale),
     guild_locale: Option(Locale),
@@ -45,12 +44,8 @@ pub fn decoder() -> decode.Decoder(Interaction) {
   )
   use token <- decode.field("token", decode.string)
   use version <- decode.field("version", decode.int)
-  use message <- decode.optional_field(
-    "message",
-    option.None,
-    decode.optional(decode.dynamic),
-  )
-  use permissions <- decode.optional_field("app_permissions", "", decode.string)
+  use message <- decode.field("message", decode.dynamic)
+  use permissions <- decode.field("app_permissions", decode.string)
   use locale <- decode.field("locale", decode.optional(locale.decoder()))
   use guild_locale <- decode.field(
     "guild_locale",
@@ -87,31 +82,96 @@ pub fn decoder() -> decode.Decoder(Interaction) {
 }
 
 pub type Data {
-  Data(
-    custom_id: String,
-    components: Dict(String, String),
-    resolved: Option(Resolved),
-  )
+  Button(ButtonData)
+  StringSelect(StringSelectData)
+  UserSelect(UserSelectData)
+  RoleSelect(RoleSelectData)
+  MentionableSelect(MentionableSelectData)
+  ChannelSelect(ChannelSelectData)
 }
 
 fn data_decoder() -> decode.Decoder(Data) {
+  use t <- decode.field("component_type", decode.int)
+  case t {
+    2 -> button_data_decoder() |> decode.map(Button)
+    3 -> string_select_data_decoder() |> decode.map(StringSelect)
+    5 -> user_select_data_decoder() |> decode.map(UserSelect)
+    6 -> role_select_data_decoder() |> decode.map(RoleSelect)
+    7 -> mentionable_select_data_decoder() |> decode.map(MentionableSelect)
+    8 -> channel_select_data_decoder() |> decode.map(ChannelSelect)
+    _ -> decode.failure(Button(ButtonData(0, "")), "Data")
+  }
+}
+
+pub type ButtonData {
+  ButtonData(id: Int, custom_id: String)
+}
+
+fn button_data_decoder() -> decode.Decoder(ButtonData) {
+  use id <- decode.field("id", decode.int)
   use custom_id <- decode.field("custom_id", decode.string)
-  use components <- decode.field(
-    "components",
-    decode.list({
-      use custom_id <- decode.subfield(
-        ["component", "custom_id"],
-        decode.string,
-      )
-      use value <- decode.subfield(["component", "value"], decode.string)
-      decode.success(#(custom_id, value))
-    })
-      |> decode.map(dict.from_list),
+
+  ButtonData(id:, custom_id:)
+  |> decode.success
+}
+
+pub type StringSelectData {
+  StringSelectData(id: Int, custom_id: String, values: List(String))
+}
+
+fn string_select_data_decoder() -> decode.Decoder(StringSelectData) {
+  todo
+}
+
+// TODO update values type
+pub type UserSelectData {
+  UserSelectData(
+    id: Int,
+    custom_id: String,
+    resolved: #(List(Dynamic), List(Dynamic)),
+    values: List(String),
   )
-  use resolved <- decode.optional_field(
-    "resolved",
-    option.None,
-    decode.optional(resolved.decoder()),
+}
+
+fn user_select_data_decoder() -> decode.Decoder(UserSelectData) {
+  todo
+}
+
+pub type RoleSelectData {
+  RoleSelectData(
+    id: Int,
+    custom_id: String,
+    resolved: List(Dynamic),
+    values: List(String),
   )
-  decode.success(Data(custom_id:, components:, resolved:))
+}
+
+fn role_select_data_decoder() -> decode.Decoder(RoleSelectData) {
+  todo
+}
+
+pub type MentionableSelectData {
+  MentionableSelectData(
+    id: Int,
+    custom_id: String,
+    resolved: #(List(Dynamic), List(Dynamic), List(Dynamic)),
+    values: List(String),
+  )
+}
+
+fn mentionable_select_data_decoder() -> decode.Decoder(MentionableSelectData) {
+  todo
+}
+
+pub type ChannelSelectData {
+  ChannelSelectData(
+    id: Int,
+    custom_id: String,
+    resolved: List(Dynamic),
+    values: List(String),
+  )
+}
+
+fn channel_select_data_decoder() -> decode.Decoder(ChannelSelectData) {
+  todo
 }

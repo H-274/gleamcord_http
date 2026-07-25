@@ -1,8 +1,8 @@
-import component/layout
 import gleam/dict.{type Dict}
 import gleam/json
-import message
-import modal/interaction.{type Interaction}
+import gleamcord_http/component/layout
+import gleamcord_http/message
+import gleamcord_http/modal/interaction.{type Interaction}
 
 pub opaque type Modal(state) {
   Modal(

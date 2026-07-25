@@ -1,8 +1,8 @@
-import command/command
 import gleam/json.{type Json}
-import message
-import message_component/message_component
-import modal/modal
+import gleamcord_http/command
+import gleamcord_http/message
+import gleamcord_http/message_component
+import gleamcord_http/modal
 
 pub type Response(state) {
   Pong

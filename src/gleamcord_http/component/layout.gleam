@@ -1,8 +1,8 @@
-import component/content
-import component/interactive
-import emoji
 import gleam/json.{type Json}
 import gleam/option.{type Option}
+import gleamcord_http/component/content
+import gleamcord_http/component/interactive
+import gleamcord_http/emoji
 
 pub type ActionRow {
   ButtonRow(List(interactive.Button))

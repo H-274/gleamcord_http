@@ -1,13 +1,15 @@
 //// Based on:
 //// - https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object
 
-import command/command_options.{type CommandOption as CommandOptions}
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
-import locale.{type Locale}
-import resolved.{type Resolved}
+import gleamcord_http/command/command_options.{
+  type CommandOption as CommandOptions,
+}
+import gleamcord_http/locale.{type Locale}
+import gleamcord_http/resolved.{type Resolved}
 
 pub type Interaction {
   Interaction(

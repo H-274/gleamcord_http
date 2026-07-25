@@ -1,12 +1,14 @@
-import command/command
-import command/command_options.{IntegerValue as IntVal, StringValue as StrVal}
-import command/interaction
-import component/layout
 import gleam/dict
 import gleam/int
 import gleam/list
 import gleam/string
-import message
+import gleamcord_http/command
+import gleamcord_http/command/command_options.{
+  IntegerValue as IntVal, StringValue as StrVal,
+}
+import gleamcord_http/command/interaction
+import gleamcord_http/component/layout
+import gleamcord_http/message
 
 pub const greet_name = "greet"
 

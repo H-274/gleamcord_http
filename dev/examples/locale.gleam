@@ -1,7 +1,7 @@
-import examples/command/command
+import examples/command
 import gleam/dict
 import gleam/result
-import locale
+import gleamcord_http/locale
 
 pub fn example_translator(string) {
   // Could be data fetched from actor, external query, etc.

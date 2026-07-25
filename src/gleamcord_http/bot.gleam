@@ -1,11 +1,11 @@
-import command/command.{type Command}
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
-import interaction.{type Interaction}
-import message_component/message_component.{type MessageComponent}
-import modal/modal.{type Modal}
-import response
+import gleamcord_http/command.{type Command}
+import gleamcord_http/interaction.{type Interaction}
+import gleamcord_http/message_component.{type MessageComponent}
+import gleamcord_http/modal.{type Modal}
+import gleamcord_http/response
 
 pub opaque type Bot(credentials, state) {
   Bot(

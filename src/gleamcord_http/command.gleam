@@ -1,12 +1,12 @@
-import channel
-import command/command_options
-import command/interaction.{type Interaction}
 import gleam/dict.{type Dict}
 import gleam/json.{type Json}
 import gleam/list
-import locale
-import message
-import modal/modal.{type Modal}
+import gleamcord_http/channel
+import gleamcord_http/command/command_options
+import gleamcord_http/command/interaction.{type Interaction}
+import gleamcord_http/locale
+import gleamcord_http/message
+import gleamcord_http/modal.{type Modal}
 
 pub opaque type Command(state) {
   ChatInput(

@@ -1,9 +1,11 @@
-import command/interaction.{type Interaction as ApplicationCommandInteraction} as command_interaction
 import gleam/dynamic/decode
-import message_component/interaction.{
+import gleamcord_http/command/interaction.{
+  type Interaction as ApplicationCommandInteraction,
+} as command_interaction
+import gleamcord_http/message_component/interaction.{
   type Interaction as MessageComponentInteraction,
 } as component_interaction
-import modal/interaction.{type Interaction as ModalInteraction} as modal_interaction
+import gleamcord_http/modal/interaction.{type Interaction as ModalInteraction} as modal_interaction
 
 pub type Interaction {
   Ping(id: String, application_id: String, token: String, version: Int)

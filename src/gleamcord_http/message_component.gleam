@@ -1,9 +1,9 @@
-import component/interactive
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
-import message
-import message_component/interaction.{type Interaction}
-import modal/modal.{type Modal}
+import gleamcord_http/component/interactive
+import gleamcord_http/message
+import gleamcord_http/message_component/interaction.{type Interaction}
+import gleamcord_http/modal.{type Modal}
 
 // TODO create proper handlers
 pub type MessageComponent(state) {

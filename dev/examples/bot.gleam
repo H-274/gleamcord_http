@@ -1,7 +1,7 @@
-import bot
-import examples/command/command
-import examples/message_component/message_component
-import examples/modal/modal
+import examples/command
+import examples/message_component
+import examples/modal
+import gleamcord_http/bot
 
 pub fn bot() {
   let bot =

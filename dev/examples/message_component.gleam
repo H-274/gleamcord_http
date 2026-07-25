@@ -1,14 +1,14 @@
-import component/interactive.{
-  ChannelSelect, MentionableSelect, PrimaryButton, RoleSelect, StringSelect,
-  UserSelect,
-}
-import component/layout
-import emoji
 import gleam/dynamic.{type Dynamic}
 import gleam/option
 import gleam/string
-import message
-import message_component/message_component as component
+import gleamcord_http/component/interactive.{
+  ChannelSelect, MentionableSelect, PrimaryButton, RoleSelect, StringSelect,
+  UserSelect,
+}
+import gleamcord_http/component/layout
+import gleamcord_http/emoji
+import gleamcord_http/message
+import gleamcord_http/message_component as component
 
 const slow_button = PrimaryButton(
   custom_id: "slow-update",

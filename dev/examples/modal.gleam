@@ -1,8 +1,8 @@
-import component/interactive.{LongTextInput, ShortTextInput}
-import component/layout
 import gleam/dict
-import message
-import modal/modal
+import gleamcord_http/component/interactive.{LongTextInput, ShortTextInput}
+import gleamcord_http/component/layout
+import gleamcord_http/message
+import gleamcord_http/modal
 
 const nickname_input = ShortTextInput(
   custom_id: "nickname",

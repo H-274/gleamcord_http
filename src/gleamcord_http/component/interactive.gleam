@@ -1,9 +1,9 @@
 //// TODO update definitions
 
-import channel
-import emoji
 import gleam/json.{type Json}
 import gleam/option.{type Option}
+import gleamcord_http/channel
+import gleamcord_http/emoji
 
 /// Button interactive components
 pub type Button {

@@ -1,7 +1,7 @@
-import component/layout
 import gleam/int
 import gleam/json.{type Json}
 import gleam/list
+import gleamcord_http/component/layout
 
 /// For responses, ephemeral is available. Otherwise, only the suppression flags and `IsVoiceMessage` are available. `IsComponentsV2` will be automatically added depending on the variant used
 pub type New {
