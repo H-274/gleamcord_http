@@ -55,6 +55,7 @@ pub type Response(state) {
 pub type ButtonHandler(state) =
   fn(Interaction, state) -> Response(state)
 
+// TODO move values to second param to match commands
 pub type SelectHandler(state, values) =
   fn(Interaction, state, values) -> Response(state)
 
