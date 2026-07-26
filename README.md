@@ -6,9 +6,41 @@
 ---
 
 > [!NOTE]
-> This library is meant to act as an opinionated framework for handling and defining Discord webhook interactions. It **does not** provide an HTTP server **or** client.
+> This library is meant to act as an opinionated framework for handling and defining Discord webhook interactions (interacting with Discord's HTTP API).
+> It **does not** provide an HTTP server **or** client.
 
 ## General Concepts
+
+### Handlers
+
+Interaction handlers have between 2 and 3 parameters.
+
+- They will always, at least, have their respective interaction, and the bot's state.
+- Chat input commands, and components that take an input have a third parameter.
+
+#### Chat Input Handlers
+
+They will always have a third parameter called `options`, representing **VALUE** command options from discord
+
+> [!IMPORTANT]
+> Subcommand group and subcommand options are not present as options in this library.
+> They are defined as part of a seperate variant of command called `Group`.
+> This library handles routing interactions to subcommands for you.
+
+#### Message Component Handlers
+
+Message component handlers vary based on the variant of component used.
+
+- Buttons only have the 2 basic handler parameters
+- Selectors have 3 parameters, the third one is a `Dict` of either the string values, or of snowflake strings to use with the `Resolved` type present in the interaction.
+
+#### Modal Component Handlers
+
+> [!WARNING]
+> Many of the components exclusive to modals are under work and may crash from hitting a `todo` statement.
+
+Modal component don't have handlers, since all components of a modal are submitted at once.
+So instead, the modal has the handler, and a dictionary of components to parse through
 
 ## Handling
 
@@ -30,7 +62,9 @@ pub fn app(state) {
 }
 
 pub fn handle_interaction(interaction) {
-  let app = app(todo)
+  // Replace `Nil` with your desired state or keep it if you either don't want to pass state, 
+  // or if you wish to do it on a per-handler basis using their constructors
+  let app = app(Nil)
 
   // gleamcord_http handles interaction routing, you just need to parse it
   bot.handle_interaction(app, interaction:)
@@ -74,7 +108,7 @@ pub fn command_options() -> Command(_) {
 
   use _i, o, _s <- command.chat_input(sig:, opts:)
   // Extract options through the provided dictionary
-  let assert Ok(StrVal(value: name, ..)) = dict.get(name_option.name, o)
+  let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_option.name)
 
   {"You wrote the name: " <> name}
   |> message.NewText([])
