@@ -22,7 +22,7 @@ Interaction handlers have between 2 and 3 parameters.
 
 They will always have a third parameter called `options`, representing **VALUE** command options from discord
 
-> [!IMPORTANT]
+> [!NOTE]
 > Subcommand group and subcommand options are not present as options in this library.
 > They are defined as part of a seperate variant of command called `Group`.
 > This library handles routing interactions to subcommands for you.
