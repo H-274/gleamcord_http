@@ -104,11 +104,11 @@ pub type SectionAccessory {
 }
 
 pub fn section_thumbnail(
-  media media: String,
+  url url: String,
   description description: String,
   spoiler spoiler: Bool,
 ) {
-  SectionThumbnail(content.Thumbnail(media:, description:, spoiler:))
+  SectionThumbnail(content.Thumbnail(url:, description:, spoiler:))
 }
 
 pub fn section_custom_button(custom_button: interactive.CustomButton) {

@@ -8,15 +8,15 @@ pub fn text_display_json(text: TextDisplay) -> json.Json {
   |> json.object
 }
 
-// TODO using "unfurled media item"
+// If referring to an attachment, the url should look like `attachment://<filename>`
 pub type Thumbnail {
-  Thumbnail(media: String, description: String, spoiler: Bool)
+  Thumbnail(url: String, description: String, spoiler: Bool)
 }
 
 pub fn thumbnail_json(thumbnail: Thumbnail) -> Json {
   [
     #("type", json.int(11)),
-    #("media", json.string(thumbnail.media)),
+    #("media", json.object([#("url", json.string(thumbnail.url))])),
     #("description", json.string(thumbnail.description)),
     #("spoiler", json.bool(thumbnail.spoiler)),
   ]

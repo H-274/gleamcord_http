@@ -92,7 +92,7 @@ fn colour_container(hex: String, value: Int) -> message.ComponentRoot {
       layout.container_section(
         components: ["Selected the following colour: " <> hex],
         accessory: layout.section_thumbnail(
-          media: "https://placehold.co/150/" <> hex <> "/.jpeg",
+          url: "https://placehold.co/150/" <> hex <> "/.jpeg",
           description: hex,
           spoiler: False,
         ),
