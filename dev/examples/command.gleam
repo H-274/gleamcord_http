@@ -10,8 +10,10 @@ import gleamcord_http/command/interaction
 import gleamcord_http/component/layout
 import gleamcord_http/message
 
+// Public for use in the translator
 pub const greet_name = "greet"
 
+// Public for use in the translator
 pub const greet_desc = "greets user"
 
 pub fn greet() {
@@ -52,13 +54,17 @@ const color_suggestions = [
 ]
 
 fn hex_autocomplete(_interaction, _options, partial, _state) {
-  case int.base_parse(partial, 16) {
-    Ok(val) if val >= 0 -> {
+  case int.base_parse(partial, 16), string.length(partial) {
+    Ok(val), len if val >= 0 && len < 6 -> {
       let pad_0 = string.pad_end(partial, 6, "0")
       let pad_f = string.pad_end(partial, 6, "f")
       [#(pad_0, pad_0), #(pad_f, pad_f)]
     }
-    _ -> color_suggestions
+    Ok(val), _ if val >= 0 -> {
+      let suggestion = string.slice(partial, 0, 6)
+      [#(suggestion, suggestion)]
+    }
+    _, _ -> color_suggestions
   }
 }
 
