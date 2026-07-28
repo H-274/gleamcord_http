@@ -120,7 +120,12 @@ pub type StringSelectData {
 }
 
 fn string_select_data_decoder() -> decode.Decoder(StringSelectData) {
-  todo
+  use id <- decode.field("id", decode.int)
+  use custom_id <- decode.field("custom_id", decode.string)
+  use values <- decode.field("values", decode.list(decode.string))
+
+  StringSelectData(id:, custom_id:, values:)
+  |> decode.success
 }
 
 // TODO update values type

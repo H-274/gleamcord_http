@@ -109,6 +109,7 @@ pub fn string_select_json(string_select: StringSelect) -> Json {
   ) = string_select
 
   [
+    #("type", json.int(3)),
     #("custom_id", json.string(custom_id)),
     #("options", json.array(options, select_option_json)),
     #("placeholder", json.string(placeholder)),
