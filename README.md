@@ -39,8 +39,8 @@ Message component handlers vary based on the variant of component used.
 > [!WARNING]
 > Many of the components exclusive to modals are under work and may crash from hitting a `todo` statement.
 
-Modal component don't have handlers, since all components of a modal are submitted at once.
-So instead, the modal has the handler.
+Modal components don't have handlers, since all components of a modal are submitted at once.
+Instead, the modal has the handler.
 
 The modal's handler has the default 2 parameters, but also a `Dict` of the different components and their values
 
