@@ -8,7 +8,7 @@ pub fn text_display_json(text: TextDisplay) -> json.Json {
   |> json.object
 }
 
-// TODO eventually handle "unfurled media item"
+// TODO using "unfurled media item"
 pub type Thumbnail {
   Thumbnail(media: String, description: String, spoiler: Bool)
 }
