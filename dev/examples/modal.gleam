@@ -38,7 +38,7 @@ pub fn about_me() {
     ),
   ]
 
-  use _interaction, _state, values <- modal.new(id:, title:, components:)
+  use _interaction, values <- modal.new(id:, title:, components:)
   let assert Ok(nickname) = dict.get(values, nickname_input.custom_id)
   let assert Ok(description) = dict.get(values, description_input.custom_id)
 

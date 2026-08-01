@@ -19,7 +19,7 @@ pub const greet_desc = "greets user"
 pub fn greet() {
   let sig = command.simple_signature(name: greet_name, desc: greet_desc)
 
-  use i, _s <- command.user(sig:)
+  use i <- command.user(sig:)
   let assert interaction.User(data) = i.data
 
   { "Hello <@" <> data.target_id <> ">!" }
@@ -30,7 +30,7 @@ pub fn greet() {
 pub fn report() {
   let sig = command.simple_signature(name: "report", desc: "")
 
-  use i, _s <- command.message(sig:)
+  use i <- command.message(sig:)
   let assert interaction.Message(data) = i.data
 
   { "Successfully reported message with id: `" <> data.target_id <> "`" }
@@ -53,7 +53,7 @@ const color_suggestions = [
   #("blue", "0000ff"),
 ]
 
-fn hex_autocomplete(_interaction, _options, partial, _state) {
+fn hex_autocomplete(_interaction, _options, partial) {
   case int.base_parse(partial, 16), string.length(partial) {
     Ok(val), len if val >= 0 && len < 6 -> {
       let pad_0 = string.pad_end(partial, 6, "0")
@@ -72,7 +72,7 @@ pub fn colour() {
   let sig = command.simple_signature(name: "colour", desc: "choose a colour")
   let opts = [hex_opt]
 
-  use _i, o, _s <- command.chat_input(sig:, opts:)
+  use _i, o <- command.chat_input(sig:, opts:)
   let assert Ok(StrVal(value: hex_string, ..)) = dict.get(o, hex_opt.name)
 
   case int.base_parse(hex_string, 16) {
@@ -134,7 +134,7 @@ fn hello_name_repeat() {
   let times_opt = command.IntegerOption("times", "", True, 0, 5)
   let opts = [name_opt, times_opt]
 
-  use _i, o, _s <- command.subcommand(name: "repeat", desc: "", opts:)
+  use _i, o <- command.subcommand(name: "repeat", desc: "", opts:)
   let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
   let assert Ok(IntVal(value: times, ..)) = dict.get(o, times_opt.name)
 
@@ -147,7 +147,7 @@ fn hello_name_repeat() {
 fn hello_name_caps() {
   let opts = [name_opt]
 
-  use _i, o, _s <- command.subcommand(name: "caps", desc: "", opts:)
+  use _i, o <- command.subcommand(name: "caps", desc: "", opts:)
   let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_opt.name)
 
   string.capitalise(name)
@@ -156,7 +156,7 @@ fn hello_name_caps() {
 }
 
 fn hello_world() {
-  use _i, _o, _s <- command.subcommand(name: "world", desc: "", opts: [])
+  use _i, _o <- command.subcommand(name: "world", desc: "", opts: [])
 
   { "Hello world! " }
   |> message.NewText(flags: [message.Ephemeral])

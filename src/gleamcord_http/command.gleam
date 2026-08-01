@@ -8,22 +8,22 @@ import gleamcord_http/locale
 import gleamcord_http/message
 import gleamcord_http/modal.{type Modal}
 
-pub opaque type Command(state) {
+pub opaque type Command {
   ChatInput(
     signature: Signature,
-    options: List(#(String, Option(state))),
-    handler: ChatInputHandler(state),
+    options: List(#(String, Option)),
+    handler: ChatInputHandler,
   )
-  Group(signature: Signature, elements: Dict(String, Element(state)))
-  User(signature: Signature, handler: UserHandler(state))
-  Message(signature: Signature, handler: MessageHandler(state))
+  Group(signature: Signature, elements: Dict(String, Element))
+  User(signature: Signature, handler: UserHandler)
+  Message(signature: Signature, handler: MessageHandler)
 }
 
 pub fn chat_input(
   sig signature: Signature,
-  opts options: List(Option(_)),
-  handler handler: ChatInputHandler(_),
-) -> Command(_) {
+  opts options: List(Option),
+  handler handler: ChatInputHandler,
+) -> Command {
   let options =
     options
     |> list.map(fn(o) { #(o.name, o) })
@@ -33,8 +33,8 @@ pub fn chat_input(
 
 pub fn group(
   sig signature: Signature,
-  elements elements: List(Element(_)),
-) -> Command(_) {
+  elements elements: List(Element),
+) -> Command {
   let elements =
     elements
     |> list.map(fn(e) {
@@ -48,25 +48,22 @@ pub fn group(
   Group(signature:, elements:)
 }
 
-pub fn user(
-  sig signature: Signature,
-  handler handler: UserHandler(_),
-) -> Command(_) {
+pub fn user(sig signature: Signature, handler handler: UserHandler) -> Command {
   User(signature:, handler:)
 }
 
 pub fn message(
   sig signature: Signature,
-  handler handler: MessageHandler(_),
-) -> Command(_) {
+  handler handler: MessageHandler,
+) -> Command {
   Message(signature:, handler:)
 }
 
-pub fn to_tuple(command: Command(_)) -> #(String, Command(_)) {
+pub fn to_tuple(command: Command) -> #(String, Command) {
   #(command.signature.name, command)
 }
 
-pub fn json(command: Command(_), translator: locale.Translator) -> Json {
+pub fn json(command: Command, translator: locale.Translator) -> Json {
   case command {
     ChatInput(options:, ..) -> [
       #("type", json.int(1)),
@@ -188,7 +185,7 @@ fn context_json(context: Context) {
   }
 }
 
-pub type Option(state) {
+pub type Option {
   StringOption(
     name: String,
     description: String,
@@ -208,7 +205,7 @@ pub type Option(state) {
     required: Bool,
     min_len: Int,
     max_len: Int,
-    autocomplete: AutocompleteHandler(state, String),
+    autocomplete: AutocompleteHandler(String),
   )
   IntegerOption(
     name: String,
@@ -229,7 +226,7 @@ pub type Option(state) {
     required: Bool,
     min_val: Int,
     max_val: Int,
-    autocomplete: AutocompleteHandler(state, Int),
+    autocomplete: AutocompleteHandler(Int),
   )
   BooleanOption(name: String, description: String, required: Bool)
   UserOption(name: String, description: String, required: Bool)
@@ -260,19 +257,19 @@ pub type Option(state) {
     required: Bool,
     min_val: Float,
     max_val: Float,
-    autocomplete: AutocompleteHandler(state, Float),
+    autocomplete: AutocompleteHandler(Float),
   )
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
 fn options_json(
-  options: List(#(String, Option(_))),
+  options: List(#(String, Option)),
   translator: locale.Translator,
 ) -> Json {
   list.map(options, fn(o) { o.1 }) |> json.array(option_json(_, translator))
 }
 
-fn option_json(option: Option(_), translator: locale.Translator) -> Json {
+fn option_json(option: Option, translator: locale.Translator) -> Json {
   let distinct_fields = case option {
     StringOption(min_len:, max_len:, ..) -> [
       #("type", json.int(3)),
@@ -349,24 +346,23 @@ fn option_json(option: Option(_), translator: locale.Translator) -> Json {
   |> json.object
 }
 
-pub type ChatInputHandler(state) =
-  fn(Interaction, Dict(String, command_options.Value), state) -> Response(state)
+pub type ChatInputHandler =
+  fn(Interaction, Dict(String, command_options.Value)) -> Response
 
-pub type UserHandler(state) =
-  fn(Interaction, state) -> Response(state)
+pub type UserHandler =
+  fn(Interaction) -> Response
 
-pub type MessageHandler(state) =
-  fn(Interaction, state) -> Response(state)
+pub type MessageHandler =
+  fn(Interaction) -> Response
 
-pub type Response(state) {
+pub type Response {
   MessageResponse(message.New)
   DeferredMessageResponse(fn() -> message.New)
-  ModalResponse(Modal(state))
+  ModalResponse(Modal)
 }
 
-pub type AutocompleteHandler(state, t) =
-  fn(Interaction, Dict(String, command_options.Value), t, state) ->
-    List(#(String, t))
+pub type AutocompleteHandler(t) =
+  fn(Interaction, Dict(String, command_options.Value), t) -> List(#(String, t))
 
 pub type Autocomplete {
   StringAutocomplete(List(#(String, String)))
@@ -400,20 +396,20 @@ fn number_choice_json(choice: #(String, Float)) {
   |> json.object
 }
 
-pub opaque type Element(state) {
+pub opaque type Element {
   GroupElement(
     name: String,
     description: String,
-    subcommands: Dict(String, Subcommand(state)),
+    subcommands: Dict(String, Subcommand),
   )
-  SubcommandElement(Subcommand(state))
+  SubcommandElement(Subcommand)
 }
 
 pub fn group_element(
   name name: String,
   desc description: String,
-  sub subcommands: List(Subcommand(_)),
-) -> Element(_) {
+  sub subcommands: List(Subcommand),
+) -> Element {
   let subcommands =
     subcommands
     |> list.map(fn(s) { #(s.name, s) })
@@ -422,18 +418,18 @@ pub fn group_element(
   GroupElement(name:, description:, subcommands:)
 }
 
-pub fn subcommand_element(subcommand: Subcommand(_)) -> Element(_) {
+pub fn subcommand_element(subcommand: Subcommand) -> Element {
   SubcommandElement(subcommand)
 }
 
 fn elements_json(
-  elements: Dict(String, Element(_)),
+  elements: Dict(String, Element),
   translator: locale.Translator,
 ) -> Json {
   dict.values(elements) |> json.array(element_json(_, translator))
 }
 
-fn element_json(element: Element(_), translator: locale.Translator) -> Json {
+fn element_json(element: Element, translator: locale.Translator) -> Json {
   case element {
     GroupElement(name:, description:, subcommands:) -> {
       let name_localizations =
@@ -457,21 +453,21 @@ fn element_json(element: Element(_), translator: locale.Translator) -> Json {
   }
 }
 
-pub opaque type Subcommand(state) {
+pub opaque type Subcommand {
   Subcommand(
     name: String,
     description: String,
-    options: List(#(String, Option(state))),
-    handler: ChatInputHandler(state),
+    options: List(#(String, Option)),
+    handler: ChatInputHandler,
   )
 }
 
 pub fn subcommand(
   name name: String,
   desc description: String,
-  opts options: List(Option(_)),
-  handler handler: ChatInputHandler(_),
-) -> Subcommand(_) {
+  opts options: List(Option),
+  handler handler: ChatInputHandler,
+) -> Subcommand {
   let options =
     options
     |> list.map(fn(o) { #(o.name, o) })
@@ -480,7 +476,7 @@ pub fn subcommand(
 }
 
 fn subcommand_json(
-  subcommand: Subcommand(_),
+  subcommand: Subcommand,
   translator: locale.Translator,
 ) -> Json {
   let Subcommand(name:, description:, options:, ..) = subcommand
@@ -500,28 +496,24 @@ fn subcommand_json(
   |> json.object
 }
 
-pub fn handle_interaction(
-  commands: Dict(String, Command(_)),
-  i: Interaction,
-  state: _,
-) {
+pub fn handle_interaction(commands: Dict(String, Command), i: Interaction) {
   case i.data {
     interaction.ChatInput(data) ->
       case dict.get(commands, data.name), data.options {
         Ok(ChatInput(handler:, ..)), command_options.Values(v) ->
-          handler(i, v, state) |> Ok
+          handler(i, v) |> Ok
         Ok(Group(elements:, ..)), command_options.Group(g) ->
-          handle_group_interaction(i, state, elements, g)
+          handle_group_interaction(i, elements, g)
         _, _ -> Error(Nil)
       }
     interaction.User(data) ->
       case dict.get(commands, data.name) {
-        Ok(User(_, handler:)) -> handler(i, state) |> Ok
+        Ok(User(_, handler:)) -> handler(i) |> Ok
         _ -> Error(Nil)
       }
     interaction.Message(data) ->
       case dict.get(commands, data.name) {
-        Ok(Message(_, handler:)) -> handler(i, state) |> Ok
+        Ok(Message(_, handler:)) -> handler(i) |> Ok
         _ -> Error(Nil)
       }
   }
@@ -529,21 +521,20 @@ pub fn handle_interaction(
 
 fn handle_group_interaction(
   i: Interaction,
-  state: _,
-  elements: Dict(String, Element(_)),
+  elements: Dict(String, Element),
   group: command_options.Group,
 ) {
   case group {
     command_options.SubcommandElement(invoked) ->
       case dict.get(elements, invoked.name) {
-        Ok(SubcommandElement(s)) -> s.handler(i, invoked.options, state) |> Ok
+        Ok(SubcommandElement(s)) -> s.handler(i, invoked.options) |> Ok
         _ -> Error(Nil)
       }
     command_options.GroupElement(name:, subcommand:) ->
       case dict.get(elements, name) {
         Ok(GroupElement(subcommands:, ..)) ->
           case dict.get(subcommands, subcommand.name) {
-            Ok(s) -> s.handler(i, subcommand.options, state) |> Ok
+            Ok(s) -> s.handler(i, subcommand.options) |> Ok
             _ -> Error(Nil)
           }
         _ -> Error(Nil)
@@ -552,17 +543,16 @@ fn handle_group_interaction(
 }
 
 pub fn handle_autocomplete_interaction(
-  commands: Dict(String, Command(_)),
+  commands: Dict(String, Command),
   i: Interaction,
-  state: _,
 ) {
   case i.data {
     interaction.ChatInput(data) ->
       case dict.get(commands, data.name), data.options {
         Ok(ChatInput(options:, ..)), command_options.Values(values) ->
-          options_autocomplete(options, i, values, state)
+          options_autocomplete(options, i, values)
         Ok(Group(elements:, ..)), command_options.Group(g) ->
-          handle_group_autocomplete_interaction(g, elements, i, state)
+          handle_group_autocomplete_interaction(g, elements, i)
         _, _ -> Error(Nil)
       }
     _ -> Error(Nil)
@@ -571,15 +561,14 @@ pub fn handle_autocomplete_interaction(
 
 fn handle_group_autocomplete_interaction(
   g: command_options.Group,
-  elements: Dict(String, Element(_)),
+  elements: Dict(String, Element),
   i: Interaction,
-  state: _,
 ) -> Result(Autocomplete, Nil) {
   case g {
     command_options.SubcommandElement(invoked) ->
       case dict.get(elements, invoked.name) {
         Ok(SubcommandElement(s)) ->
-          options_autocomplete(s.options, i, invoked.options, state)
+          options_autocomplete(s.options, i, invoked.options)
         _ -> Error(Nil)
       }
     command_options.GroupElement(name:, subcommand:) ->
@@ -587,7 +576,7 @@ fn handle_group_autocomplete_interaction(
         Ok(GroupElement(subcommands:, ..)) ->
           case dict.get(subcommands, subcommand.name) {
             Ok(Subcommand(options:, ..)) ->
-              options_autocomplete(options, i, subcommand.options, state)
+              options_autocomplete(options, i, subcommand.options)
             _ -> Error(Nil)
           }
         _ -> Error(Nil)
@@ -596,29 +585,28 @@ fn handle_group_autocomplete_interaction(
 }
 
 fn options_autocomplete(
-  options: List(#(String, Option(_))),
+  options: List(#(String, Option)),
   i: Interaction,
   values: Dict(String, command_options.Value),
-  state: _,
 ) -> Result(Autocomplete, Nil) {
   let assert Ok(focused) = dict.values(values) |> command_options.find_focused
   case list.key_find(options, focused.name), focused {
     Ok(StringAutocompleteOption(autocomplete:, ..)),
       command_options.StringValue(value:, ..)
     ->
-      autocomplete(i, values, value, state)
+      autocomplete(i, values, value)
       |> StringAutocomplete
       |> Ok
     Ok(IntegerAutocompleteOption(autocomplete:, ..)),
       command_options.IntegerValue(value:, ..)
     ->
-      autocomplete(i, values, value, state)
+      autocomplete(i, values, value)
       |> IntegerAutocomplete
       |> Ok
     Ok(NumberAutocompleteOption(autocomplete:, ..)),
       command_options.NumberValue(value:, ..)
     ->
-      autocomplete(i, values, value, state)
+      autocomplete(i, values, value)
       |> NumberAutocomplete
       |> Ok
     _, _ -> Error(Nil)

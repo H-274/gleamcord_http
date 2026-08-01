@@ -4,12 +4,12 @@ import gleamcord_http/component/layout
 import gleamcord_http/message
 import gleamcord_http/modal/interaction.{type Interaction}
 
-pub opaque type Modal(state) {
+pub opaque type Modal {
   Modal(
     custom_id: String,
     title: String,
     components: List(layout.Label),
-    handler: Handler(state),
+    handler: Handler,
   )
 }
 
@@ -17,16 +17,16 @@ pub fn new(
   id custom_id: String,
   title title: String,
   components components: List(layout.Label),
-  handler handler: Handler(_),
+  handler handler: Handler,
 ) {
   Modal(custom_id:, title:, components:, handler:)
 }
 
-pub fn to_tuple(modal modal: Modal(_)) {
+pub fn to_tuple(modal modal: Modal) {
   #(modal.custom_id, modal)
 }
 
-pub fn json(modal: Modal(_)) {
+pub fn json(modal: Modal) {
   let Modal(custom_id:, title:, components:, handler: _) = modal
 
   [
@@ -38,8 +38,8 @@ pub fn json(modal: Modal(_)) {
 }
 
 // TODO eventually directly put values from resolved instead of string as dict value
-pub type Handler(state) =
-  fn(Interaction, state, Dict(String, String)) -> Response
+pub type Handler =
+  fn(Interaction, Dict(String, String)) -> Response
 
 pub type Response {
   MessageResponse(message.New)
@@ -49,12 +49,11 @@ pub type Response {
 }
 
 pub fn handle_interaction(
-  modals: Dict(String, Modal(_)),
+  modals: Dict(String, Modal),
   i: Interaction,
-  state: _,
 ) -> Result(Response, Nil) {
   case dict.get(modals, i.data.custom_id) {
-    Ok(modal) -> modal.handler(i, state, i.data.components) |> Ok
+    Ok(modal) -> modal.handler(i, i.data.components) |> Ok
     _ -> Error(Nil)
   }
 }

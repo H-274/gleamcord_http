@@ -18,7 +18,7 @@ const slow_button = PrimaryButton(
 )
 
 pub fn button() {
-  use _interaction, _state <- component.Button(slow_button)
+  use _interaction <- component.Button(slow_button)
 
   use <- component.DeferredUpdateResponse
 
@@ -72,9 +72,7 @@ const interactive_string_select = StringSelect(
 )
 
 pub fn string_select() {
-  use _interaction, _state, values <- component.StringSelect(
-    interactive_string_select,
-  )
+  use _interaction, values <- component.StringSelect(interactive_string_select)
 
   { "You selected:\n" <> string.join(values, ", ") }
   |> message.NewText([])
@@ -92,9 +90,7 @@ const interactive_user_select = UserSelect(
 )
 
 pub fn user_select() {
-  use _interaction, _state, values <- component.UserSelect(
-    interactive_user_select,
-  )
+  use _interaction, values <- component.UserSelect(interactive_user_select)
   let users: List(Dynamic) = values.0
   let members: List(Dynamic) = values.1
 
@@ -116,9 +112,7 @@ const interactive_role_slect = RoleSelect(
 )
 
 pub fn role_select() {
-  use _interaction, _state, values <- component.RoleSelect(
-    interactive_role_slect,
-  )
+  use _interaction, values <- component.RoleSelect(interactive_role_slect)
   let roles: List(Dynamic) = values
 
   echo roles
@@ -139,7 +133,7 @@ const interactive_mentionable_select = MentionableSelect(
 )
 
 pub fn mentionable_select() {
-  use _interaction, _state, values <- component.MentionableSelect(
+  use _interaction, values <- component.MentionableSelect(
     interactive_mentionable_select,
   )
   let users: List(Dynamic) = values.0
@@ -165,7 +159,7 @@ const interactive_channel_select = ChannelSelect(
 )
 
 pub fn channel_select() {
-  use _interaction, _state, values <- component.ChannelSelect(
+  use _interaction, values <- component.ChannelSelect(
     interactive_channel_select,
   )
   let channels: List(Dynamic) = values
