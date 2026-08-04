@@ -13,17 +13,17 @@
 
 ### Handlers
 
-Interaction handlers have between 2 and 3 parameters.
+Interaction handlers have between 1 and 2 parameters.
 
-- They will always, at least, have their respective interaction, and the bot's state.
-- Chat input commands, and components that take an input have a third parameter.
+- They will always, at least, have their respective interaction
+- Chat input commands, and components that take an input have a second parameter.
 
 #### Chat Input Handlers
 
-They will always have a third parameter called `options`, representing **VALUE** command options from discord
+They will always have a second parameter referred to as `options`, representing **VALUE** command options from discord
 
 > [!NOTE]
-> Subcommand group and subcommand options are not present as options in this library.
+> Subcommand group and subcommand options are not present as "options" in this library.
 > They are defined as part of a seperate variant of command called `Group`.
 > This library handles routing interactions to subcommands for you.
 
@@ -31,27 +31,30 @@ They will always have a third parameter called `options`, representing **VALUE**
 
 Message component handlers vary based on the variant of component used.
 
-- Buttons only have the 2 basic handler parameters
-- Selectors have 3 parameters, the third one is a `Dict` of either the string values, or of snowflake strings to use with the `Resolved` type present in the interaction.
+- Buttons only have the 1 basic handler parameter
+- Selectors have 2 parameters, the second one is a `Dict` of either the string values, or of snowflake strings to use with the `Resolved` type present in the interaction.
 
 #### Modal Component Handlers
 
 > [!WARNING]
 > Many of the components exclusive to modals are under work and may crash from hitting a `todo` statement.
 
-Modal components don't have handlers, since all components of a modal are submitted at once.
-Instead, the modal has the handler.
+Modal *components* don't have handlers, since all components of a modal are submitted at once.
+Instead, the *modal* has the handler.
 
-The modal's handler has the default 2 parameters, but also a `Dict` of the different components and their values
+The modal's handler has the default parameter, but also a `Dict` of the different components and their values
 
 ## Handling
 
 ```gleam
-import gleamcord_http/bot
+import gleam/dynamic.{type Dynamic}
+import gleam/dynamic/decode
+import gleamcord_http/bot.{type Bot}
+import gleamcord_http/interaction
 
-pub fn app(state) {
+pub fn app() {
   let app =
-    bot.new(state:)
+    bot.new()
     |> bot.add_commands([
       // Your commands
     ])
@@ -63,13 +66,14 @@ pub fn app(state) {
     ])
 }
 
-pub fn handle_interaction(interaction) {
-  // Replace `Nil` with your desired state or keep it if you either don't want to pass state, 
-  // or if you wish to do it on a per-handler basis using their constructors
-  let app = app(Nil)
+pub fn handle_body(app: Bot, req_body: Dynamic) {
+  let assert Ok(interaction) = deode.run(req_body, interaction.decoder())
 
-  // gleamcord_http handles interaction routing, you just need to parse it
-  bot.handle_interaction(app, interaction:)
+  // gleamcord_http handles interaction routing, you just need to parse
+  // the interaction from the request, using the provided decoder
+  let res = bot.handle_interaction(app, interaction:)
+
+  // ...
 }
 ```
 
@@ -83,10 +87,10 @@ import gleam/erlang/process
 import gleam/dict
 
 // A hello world slash command
-pub fn hello_world() -> Command(_) {
+pub fn hello_world() -> Command {
   let sig = command.simple_signature(name: "hello_world", desc: "basic slash command")
 
-  use _i, _s, _o <- command.chat_input(sig:, opts: [])
+  use _i, _o <- command.chat_input(sig:, opts: [])
 
   { "Hello world!" }
   |> message.NewText([])
@@ -104,11 +108,11 @@ const name_option =
   )
 
 // A slash command with an option
-pub fn command_options() -> Command(_) {
+pub fn command_options() -> Command {
   let sig = command.simple_signature(name: "options", desc: "options example")
   let opts = [name_option]
 
-  use _i, o, _s <- command.chat_input(sig:, opts:)
+  use _i, o <- command.chat_input(sig:, opts:)
   // Extract options through the provided dictionary
   let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_option.name)
 
@@ -118,10 +122,10 @@ pub fn command_options() -> Command(_) {
 }
 
 // Defining a user command with a deferred response
-pub fn slow_user() -> Command(_) {
+pub fn slow_user() -> Command {
   let sig = command.simple_signature(name: "slow_hello", desc: "slow hello command")
 
-  use _, _, _ <- command.user(sig:, opts: [])
+  use _, _ <- command.user(sig:, opts: [])
   use <- command.DeferredMessageResponse
 
   process.sleep(10_000)
@@ -180,18 +184,18 @@ import gleamcord_http/modal
 import gleamcord_http/message
 import gleam/dict
 
+const animal_label = layout.Label(
+    label: "Animals",
+    description: "",
+    component: layout.LabelStringSelect(select_animals),
+  )
+
 pub fn modal_animals() {
   let id = "animals-modal"
   let title = "Animals"
-  let components = [
-    layout.Label(
-      label: "Animals",
-      description: "",
-      component: layout.LabelStringSelect(select_animals),
-    )
-  ]
+  let components = [animal_label]
 
-  use _i, _s, values <- modal.new(id:, title:, components:)
+  use _i, values <- modal.new(id:, title:, components:)
   let assert Ok(animals) = dict.get(values, select_animals.custom_id)
 
   echo animals
@@ -211,7 +215,7 @@ import gleamcord_http/component
 import gleam/string
 
 pub fn component_animals() {
-  use _i, _s, v <- message_component.StringSelect(select_animals)
+  use _i, v <- message_component.StringSelect(select_animals)
   
   {"Selected: " <> string.join(v, ", ")}
   |> message.NewText([])
