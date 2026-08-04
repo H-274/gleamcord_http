@@ -184,16 +184,16 @@ import gleamcord_http/modal
 import gleamcord_http/message
 import gleam/dict
 
-const animal_label = layout.Label(
-    label: "Animals",
-    description: "",
-    component: layout.LabelStringSelect(select_animals),
-  )
-
 pub fn modal_animals() {
   let id = "animals-modal"
   let title = "Animals"
-  let components = [animal_label]
+  let components = [
+    layout.Label(
+      label: "Animals",
+      description: "",
+      component: layout.LabelStringSelect(select_animals),
+    )
+  ]
 
   use _i, values <- modal.new(id:, title:, components:)
   let assert Ok(animals) = dict.get(values, select_animals.custom_id)
