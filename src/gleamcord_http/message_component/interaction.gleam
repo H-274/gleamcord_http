@@ -2,7 +2,7 @@ import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
-import gleamcord_http/locale.{type Locale}
+import gleamcord_http.{type Locale}
 
 pub type Interaction {
   Interaction(
@@ -46,10 +46,13 @@ pub fn decoder() -> decode.Decoder(Interaction) {
   use version <- decode.field("version", decode.int)
   use message <- decode.field("message", decode.dynamic)
   use permissions <- decode.field("app_permissions", decode.string)
-  use locale <- decode.field("locale", decode.optional(locale.decoder()))
+  use locale <- decode.field(
+    "locale",
+    decode.optional(gleamcord_http.locale_decoder()),
+  )
   use guild_locale <- decode.field(
     "guild_locale",
-    decode.optional(locale.decoder()),
+    decode.optional(gleamcord_http.locale_decoder()),
   )
   use entitlements <- decode.field("entitlements", decode.list(decode.dynamic))
   use authorizing_integration_owners <- decode.field(

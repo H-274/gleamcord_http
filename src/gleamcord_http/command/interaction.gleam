@@ -5,11 +5,11 @@ import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
+import gleamcord_http.{type Locale}
 import gleamcord_http/command/command_options.{
   type CommandOption as CommandOptions,
 }
-import gleamcord_http/locale.{type Locale}
-import gleamcord_http/resolved.{type Resolved}
+import gleamcord_http/discord
 
 pub type Interaction {
   Interaction(
@@ -51,10 +51,13 @@ pub fn decoder() -> decode.Decoder(Interaction) {
   use token <- decode.field("token", decode.string)
   use version <- decode.field("version", decode.int)
   use permissions <- decode.optional_field("app_permissions", "", decode.string)
-  use locale <- decode.field("locale", decode.optional(locale.decoder()))
+  use locale <- decode.field(
+    "locale",
+    decode.optional(gleamcord_http.locale_decoder()),
+  )
   use guild_locale <- decode.field(
     "guild_locale",
-    decode.optional(locale.decoder()),
+    decode.optional(gleamcord_http.locale_decoder()),
   )
   use entitlements <- decode.field("entitlements", decode.list(decode.dynamic))
   use authorizing_integration_owners <- decode.field(
@@ -116,7 +119,7 @@ pub type ChatInputData {
   ChatInputData(
     id: String,
     name: String,
-    resolved: Option(Resolved),
+    resolved: Option(discord.Resolved),
     options: CommandOptions,
     guild_id: Option(String),
     target_id: Option(String),
@@ -129,7 +132,7 @@ fn chat_input_data_decoder() -> decode.Decoder(ChatInputData) {
   use resolved <- decode.optional_field(
     "resolved",
     option.None,
-    decode.optional(resolved.decoder()),
+    decode.optional(discord.resolved_decoder()),
   )
   use options <- decode.optional_field(
     "options",
@@ -160,7 +163,7 @@ pub type UserData {
   UserData(
     id: String,
     name: String,
-    resolved: Resolved,
+    resolved: discord.Resolved,
     guild_id: Option(String),
     target_id: String,
   )
@@ -169,7 +172,7 @@ pub type UserData {
 fn user_data_decoder() -> decode.Decoder(UserData) {
   use id <- decode.field("id", decode.string)
   use name <- decode.field("name", decode.string)
-  use resolved <- decode.field("resolved", resolved.decoder())
+  use resolved <- decode.field("resolved", discord.resolved_decoder())
   use guild_id <- decode.field("guild_id", decode.optional(decode.string))
   use target_id <- decode.field("target_id", decode.string)
   decode.success(UserData(id:, name:, resolved:, guild_id:, target_id:))
@@ -179,7 +182,7 @@ pub type MessageData {
   MessageData(
     id: String,
     name: String,
-    resolved: Resolved,
+    resolved: discord.Resolved,
     guild_id: Option(String),
     target_id: String,
   )
@@ -188,7 +191,7 @@ pub type MessageData {
 fn message_data_decoder() -> decode.Decoder(MessageData) {
   use id <- decode.field("id", decode.string)
   use name <- decode.field("name", decode.string)
-  use resolved <- decode.field("resolved", resolved.decoder())
+  use resolved <- decode.field("resolved", discord.resolved_decoder())
   use guild_id <- decode.field("guild_id", decode.optional(decode.string))
   use target_id <- decode.field("target_id", decode.string)
   decode.success(MessageData(id:, name:, resolved:, guild_id:, target_id:))

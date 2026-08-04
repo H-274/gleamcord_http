@@ -1,10 +1,10 @@
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/result
+import gleamcord_http.{type Modal}
 import gleamcord_http/command.{type Command}
 import gleamcord_http/interaction.{type Interaction}
 import gleamcord_http/message_component.{type MessageComponent}
-import gleamcord_http/modal.{type Modal}
 import gleamcord_http/response
 
 pub opaque type Bot {
@@ -64,14 +64,15 @@ pub fn modals(bot bot: Bot) {
 }
 
 pub fn add_modal(bot bot: Bot, modal modal: Modal) {
-  let tuple = modal.to_tuple(modal)
+  let tuple = gleamcord_http.modal_tuple(modal)
   let updated = dict.insert(bot.modals, tuple.0, tuple.1)
 
   Bot(..bot, modals: updated)
 }
 
 pub fn add_modals(bot bot: Bot, modals modals: List(Modal)) {
-  let new_modals = list.map(modals, modal.to_tuple) |> dict.from_list
+  let new_modals =
+    list.map(modals, gleamcord_http.modal_tuple) |> dict.from_list
   let updated = dict.combine(bot.modals, new_modals, fn(_, b) { b })
 
   Bot(..bot, modals: updated)
@@ -90,7 +91,7 @@ pub fn handle_interaction(bot bot: Bot, i interaction: Interaction) {
       command.handle_autocomplete_interaction(bot.commands, i)
       |> result.map(response.Autocomplete)
     interaction.ModalSubmit(i) ->
-      modal.handle_interaction(bot.modals, i)
+      gleamcord_http.handle_modal_interaction(bot.modals, i)
       |> result.map(response.map_modal)
   }
 }

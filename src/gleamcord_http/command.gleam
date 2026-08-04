@@ -1,12 +1,11 @@
 import gleam/dict.{type Dict}
 import gleam/json.{type Json}
 import gleam/list
-import gleamcord_http/channel
+import gleamcord_http.{type Modal}
 import gleamcord_http/command/command_options
 import gleamcord_http/command/interaction.{type Interaction}
-import gleamcord_http/locale
+import gleamcord_http/discord
 import gleamcord_http/message
-import gleamcord_http/modal.{type Modal}
 
 pub opaque type Command {
   ChatInput(
@@ -63,7 +62,7 @@ pub fn to_tuple(command: Command) -> #(String, Command) {
   #(command.signature.name, command)
 }
 
-pub fn json(command: Command, translator: locale.Translator) -> Json {
+pub fn json(command: Command, translator: gleamcord_http.Translator) -> Json {
   case command {
     ChatInput(options:, ..) -> [
       #("type", json.int(1)),
@@ -112,7 +111,7 @@ pub fn simple_signature(
   )
 }
 
-fn signature_json(signature: Signature, translator: locale.Translator) {
+fn signature_json(signature: Signature, translator: gleamcord_http.Translator) {
   let Signature(
     name:,
     description:,
@@ -122,9 +121,13 @@ fn signature_json(signature: Signature, translator: locale.Translator) {
     nsfw:,
   ) = signature
   let name_localizations =
-    json.dict(translator(name), locale.to_string, json.string)
+    json.dict(translator(name), gleamcord_http.locale_to_string, json.string)
   let description_localizations =
-    json.dict(translator(description), locale.to_string, json.string)
+    json.dict(
+      translator(description),
+      gleamcord_http.locale_to_string,
+      json.string,
+    )
 
   [
     #("name", json.string(name)),
@@ -138,7 +141,10 @@ fn signature_json(signature: Signature, translator: locale.Translator) {
   ]
 }
 
-fn context_signature_json(signature: Signature, translator: locale.Translator) {
+fn context_signature_json(
+  signature: Signature,
+  translator: gleamcord_http.Translator,
+) {
   let Signature(
     name:,
     description: _,
@@ -148,7 +154,7 @@ fn context_signature_json(signature: Signature, translator: locale.Translator) {
     nsfw:,
   ) = signature
   let name_localizations =
-    json.dict(translator(name), locale.to_string, json.string)
+    json.dict(translator(name), gleamcord_http.locale_to_string, json.string)
   [
     #("name", json.string(name)),
     #("name_localizations", name_localizations),
@@ -234,7 +240,7 @@ pub type Option {
     name: String,
     description: String,
     required: Bool,
-    channel_types: List(channel.Type),
+    channel_types: List(discord.ChannelType),
   )
   RoleOption(name: String, description: String, required: Bool)
   MentionableOption(name: String, description: String, required: Bool)
@@ -264,12 +270,12 @@ pub type Option {
 
 fn options_json(
   options: List(#(String, Option)),
-  translator: locale.Translator,
+  translator: gleamcord_http.Translator,
 ) -> Json {
   list.map(options, fn(o) { o.1 }) |> json.array(option_json(_, translator))
 }
 
-fn option_json(option: Option, translator: locale.Translator) -> Json {
+fn option_json(option: Option, translator: gleamcord_http.Translator) -> Json {
   let distinct_fields = case option {
     StringOption(min_len:, max_len:, ..) -> [
       #("type", json.int(3)),
@@ -307,7 +313,9 @@ fn option_json(option: Option, translator: locale.Translator) -> Json {
       #("type", json.int(7)),
       #(
         "channel_types",
-        json.array(channel_types, fn(t) { channel.type_to_id(t) |> json.int }),
+        json.array(channel_types, fn(t) {
+          discord.channel_type_int(t) |> json.int
+        }),
       ),
     ]
     RoleOption(..) -> [#("type", json.int(8))]
@@ -331,9 +339,17 @@ fn option_json(option: Option, translator: locale.Translator) -> Json {
   }
 
   let name_localizations =
-    json.dict(translator(option.name), locale.to_string, json.string)
+    json.dict(
+      translator(option.name),
+      gleamcord_http.locale_to_string,
+      json.string,
+    )
   let description_localizations =
-    json.dict(translator(option.description), locale.to_string, json.string)
+    json.dict(
+      translator(option.description),
+      gleamcord_http.locale_to_string,
+      json.string,
+    )
 
   [
     #("name", json.string(option.name)),
@@ -424,18 +440,29 @@ pub fn subcommand_element(subcommand: Subcommand) -> Element {
 
 fn elements_json(
   elements: Dict(String, Element),
-  translator: locale.Translator,
+  translator: gleamcord_http.Translator,
 ) -> Json {
   dict.values(elements) |> json.array(element_json(_, translator))
 }
 
-fn element_json(element: Element, translator: locale.Translator) -> Json {
+fn element_json(
+  element: Element,
+  translator: gleamcord_http.Translator,
+) -> Json {
   case element {
     GroupElement(name:, description:, subcommands:) -> {
       let name_localizations =
-        json.dict(translator(name), locale.to_string, json.string)
+        json.dict(
+          translator(name),
+          gleamcord_http.locale_to_string,
+          json.string,
+        )
       let description_localization =
-        json.dict(translator(description), locale.to_string, json.string)
+        json.dict(
+          translator(description),
+          gleamcord_http.locale_to_string,
+          json.string,
+        )
       [
         #("type", json.int(2)),
         #("name", json.string(name)),
@@ -477,13 +504,17 @@ pub fn subcommand(
 
 fn subcommand_json(
   subcommand: Subcommand,
-  translator: locale.Translator,
+  translator: gleamcord_http.Translator,
 ) -> Json {
   let Subcommand(name:, description:, options:, ..) = subcommand
   let name_localizations =
-    json.dict(translator(name), locale.to_string, json.string)
+    json.dict(translator(name), gleamcord_http.locale_to_string, json.string)
   let description_localizations =
-    json.dict(translator(description), locale.to_string, json.string)
+    json.dict(
+      translator(description),
+      gleamcord_http.locale_to_string,
+      json.string,
+    )
 
   [
     #("type", json.int(1)),

@@ -3,6 +3,40 @@ import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option.{type Option}
 
+pub type ChannelType {
+  GuildText
+  DM
+  GuildVoice
+  GroupDM
+  GuildCategory
+  GuildAnnouncement
+  AnnouncementThread
+  PublicThread
+  PrivateThread
+  GuildStageVoice
+  GuildDirectory
+  GuildForum
+  GuildMedia
+}
+
+pub fn channel_type_int(typ: ChannelType) {
+  case typ {
+    GuildText -> 0
+    DM -> 1
+    GuildVoice -> 2
+    GroupDM -> 3
+    GuildCategory -> 4
+    GuildAnnouncement -> 5
+    AnnouncementThread -> 10
+    PublicThread -> 11
+    PrivateThread -> 12
+    GuildStageVoice -> 13
+    GuildDirectory -> 14
+    GuildForum -> 15
+    GuildMedia -> 16
+  }
+}
+
 pub type Resolved {
   Resolved(
     users: Option(Dict(String, Dynamic)),
@@ -14,7 +48,7 @@ pub type Resolved {
   )
 }
 
-pub fn decoder() -> decode.Decoder(Resolved) {
+pub fn resolved_decoder() -> decode.Decoder(Resolved) {
   use users <- decode.optional_field(
     "users",
     option.None,

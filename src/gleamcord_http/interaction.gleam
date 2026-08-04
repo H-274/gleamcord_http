@@ -1,11 +1,11 @@
 import gleam/dynamic/decode
+import gleamcord_http.{type ModalInteraction}
 import gleamcord_http/command/interaction.{
   type Interaction as ApplicationCommandInteraction,
 } as command_interaction
 import gleamcord_http/message_component/interaction.{
   type Interaction as MessageComponentInteraction,
 } as component_interaction
-import gleamcord_http/modal/interaction.{type Interaction as ModalInteraction} as modal_interaction
 
 pub type Interaction {
   Ping(id: String, application_id: String, token: String, version: Int)
@@ -24,7 +24,7 @@ pub fn decoder() {
     4 ->
       command_interaction.decoder()
       |> decode.map(ApplicationCommandAutocomplete)
-    5 -> modal_interaction.decoder() |> decode.map(ModalSubmit)
+    5 -> gleamcord_http.modal_interaction_decoder() |> decode.map(ModalSubmit)
     _ -> decode.failure(Ping("", "", "", 0), "Interaction")
   }
 }

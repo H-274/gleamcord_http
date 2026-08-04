@@ -2,7 +2,7 @@
 
 import gleam/json.{type Json}
 import gleam/option.{type Option}
-import gleamcord_http/channel
+import gleamcord_http/discord
 import gleamcord_http/emoji
 
 /// Button interactive components
@@ -248,7 +248,7 @@ pub fn mentionable_select_json(mentionable_select: MentionableSelect) -> Json {
 pub type ChannelSelect {
   ChannelSelect(
     custom_id: String,
-    channel_types: List(channel.Type),
+    channel_types: List(discord.ChannelType),
     placeholder: String,
     default_values: List(Nil),
     min_values: Int,
@@ -265,7 +265,7 @@ pub fn channel_select_json(channel_select: ChannelSelect) -> Json {
     #(
       "channel_types",
       json.array(channel_select.channel_types, fn(t) {
-        channel.type_to_id(t) |> json.int
+        discord.channel_type_int(t) |> json.int
       }),
     ),
     #("placeholder", json.string(channel_select.placeholder)),

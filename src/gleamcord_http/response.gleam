@@ -1,8 +1,20 @@
 import gleam/json.{type Json}
+import gleamcord_http.{type Modal}
 import gleamcord_http/command
 import gleamcord_http/message
 import gleamcord_http/message_component
-import gleamcord_http/modal.{type Modal}
+
+pub type MessageWithSource =
+  message.New
+
+pub type DeferredMessageWithSource =
+  fn() -> message.New
+
+pub type UpdateMessage =
+  message.New
+
+pub type DeferredUpdateMessage =
+  fn() -> message.New
 
 pub type Response {
   Pong
@@ -32,7 +44,10 @@ pub fn json(response: Response) -> Json {
       #("type", json.int(8)),
       #("data", command.autocomplete_json(a)),
     ]
-    Modal(m) -> [#("type", json.int(9)), #("data", modal.json(m))]
+    Modal(m) -> [
+      #("type", json.int(9)),
+      #("data", gleamcord_http.modal_json(m)),
+    ]
   }
   |> json.object
 }
@@ -55,23 +70,11 @@ pub fn map_message_component(response: message_component.Response) {
   }
 }
 
-pub fn map_modal(response: modal.Response) {
+pub fn map_modal(response: gleamcord_http.ModalResponse) {
   case response {
-    modal.MessageResponse(r) -> MessageWithSource(r)
-    modal.DeferredMessageResponse(r) -> DeferredMessageWithSource(r)
-    modal.UpdateResponse(r) -> UpdateMessage(r)
-    modal.DeferredUpdateResponse(r) -> DeferredUpdateMessage(r)
+    gleamcord_http.MessageResponse(r) -> MessageWithSource(r)
+    gleamcord_http.DeferredMessageResponse(r) -> DeferredMessageWithSource(r)
+    gleamcord_http.UpdateResponse(r) -> UpdateMessage(r)
+    gleamcord_http.DeferredUpdateResponse(r) -> DeferredUpdateMessage(r)
   }
 }
-
-pub type MessageWithSource =
-  message.New
-
-pub type DeferredMessageWithSource =
-  fn() -> message.New
-
-pub type UpdateMessage =
-  message.New
-
-pub type DeferredUpdateMessage =
-  fn() -> message.New
