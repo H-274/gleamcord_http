@@ -1,11 +1,11 @@
 import gleam/dict
 import gleam/option
+import gleamcord_http
 import gleamcord_http/component/interactive.{
   LongTextInput, SelectOption, ShortTextInput, StringSelect,
 }
 import gleamcord_http/component/layout
 import gleamcord_http/message
-import gleamcord_http/modal
 
 const nickname_input = ShortTextInput(
   custom_id: "nickname",
@@ -84,7 +84,7 @@ pub fn about_me() {
     ),
   ]
 
-  use _interaction, values <- modal.new(id:, title:, components:)
+  use _interaction, values <- gleamcord_http.modal(id:, title:, components:)
   let assert Ok(nickname) = dict.get(values, nickname_input.custom_id)
   let assert Ok(description) = dict.get(values, description_input.custom_id)
   let assert Ok(animal) = dict.get(values, fav_animal.custom_id)
@@ -93,5 +93,5 @@ pub fn about_me() {
 
   { "Form submitted!" }
   |> message.NewText([])
-  |> modal.MessageResponse
+  |> gleamcord_http.MessageResponse
 }
