@@ -1,9 +1,9 @@
 import gleamcord_http.{
   ChatCommand, ChatCommandGroup, ChatInputSubCommand, ChatSubCommandGroup,
   CommandDeferredMessageResponse, CommandMessageResponse, MessageCommand,
-  StringOption, UserCommand, get_string_value, group_sub_command,
-  simple_definition,
+  UserCommand, group_sub_command, simple_definition,
 }
+import gleamcord_http/command_option
 
 pub fn chat_command_example() {
   let def = simple_definition(name: "hello", desc: "world")
@@ -40,7 +40,7 @@ pub const example_sub_command = ChatInputSubCommand(
   name: "nickname",
   description: "set nickname",
   options: [
-    StringOption(
+    command_option.String(
       name: "value",
       description: "new nickname",
       min_len: 1,
@@ -52,7 +52,7 @@ pub const example_sub_command = ChatInputSubCommand(
 )
 
 fn example_sub_command_run(_interaction, options) {
-  let assert Ok(value) = get_string_value(options, "value")
+  let assert Ok(value) = command_option.get_string_value(options, "value")
 
   let _ = echo value
 
