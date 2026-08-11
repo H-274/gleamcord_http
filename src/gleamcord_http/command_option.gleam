@@ -122,7 +122,12 @@ pub fn get_user_value(
     |> result.flatten,
   )
 
-  decode.run(resolved, decode.at(["users", user_id], decode.dynamic))
+  let users =
+    decode.run(resolved, decode.at(["users", user_id], decode.dynamic))
+  let members =
+    decode.run(resolved, decode.at(["members", user_id], decode.dynamic))
+
+  Ok(#(users, members))
 }
 
 pub fn get_channel_value(
@@ -171,8 +176,10 @@ pub fn get_mention_value(
     decode.run(resolved, decode.at(["roles", mention_id], decode.dynamic))
   let users =
     decode.run(resolved, decode.at(["users", mention_id], decode.dynamic))
+  let members =
+    decode.run(resolved, decode.at(["members", mention_id], decode.dynamic))
 
-  result.or(role, users)
+  Ok(#(role, users, members))
 }
 
 pub fn get_number_value(

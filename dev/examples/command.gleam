@@ -1,3 +1,4 @@
+import gleam/dynamic/decode
 import gleamcord_http.{
   ChatCommand, ChatCommandGroup, ChatInputSubCommand, ChatSubCommandGroup,
   CommandDeferredMessageResponse, CommandMessageResponse, MessageCommand,
@@ -14,12 +15,19 @@ pub fn chat_command_example() {
 
 pub fn slow_chat_command_example() {
   let def = simple_definition(name: "hello", desc: "world")
+  let usr_opt =
+    command_option.User(name: "user", description: "", required: True)
 
-  use _interaction, _options <- ChatCommand(def:, options: [])
+  use interaction, options <- ChatCommand(def:, options: [usr_opt])
   use <- CommandDeferredMessageResponse
+  let assert Ok(resolved) =
+    decode.run(interaction, decode.at(["data", "resolved"], decode.dynamic))
+  let assert Ok(#(Ok(user), Ok(member))) =
+    command_option.get_user_value(options, resolved, "user")
 
   // process.sleep(10_000)
 
+  echo #(user, member)
   todo as "Missing message type"
 }
 

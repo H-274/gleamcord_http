@@ -1,29 +1,11 @@
-import gleam/list
-
 /// Layout
-pub opaque type ActionRow {
+pub type ActionRow {
   ButtonsActionRow(List(Button))
   SelectActionRow(Select)
 }
 
-pub fn buttons_action_row(buttons: List(Button)) {
-  assert list.length(buttons) <= 5
-
-  ButtonsActionRow(buttons)
-}
-
-pub fn select_action_row(select: Select) {
-  SelectActionRow(select)
-}
-
-pub opaque type Section {
+pub type Section {
   Section(components: List(SectionChild), accessory: SectionAccessory)
-}
-
-pub fn section(components: List(SectionChild), accessory: SectionAccessory) {
-  assert !list.is_empty(components) && list.length(components) <= 3
-
-  Section(components:, accessory:)
 }
 
 pub type SectionChild {
@@ -40,7 +22,7 @@ pub type Separator {
   LargeSeparator(divider: Bool)
 }
 
-pub opaque type Container {
+pub type Container {
   Container(components: List(ContainerChild))
   AccentContainer(components: List(ContainerChild), accent_color: Int)
   SpoilerContainer(components: List(ContainerChild), spoiler: Bool)
@@ -49,34 +31,6 @@ pub opaque type Container {
     accent_color: Int,
     spoiler: Bool,
   )
-}
-
-pub fn container(components: List(ContainerChild)) {
-  assert !list.is_empty(components)
-
-  Container(components:)
-}
-
-pub fn accent_container(components: List(ContainerChild), accent_color: Int) {
-  assert !list.is_empty(components)
-
-  AccentContainer(components:, accent_color:)
-}
-
-pub fn spoiler_container(components: List(ContainerChild), spoiler: Bool) {
-  assert !list.is_empty(components)
-
-  SpoilerContainer(components:, spoiler:)
-}
-
-pub fn accent_spoiler_container(
-  components: List(ContainerChild),
-  accent_color: Int,
-  spoiler: Bool,
-) {
-  assert !list.is_empty(components)
-
-  AccentSpoilerContainer(components:, accent_color:, spoiler:)
 }
 
 pub type ContainerChild {
