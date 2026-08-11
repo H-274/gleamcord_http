@@ -70,12 +70,14 @@ pub fn example_group_sub_command() {
 
 pub fn user_command() {
   let def = simple_definition(name: "greet", desc: "greets user")
+
   use _interaction <- UserCommand(def:)
   CommandMessageResponse(todo as "Missing message type")
 }
 
 pub fn message_command() {
   let def = simple_definition(name: "report", desc: "report message")
+
   use _interaction <- MessageCommand(def:)
   CommandMessageResponse(todo as "Missing message type")
 }
