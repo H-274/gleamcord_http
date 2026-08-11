@@ -200,6 +200,7 @@ pub fn get_user_value(
     |> result.map(decode.run(_, decode.string))
     |> result.flatten,
   )
+
   decode.run(resolved, decode.at(["users", user_id], decode.dynamic))
 }
 
