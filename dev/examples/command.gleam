@@ -1,4 +1,3 @@
-import gleam/dynamic/decode
 import gleamcord_http.{
   ChatCommand, ChatCommandGroup, ChatSubCommand, ChatSubCommandGroup,
   CommandDeferredMessageResponse, CommandMessageResponse, MessageCommand,
@@ -31,8 +30,7 @@ pub fn slow_chat_command_example() {
   use interaction, options <- set_command_run
 
   use <- CommandDeferredMessageResponse
-  let assert Ok(resolved) =
-    decode.run(interaction, decode.at(["data", "resolved"], decode.dynamic))
+  let resolved = interaction.data |> fn(_) { todo as "get resolved" }
   let assert Ok(#(Ok(user), Ok(member))) =
     command_option.get_user_value(options, resolved, "user")
 

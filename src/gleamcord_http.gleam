@@ -6,19 +6,27 @@ import gleam/result
 import gleam/string
 import gleamcord_http/command_option.{type CommandOption}
 import gleamcord_http/component
+import gleamcord_http/discord
 
 pub type Command {
   ChatCommand(
     def: CommandDefinition,
     options: List(CommandOption),
-    run: fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse,
+    run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
+      CommandResponse,
   )
   ChatCommandGroup(
     def: CommandDefinition,
     elements: Dict(String, ChatCommandGroupElement),
   )
-  UserCommand(def: CommandDefinition, run: fn(Dynamic) -> CommandResponse)
-  MessageCommand(def: CommandDefinition, run: fn(Dynamic) -> CommandResponse)
+  UserCommand(
+    def: CommandDefinition,
+    run: fn(discord.CommandInteraction) -> CommandResponse,
+  )
+  MessageCommand(
+    def: CommandDefinition,
+    run: fn(discord.CommandInteraction) -> CommandResponse,
+  )
 }
 
 pub fn command_dict(commands: List(Command)) -> Dict(String, Command) {
@@ -71,7 +79,8 @@ pub fn group_sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse,
+  run run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
+    CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
   |> ChatGroupSubCommand
@@ -82,7 +91,8 @@ pub type ChatSubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    run: fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse,
+    run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
+      CommandResponse,
   )
 }
 
@@ -90,7 +100,8 @@ pub fn sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse,
+  run run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
+    CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
 }
@@ -112,7 +123,10 @@ fn command_maps(commands, map) {
 
 pub fn build_command_maps(
   commands: List(Command),
-) -> Dict(String, fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse) {
+) -> Dict(
+  String,
+  fn(discord.CommandInteraction, Dict(String, Dynamic)) -> CommandResponse,
+) {
   use command <- command_maps(commands)
   case command {
     ChatCommand(def: command, run:, ..) -> [#(command.name, run)]
@@ -136,10 +150,10 @@ pub fn build_command_maps(
 }
 
 pub fn handle_command_maps(
-  interaction: Dynamic,
+  interaction: discord.CommandInteraction,
   command_maps: Dict(
     String,
-    fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse,
+    fn(discord.CommandInteraction, Dict(String, Dynamic)) -> CommandResponse,
   ),
 ) {
   let assert Ok(#(path, options)) = get_command_data(interaction)
@@ -151,21 +165,17 @@ pub fn handle_command_maps(
 }
 
 fn get_command_data(
-  interaction: Dynamic,
+  interaction: discord.CommandInteraction,
 ) -> Result(#(String, Dict(String, Dynamic)), HandlingError) {
-  use data <- result.try(
-    decode.run(interaction, decode.at(["data"], decode.dynamic))
-    |> result.map_error(DecodingError),
-  )
   use typ <- result.try(
-    decode.run(interaction, decode.at(["data", "type"], decode.int))
+    decode.run(todo, decode.at(["data", "type"], decode.int))
     |> result.map_error(DecodingError),
   )
 
   case typ {
     1 -> todo
     2 | 3 ->
-      decode.run(data, decode.at(["name"], decode.string))
+      decode.run(todo, decode.at(["name"], decode.string))
       |> result.map_error(DecodingError)
       |> result.map(fn(path) { #(path, dict.new()) })
 
@@ -174,7 +184,7 @@ fn get_command_data(
 }
 
 pub fn handle_command_dict(
-  interaction: Dynamic,
+  interaction: discord.CommandInteraction,
   commands: Dict(String, Command),
 ) {
   todo
@@ -183,27 +193,27 @@ pub fn handle_command_dict(
 pub type MessageComponent {
   ButtonMessageComponent(
     btn: component.CustomButton,
-    run: fn(Dynamic) -> MessageComponentResponse,
+    run: fn(discord.Interaction) -> MessageComponentResponse,
   )
   StringSelectMessageComponent(
     select: component.StringSelect,
-    run: fn(Dynamic, List(String)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, List(String)) -> MessageComponentResponse,
   )
   UserSelectMessageComponent(
     select: component.UserSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
   )
   RoleSelectMessageComponent(
     select: component.RoleSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
   )
   MentionableSelectMessageComponent(
     select: component.MentionableSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
   )
   ChannelSelectMessageComponent(
     select: component.ChannelSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
   )
 }
 
