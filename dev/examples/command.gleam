@@ -54,7 +54,7 @@ pub fn chat_command_group_example() {
   ])
 }
 
-/// Unsure why this doesn't error, I'm passing a function to a constant 
+/// Unsure why this doesn't error at compile, I'm passing a function to a constant 
 pub const example_sub_command = ChatSubCommand(
   name: "nickname",
   description: "set nickname",
