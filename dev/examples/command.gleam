@@ -2,7 +2,8 @@ import gleam/dynamic/decode
 import gleamcord_http.{
   ChatCommand, ChatCommandGroup, ChatSubCommand, ChatSubCommandGroup,
   CommandDeferredMessageResponse, CommandMessageResponse, MessageCommand,
-  UserCommand, group_sub_command, simple_definition,
+  UserCommand, command_group_element_dict, group_sub_command, simple_definition,
+  sub_command_group_dict,
 }
 import gleamcord_http/command_option
 
@@ -44,14 +45,17 @@ pub fn slow_chat_command_example() {
 
 pub fn chat_command_group_example() {
   let def = simple_definition(name: "settings", desc: "settings")
-  ChatCommandGroup(def:, elements: [
-    ChatSubCommandGroup(
-      name: "user",
-      description: "user settings",
-      sub_commands: [example_sub_command],
-    ),
-    example_group_sub_command(),
-  ])
+  ChatCommandGroup(
+    def:,
+    elements: command_group_element_dict([
+      ChatSubCommandGroup(
+        name: "user",
+        description: "user settings",
+        sub_commands: sub_command_group_dict([example_sub_command]),
+      ),
+      example_group_sub_command(),
+    ]),
+  )
 }
 
 /// Unsure why this doesn't error at compile, I'm passing a function to a constant 

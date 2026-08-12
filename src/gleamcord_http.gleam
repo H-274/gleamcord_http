@@ -3,6 +3,7 @@ import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/list
 import gleam/result
+import gleam/string
 import gleamcord_http/command_option.{type CommandOption}
 import gleamcord_http/component
 
@@ -14,10 +15,20 @@ pub type Command {
   )
   ChatCommandGroup(
     def: CommandDefinition,
-    elements: List(ChatCommandGroupElement),
+    elements: Dict(String, ChatCommandGroupElement),
   )
   UserCommand(def: CommandDefinition, run: fn(Dynamic) -> CommandResponse)
   MessageCommand(def: CommandDefinition, run: fn(Dynamic) -> CommandResponse)
+}
+
+pub fn command_group_element_dict(elements: List(ChatCommandGroupElement)) {
+  list.map(elements, fn(item) {
+    case item {
+      ChatSubCommandGroup(name:, ..) -> #(name, item)
+      ChatGroupSubCommand(sub_command) -> #(sub_command.name, item)
+    }
+  })
+  |> dict.from_list
 }
 
 pub type CommandDefinition {
@@ -46,9 +57,14 @@ pub type ChatCommandGroupElement {
   ChatSubCommandGroup(
     name: String,
     description: String,
-    sub_commands: List(ChatSubCommand),
+    sub_commands: Dict(String, ChatSubCommand),
   )
   ChatGroupSubCommand(ChatSubCommand)
+}
+
+pub fn sub_command_group_dict(sub_commands: List(ChatSubCommand)) {
+  list.map(sub_commands, fn(item) { #(item.name, item) })
+  |> dict.from_list
 }
 
 pub fn group_sub_command(
@@ -141,141 +157,70 @@ pub type HandlingError(custom_error) {
   NotFound(String)
 }
 
-pub fn handle_command(
-  commands commands: List(Command),
-  interaction interaction: Dynamic,
-) {
-  use data <- result.try(
-    decode.run(interaction, decode.at(["data"], decode.dynamic))
-    |> result.map_error(DecodingError),
-  )
-  use typ <- result.try(
-    decode.run(data, decode.at(["type"], decode.int))
-    |> result.map_error(DecodingError),
-  )
-  use name <- result.try(
-    decode.run(data, decode.at(["name"], decode.string))
-    |> result.map_error(DecodingError),
-  )
-  use command <- result.try(
-    list.find(commands, fn(item) { item.def.name == name })
-    |> result.replace_error(NotFound("Command")),
-  )
-
-  case typ, command {
-    1, ChatCommand(run:, ..) -> handle_chat_command(run, data, interaction)
-    1, ChatCommandGroup(elements:, ..) ->
-      handle_chat_command_group(elements, data, interaction)
-    2, UserCommand(run:, ..) -> run(interaction) |> Ok
-    3, MessageCommand(run:, ..) -> run(interaction) |> Ok
-
-    _, _ -> Error(NotFound("Matching Command"))
-  }
+fn commands_map(commands, map) {
+  dict.from_list(list.flatten(list.map(commands, map)))
 }
 
-fn handle_chat_command(run, data: Dynamic, interaction: Dynamic) {
-  use options <- result.try(
-    decode.run(
-      data,
-      decode.at(
-        ["options"],
-        decode.list({
-          use name <- decode.field("name", decode.string)
-          use option <- decode.field([], decode.dynamic)
-          decode.success(#(name, option))
-        })
-          |> decode.map(dict.from_list),
-      ),
-    )
-    |> result.map_error(DecodingError),
-  )
-
-  run(interaction, options) |> Ok
-}
-
-fn handle_chat_command_group(
-  elements: List(ChatCommandGroupElement),
-  data: Dynamic,
-  interaction: Dynamic,
-) {
-  use options <- result.try(
-    decode.run(data, decode.at(["options"], decode.dynamic))
-    |> result.map_error(DecodingError),
-  )
-  use sub_type <- result.try(
-    decode.run(options, decode.at([0], decode.at(["type"], decode.int)))
-    |> result.map_error(DecodingError),
-  )
-  use name <- result.try(
-    decode.run(options, decode.at([0], decode.at(["name"], decode.string)))
-    |> result.map_error(DecodingError),
-  )
-  use element <- result.try(
-    list.find(elements, fn(item) {
-      case item {
-        ChatSubCommandGroup(name: group_name, ..) -> group_name == name
-        ChatGroupSubCommand(command) -> command.name == name
-      }
-    })
-    |> result.replace_error(NotFound("Command")),
-  )
-  case sub_type, element {
-    1, ChatSubCommandGroup(sub_commands:, ..) ->
-      handle_chat_sub_command_group(sub_commands, options, interaction)
-    2, ChatGroupSubCommand(command) -> {
-      use options <- result.try(
-        decode.run(
-          options,
-          decode.at(
-            [0],
-            decode.at(
-              ["options"],
-              decode.list({
-                use name <- decode.field("name", decode.string)
-                use option <- decode.field([], decode.dynamic)
-                decode.success(#(name, option))
-              }),
-            ),
-          )
-            |> decode.map(dict.from_list),
-        )
-        |> result.map_error(DecodingError),
-      )
-      command.run(interaction, options) |> Ok
-    }
-    _, _ -> Error(NotFound("Matching SubCommand/SubCommandGroup"))
-  }
-}
-
-fn handle_chat_sub_command_group(
-  elements: List(ChatSubCommand),
-  options: Dynamic,
-  interaction: Dynamic,
-) {
-  use options <- result.try(
-    decode.run(options, decode.at([0], decode.at(["options"], decode.dynamic)))
-    |> result.map_error(DecodingError),
-  )
-  use name <- result.try(
-    decode.run(options, decode.at(["name"], decode.string))
-    |> result.map_error(DecodingError),
-  )
-  use sub_command <- result.try(
-    list.find(elements, fn(item) { item.name == name })
-    |> result.replace_error(NotFound("SubCommand")),
-  )
-  use option_values <- result.try(
-    decode.run(
-      options,
-      decode.list({
-        use name <- decode.field("name", decode.string)
-        use value <- decode.field([], decode.dynamic)
-        decode.success(#(name, value))
+pub fn build_command_paths(
+  commands: List(Command),
+) -> Dict(String, fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse) {
+  use command <- commands_map(commands)
+  case command {
+    ChatCommand(def: command, run:, ..) -> [#(command.name, run)]
+    ChatCommandGroup(def: group, elements:) ->
+      list.map(dict.values(elements), fn(item) {
+        case item {
+          ChatGroupSubCommand(sub_command) -> [
+            #(string.join([group.name, sub_command.name], "/"), sub_command.run),
+          ]
+          ChatSubCommandGroup(name: sub_group, sub_commands:, ..) ->
+            list.map(dict.values(sub_commands), fn(item) {
+              #(string.join([group.name, sub_group, item.name], "/"), item.run)
+            })
+        }
       })
-        |> decode.map(dict.from_list),
-    )
+      |> list.flatten
+
+    UserCommand(def: command, run:) -> [#(command.name, fn(i, _) { run(i) })]
+    MessageCommand(def: command, run:) -> [#(command.name, fn(i, _) { run(i) })]
+  }
+}
+
+pub fn handle_command_paths(
+  interaction: Dynamic,
+  command_paths: Dict(
+    String,
+    fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse,
+  ),
+) {
+  use typ <- result.try(
+    decode.run(interaction, decode.at(["data", "type"], decode.int))
     |> result.map_error(DecodingError),
   )
+  let #(path, options) = #(
+    get_command_path(interaction, accumulator: ""),
+    get_command_options(interaction),
+  )
 
-  sub_command.run(interaction, option_values) |> Ok
+  case typ {
+    1 ->
+      case dict.get(command_paths, path) {
+        Ok(run) -> run(interaction, options) |> Ok
+        Error(_) -> Error(NotFound("Chat Command"))
+      }
+    2 | 3 ->
+      case dict.get(command_paths, path) {
+        Ok(run) -> run(interaction, dict.new()) |> Ok
+        Error(_) -> Error(NotFound("User Command or Message Command"))
+      }
+    _ -> Error(NotFound("Invalid type"))
+  }
+}
+
+fn get_command_path(interaction: Dynamic, accumulator accumulator: String) {
+  todo
+}
+
+fn get_command_options(interaction: Dynamic) {
+  todo
 }
