@@ -1,6 +1,7 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
+import gleam/option
 import gleam/result
 
 pub type CommandOption {
@@ -174,10 +175,13 @@ pub fn get_mention_value(
 
   let role =
     decode.run(resolved, decode.at(["roles", mention_id], decode.dynamic))
+    |> option.from_result
   let users =
     decode.run(resolved, decode.at(["users", mention_id], decode.dynamic))
+    |> option.from_result
   let members =
     decode.run(resolved, decode.at(["members", mention_id], decode.dynamic))
+    |> option.from_result
 
   Ok(#(role, users, members))
 }

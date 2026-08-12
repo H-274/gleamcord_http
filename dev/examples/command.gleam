@@ -1,24 +1,34 @@
 import gleam/dynamic/decode
 import gleamcord_http.{
-  ChatCommand, ChatCommandGroup, ChatInputSubCommand, ChatSubCommandGroup,
+  ChatCommand, ChatCommandGroup, ChatSubCommand, ChatSubCommandGroup,
   CommandDeferredMessageResponse, CommandMessageResponse, MessageCommand,
   UserCommand, group_sub_command, simple_definition,
 }
 import gleamcord_http/command_option
 
 pub fn chat_command_example() {
-  let def = simple_definition(name: "hello", desc: "world")
+  let set_command_run = fn(run) {
+    simple_definition(name: "hello", desc: "world")
+    |> ChatCommand(run:, options: [])
+  }
+  use _interaction, _options <- set_command_run
 
-  use _interaction, _options <- ChatCommand(def:, options: [])
   CommandMessageResponse(todo as "Missing message type")
 }
 
-pub fn slow_chat_command_example() {
-  let def = simple_definition(name: "hello", desc: "world")
-  let usr_opt =
-    command_option.User(name: "user", description: "", required: True)
+const user_opt = command_option.User(
+  name: "user",
+  description: "",
+  required: True,
+)
 
-  use interaction, options <- ChatCommand(def:, options: [usr_opt])
+pub fn slow_chat_command_example() {
+  let set_command_run = fn(run) {
+    simple_definition(name: "hello", desc: "world")
+    |> ChatCommand(run:, options: [user_opt])
+  }
+  use interaction, options <- set_command_run
+
   use <- CommandDeferredMessageResponse
   let assert Ok(resolved) =
     decode.run(interaction, decode.at(["data", "resolved"], decode.dynamic))
@@ -28,6 +38,7 @@ pub fn slow_chat_command_example() {
   // process.sleep(10_000)
 
   echo #(user, member)
+
   todo as "Missing message type"
 }
 
@@ -44,7 +55,7 @@ pub fn chat_command_group_example() {
 }
 
 /// Unsure why this doesn't error, I'm passing a function to a constant 
-pub const example_sub_command = ChatInputSubCommand(
+pub const example_sub_command = ChatSubCommand(
   name: "nickname",
   description: "set nickname",
   options: [
@@ -68,24 +79,27 @@ fn example_sub_command_run(_interaction, options) {
 }
 
 pub fn example_group_sub_command() {
-  use _interaction, _options <- group_sub_command(
-    name: "secret",
-    desc: "secret setting",
-    opts: [],
-  )
+  let set_sub_command_run = fn(run) {
+    group_sub_command(name: "secret", desc: "secret setting", run:, opts: [])
+  }
+  use _interaction, _options <- set_sub_command_run
+
   CommandMessageResponse(todo as "Missing message type")
 }
 
 pub fn user_command() {
-  let def = simple_definition(name: "greet", desc: "greets user")
+  let set_command_run = fn(run) {
+    simple_definition(name: "greet", desc: "greets user")
+    |> UserCommand(run:)
+  }
+  use _interaction <- set_command_run
 
-  use _interaction <- UserCommand(def:)
   CommandMessageResponse(todo as "Missing message type")
 }
 
 pub fn message_command() {
   let def = simple_definition(name: "report", desc: "report message")
-
   use _interaction <- MessageCommand(def:)
+
   CommandMessageResponse(todo as "Missing message type")
 }
