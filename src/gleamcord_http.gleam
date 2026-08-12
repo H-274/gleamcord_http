@@ -21,6 +21,11 @@ pub type Command {
   MessageCommand(def: CommandDefinition, run: fn(Dynamic) -> CommandResponse)
 }
 
+pub fn command_dict(commands: List(Command)) -> Dict(String, Command) {
+  list.map(commands, fn(item) { #(item.def.name, item) })
+  |> dict.from_list
+}
+
 pub fn command_group_element_dict(elements: List(ChatCommandGroupElement)) {
   list.map(elements, fn(item) {
     case item {
@@ -152,19 +157,19 @@ pub type ModalResponse {
   ModalDeferredMessageUpdate(fn() -> Nil)
 }
 
-pub type HandlingError(custom_error) {
+pub type HandlingError {
   DecodingError(List(decode.DecodeError))
   NotFound(String)
 }
 
-fn commands_map(commands, map) {
+fn command_maps(commands, map) {
   dict.from_list(list.flatten(list.map(commands, map)))
 }
 
-pub fn build_command_paths(
+pub fn build_command_maps(
   commands: List(Command),
 ) -> Dict(String, fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse) {
-  use command <- commands_map(commands)
+  use command <- command_maps(commands)
   case command {
     ChatCommand(def: command, run:, ..) -> [#(command.name, run)]
     ChatCommandGroup(def: group, elements:) ->
@@ -186,41 +191,47 @@ pub fn build_command_paths(
   }
 }
 
-pub fn handle_command_paths(
+pub fn handle_command_maps(
   interaction: Dynamic,
-  command_paths: Dict(
+  command_maps: Dict(
     String,
     fn(Dynamic, Dict(String, Dynamic)) -> CommandResponse,
   ),
 ) {
+  let assert Ok(#(path, options)) = get_command_data(interaction)
+
+  case dict.get(command_maps, path) {
+    Ok(run) -> run(interaction, options) |> Ok
+    Error(_) -> Error(NotFound("Chat Command"))
+  }
+}
+
+fn get_command_data(
+  interaction: Dynamic,
+) -> Result(#(String, Dict(String, Dynamic)), HandlingError) {
+  use data <- result.try(
+    decode.run(interaction, decode.at(["data"], decode.dynamic))
+    |> result.map_error(DecodingError),
+  )
   use typ <- result.try(
     decode.run(interaction, decode.at(["data", "type"], decode.int))
     |> result.map_error(DecodingError),
   )
-  let #(path, options) = #(
-    get_command_path(interaction, accumulator: ""),
-    get_command_options(interaction),
-  )
 
   case typ {
-    1 ->
-      case dict.get(command_paths, path) {
-        Ok(run) -> run(interaction, options) |> Ok
-        Error(_) -> Error(NotFound("Chat Command"))
-      }
+    1 -> todo
     2 | 3 ->
-      case dict.get(command_paths, path) {
-        Ok(run) -> run(interaction, dict.new()) |> Ok
-        Error(_) -> Error(NotFound("User Command or Message Command"))
-      }
-    _ -> Error(NotFound("Invalid Command Type"))
+      decode.run(data, decode.at(["name"], decode.string))
+      |> result.map_error(DecodingError)
+      |> result.map(fn(path) { #(path, dict.new()) })
+
+    _ -> Error(NotFound("Path"))
   }
 }
 
-fn get_command_path(interaction: Dynamic, accumulator accumulator: String) {
-  todo
-}
-
-fn get_command_options(interaction: Dynamic) {
+pub fn handle_command_dict(
+  interaction: Dynamic,
+  commands: Dict(String, Command),
+) {
   todo
 }
