@@ -26,16 +26,6 @@ pub fn command_dict(commands: List(Command)) -> Dict(String, Command) {
   |> dict.from_list
 }
 
-pub fn command_group_element_dict(elements: List(ChatCommandGroupElement)) {
-  list.map(elements, fn(item) {
-    case item {
-      ChatSubCommandGroup(name:, ..) -> #(name, item)
-      ChatGroupSubCommand(sub_command) -> #(sub_command.name, item)
-    }
-  })
-  |> dict.from_list
-}
-
 pub type CommandDefinition {
   CommandDefinition(
     name: String,
@@ -67,8 +57,13 @@ pub type ChatCommandGroupElement {
   ChatGroupSubCommand(ChatSubCommand)
 }
 
-pub fn sub_command_group_dict(sub_commands: List(ChatSubCommand)) {
-  list.map(sub_commands, fn(item) { #(item.name, item) })
+pub fn command_group_element_dict(elements: List(ChatCommandGroupElement)) {
+  list.map(elements, fn(item) {
+    case item {
+      ChatSubCommandGroup(name:, ..) -> #(name, item)
+      ChatGroupSubCommand(sub_command) -> #(sub_command.name, item)
+    }
+  })
   |> dict.from_list
 }
 
@@ -100,66 +95,15 @@ pub fn sub_command(
   ChatSubCommand(name:, description:, options:, run:)
 }
 
+pub fn sub_command_dict(sub_commands: List(ChatSubCommand)) {
+  list.map(sub_commands, fn(item) { #(item.name, item) })
+  |> dict.from_list
+}
+
 pub type CommandResponse {
   CommandMessageResponse(Nil)
   CommandDeferredMessageResponse(fn() -> Nil)
   CommandModalResponse(Nil)
-}
-
-pub type MessageComponent {
-  ButtonMessageComponent(
-    btn: component.CustomButton,
-    run: fn(Dynamic) -> MessageComponentResponse,
-  )
-  StringSelectMessageComponent(
-    select: component.StringSelect,
-    run: fn(Dynamic, List(String)) -> MessageComponentResponse,
-  )
-  UserSelectMessageComponent(
-    select: component.UserSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
-  )
-  RoleSelectMessageComponent(
-    select: component.RoleSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
-  )
-  MentionableSelectMessageComponent(
-    select: component.MentionableSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
-  )
-  ChannelSelectMessageComponent(
-    select: component.ChannelSelect,
-    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
-  )
-}
-
-pub type MessageComponentResponse {
-  MessageComponentMessageResponse(Nil)
-  MessageComponentDeferredMessageResponse(fn() -> Nil)
-  MessageComponentMessageUpdate(Nil)
-  MessageComponentDeferredMessageUpdate(fn() -> Nil)
-  MessageComponentModalResponse(Nil)
-}
-
-pub type Modal {
-  Modal(
-    custom_id: String,
-    title: String,
-    components: List(component.Label),
-    run: fn(Dynamic, Dict(String, Dynamic)) -> ModalResponse,
-  )
-}
-
-pub type ModalResponse {
-  ModalMessageResponse(Nil)
-  ModalDeferredMessageResponse(fn() -> Nil)
-  ModalMessageUpdate(Nil)
-  ModalDeferredMessageUpdate(fn() -> Nil)
-}
-
-pub type HandlingError {
-  DecodingError(List(decode.DecodeError))
-  NotFound(String)
 }
 
 fn command_maps(commands, map) {
@@ -234,4 +178,60 @@ pub fn handle_command_dict(
   commands: Dict(String, Command),
 ) {
   todo
+}
+
+pub type MessageComponent {
+  ButtonMessageComponent(
+    btn: component.CustomButton,
+    run: fn(Dynamic) -> MessageComponentResponse,
+  )
+  StringSelectMessageComponent(
+    select: component.StringSelect,
+    run: fn(Dynamic, List(String)) -> MessageComponentResponse,
+  )
+  UserSelectMessageComponent(
+    select: component.UserSelect,
+    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+  )
+  RoleSelectMessageComponent(
+    select: component.RoleSelect,
+    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+  )
+  MentionableSelectMessageComponent(
+    select: component.MentionableSelect,
+    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+  )
+  ChannelSelectMessageComponent(
+    select: component.ChannelSelect,
+    run: fn(Dynamic, List(Dynamic)) -> MessageComponentResponse,
+  )
+}
+
+pub type MessageComponentResponse {
+  MessageComponentMessageResponse(Nil)
+  MessageComponentDeferredMessageResponse(fn() -> Nil)
+  MessageComponentMessageUpdate(Nil)
+  MessageComponentDeferredMessageUpdate(fn() -> Nil)
+  MessageComponentModalResponse(Nil)
+}
+
+pub type Modal {
+  Modal(
+    custom_id: String,
+    title: String,
+    components: List(component.Label),
+    run: fn(Dynamic, Dict(String, Dynamic)) -> ModalResponse,
+  )
+}
+
+pub type ModalResponse {
+  ModalMessageResponse(Nil)
+  ModalDeferredMessageResponse(fn() -> Nil)
+  ModalMessageUpdate(Nil)
+  ModalDeferredMessageUpdate(fn() -> Nil)
+}
+
+pub type HandlingError {
+  DecodingError(List(decode.DecodeError))
+  NotFound(String)
 }

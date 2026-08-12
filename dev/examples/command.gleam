@@ -3,7 +3,7 @@ import gleamcord_http.{
   ChatCommand, ChatCommandGroup, ChatSubCommand, ChatSubCommandGroup,
   CommandDeferredMessageResponse, CommandMessageResponse, MessageCommand,
   UserCommand, command_group_element_dict, group_sub_command, simple_definition,
-  sub_command_group_dict,
+  sub_command_dict,
 }
 import gleamcord_http/command_option
 
@@ -51,7 +51,7 @@ pub fn chat_command_group_example() {
       ChatSubCommandGroup(
         name: "user",
         description: "user settings",
-        sub_commands: sub_command_group_dict([example_sub_command]),
+        sub_commands: sub_command_dict([example_sub_command]),
       ),
       example_group_sub_command(),
     ]),
