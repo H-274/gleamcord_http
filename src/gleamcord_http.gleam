@@ -213,7 +213,7 @@ pub fn handle_command_paths(
         Ok(run) -> run(interaction, dict.new()) |> Ok
         Error(_) -> Error(NotFound("User Command or Message Command"))
       }
-    _ -> Error(NotFound("Invalid type"))
+    _ -> Error(NotFound("Invalid Command Type"))
   }
 }
 
