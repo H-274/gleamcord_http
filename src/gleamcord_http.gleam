@@ -190,6 +190,21 @@ pub fn handle_command_dict(
   todo
 }
 
+// TODO review autocomplete run signature
+pub fn build_autocomplete_map(
+  commands: List(Command),
+) -> Dict(String, fn(discord.CommandInteraction, Dynamic) -> Dynamic) {
+  todo
+}
+
+// TODO
+pub fn handle_autocomplete_map(
+  interaction: discord.CommandInteraction,
+  autocomplete_map: Dict(a, b),
+) {
+  todo
+}
+
 pub type MessageComponent {
   ButtonMessageComponent(
     btn: component.CustomButton,

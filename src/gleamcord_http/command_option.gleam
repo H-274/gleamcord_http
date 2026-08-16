@@ -3,6 +3,7 @@ import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/option
 import gleam/result
+import gleamcord_http/discord
 
 pub type CommandOption {
   String(
@@ -24,7 +25,7 @@ pub type CommandOption {
     min_len: Int,
     max_len: Int,
     required: Bool,
-    run: fn(Dynamic, String) -> List(#(String, String)),
+    run: fn(discord.CommandInteraction, String) -> List(#(String, String)),
   )
   Integer(
     name: String,
@@ -45,7 +46,7 @@ pub type CommandOption {
     min_value: Int,
     max_value: Int,
     required: Bool,
-    run: fn(Dynamic, Int) -> List(#(String, Int)),
+    run: fn(discord.CommandInteraction, Int) -> List(#(String, Int)),
   )
   Booolean(name: String, description: String, required: Bool)
   User(name: String, description: String, required: Bool)
@@ -76,7 +77,7 @@ pub type CommandOption {
     min_value: Float,
     max_value: Float,
     required: Bool,
-    run: fn(Dynamic, Float) -> List(#(String, Float)),
+    run: fn(discord.CommandInteraction, Float) -> List(#(String, Float)),
   )
   Attachment(name: String, description: String, required: Bool)
 }
