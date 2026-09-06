@@ -251,16 +251,16 @@ pub fn get_mentionable_select_value(
   Ok(triples)
 }
 
+// TODO
 pub type ChannelSelect {
-  ChannelSelect
+  ChannelSelect(custom_id: String)
 }
 
-pub fn get_channel_select_value(
+pub fn get_channel_select_snowflakes(
   components: Dict(String, Dynamic),
-  resolved: Dynamic,
   custom_id: String,
 ) {
-  use user_ids <- result.try(
+  use channel_ids <- result.try(
     dict.get(components, custom_id)
     |> result.replace_error([])
     |> result.map(decode.run(
@@ -270,13 +270,31 @@ pub fn get_channel_select_value(
     |> result.flatten,
   )
 
-  let channel =
-    list.map(user_ids, fn(id) {
+  Ok(channel_ids)
+}
+
+pub fn get_channel_select_values(
+  components: Dict(String, Dynamic),
+  resolved: Dynamic,
+  custom_id: String,
+) {
+  use channel_ids <- result.try(
+    dict.get(components, custom_id)
+    |> result.replace_error([])
+    |> result.map(decode.run(
+      _,
+      decode.at(["values"], decode.list(decode.string)),
+    ))
+    |> result.flatten,
+  )
+
+  let channels =
+    list.map(channel_ids, fn(id) {
       decode.run(resolved, decode.at(["channels", id], decode.dynamic))
     })
     |> result.values
 
-  Ok(channel)
+  Ok(channels)
 }
 
 pub type FileUpload {

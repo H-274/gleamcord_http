@@ -12,28 +12,37 @@ pub const ice_cream_input = component.ShortTextInput(
 )
 
 // TODO
-pub const channel_select = component.ChannelSelect
+pub const channel_select = component.ChannelSelect(custom_id: "channel")
 
-pub fn modal_example() {
-  let set_modal_submit = fn(run) {
-    Modal("modal_example", "Example", run:, components: [
-      component.LabelTextInput(ice_cream_input)
-        |> component.Label(
-          label: "Ice Cream Flavor",
-          description: "Fav. flavour",
-        ),
-      component.LabelChannelSelect(channel_select)
-        |> component.Label(label: "Channels", description: ""),
-    ])
-  }
+pub const modal_example = Modal(
+  custom_id: "modal_example",
+  title: "Example",
+  components: [
+    component.Label(
+      label: "Ice Cream Flavor",
+      description: "Fav. flavour",
+      component: component.LabelTextInput(ice_cream_input),
+    ),
+    component.Label(
+      label: "Channels",
+      description: "",
+      component: component.LabelChannelSelect(channel_select),
+    ),
+  ],
+  run: modal_handler,
+)
 
-  use interaction, components <- set_modal_submit
+fn modal_handler(interaction, components) {
   let assert Ok(resolved) =
     decode.run(interaction, decode.at(["data", "resolved"], decode.dynamic))
   let assert Ok(ice_cream) =
     component.get_text_input_value(components, ice_cream_input.custom_id)
   let assert Ok(channels) =
-    component.get_channel_select_value(components, resolved, todo)
+    component.get_channel_select_values(
+      components,
+      resolved,
+      channel_select.custom_id,
+    )
 
   echo #(ice_cream, channels)
 
