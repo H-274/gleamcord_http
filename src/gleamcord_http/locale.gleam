@@ -1,3 +1,5 @@
+import gleam/dict.{type Dict}
+
 const indonesian = "id"
 
 const danish = "da"
@@ -170,4 +172,11 @@ pub fn to_string(locale: Locale) -> String {
     ChineseTw -> chinese_china
     Korean -> korean
   }
+}
+
+pub type Translator =
+  fn(String) -> Dict(Locale, String)
+
+pub fn empty_transltor(_: String) {
+  dict.new()
 }
