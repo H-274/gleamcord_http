@@ -35,18 +35,6 @@ pub fn command_dict(commands: List(Command)) -> Dict(String, Command) {
 }
 
 pub type CommandDefinition {
-  GuildCommandDefinition(
-    name: String,
-    description: String,
-    default_member_permissions: String,
-    nsfw: Bool,
-  )
-  DMCommandDefinition(
-    name: String,
-    description: String,
-    default_member_permissions: String,
-    nsfw: Bool,
-  )
   CommandDefinition(
     name: String,
     description: String,
@@ -54,6 +42,17 @@ pub type CommandDefinition {
     integ_types: List(Int),
     contexts: List(Int),
     nsfw: Bool,
+  )
+}
+
+pub fn basic_command_definition(name name: String, desc description: String) {
+  CommandDefinition(
+    name:,
+    description:,
+    default_member_permissions: "",
+    integ_types: [0],
+    contexts: [1],
+    nsfw: False,
   )
 }
 
