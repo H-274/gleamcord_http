@@ -45,9 +45,10 @@ pub fn chat_command_group_example() {
       ChatSubCommandGroup(
         name: "user",
         description: "user settings",
-        sub_commands: sub_command_dict([example_sub_command()]),
+        sub_commands: sub_command_dict([sub_command_group_command()]),
       ),
-      ChatGroupSubCommand(example_group_sub_command()),
+      group_element_command()
+        |> ChatGroupSubCommand,
     ]),
   )
 }
@@ -60,7 +61,7 @@ const nickname_option = command_option.String(
   required: True,
 )
 
-fn example_sub_command() {
+fn sub_command_group_command() {
   use _i, o <- ChatSubCommand(
     name: "nickname",
     description: "set nickname",
@@ -74,7 +75,7 @@ fn example_sub_command() {
   CommandMessageResponse(todo as "Missing message type")
 }
 
-fn example_group_sub_command() {
+fn group_element_command() {
   use _i, _o <- ChatSubCommand(
     name: "secret",
     description: "secret setting",

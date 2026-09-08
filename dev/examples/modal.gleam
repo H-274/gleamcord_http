@@ -1,4 +1,3 @@
-import gleam/dynamic/decode
 import gleamcord_http.{Modal, ModalMessageResponse}
 import gleamcord_http/component
 
@@ -28,8 +27,7 @@ pub fn modal_example() {
     ),
   ])
 
-  let assert Ok(resolved) =
-    decode.run(i, decode.at(["data", "resolved"], decode.dynamic))
+  let assert Ok(resolved) = i |> fn(_) { todo as "get resolved" }
   let assert Ok(ice_cream) =
     component.get_text_input_value(c, ice_cream_input.custom_id)
   let assert Ok(channels) =
