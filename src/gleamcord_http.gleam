@@ -12,8 +12,7 @@ pub type Command {
   ChatCommand(
     def: CommandDefinition,
     options: List(CommandOption),
-    run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
-      CommandResponse,
+    run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
   )
   ChatCommandGroup(
     def: CommandDefinition,
@@ -21,11 +20,11 @@ pub type Command {
   )
   UserCommand(
     def: CommandDefinition,
-    run: fn(discord.CommandInteraction) -> CommandResponse,
+    run: fn(discord.Interaction) -> CommandResponse,
   )
   MessageCommand(
     def: CommandDefinition,
-    run: fn(discord.CommandInteraction) -> CommandResponse,
+    run: fn(discord.Interaction) -> CommandResponse,
   )
 }
 
@@ -79,8 +78,7 @@ pub fn group_sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
-    CommandResponse,
+  run run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
   |> ChatGroupSubCommand
@@ -91,8 +89,7 @@ pub type ChatSubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
-      CommandResponse,
+    run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
   )
 }
 
@@ -100,8 +97,7 @@ pub fn sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.CommandInteraction, Dict(String, Dynamic)) ->
-    CommandResponse,
+  run run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
 }
@@ -125,7 +121,7 @@ pub fn build_command_maps(
   commands: List(Command),
 ) -> Dict(
   String,
-  fn(discord.CommandInteraction, Dict(String, Dynamic)) -> CommandResponse,
+  fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
 ) {
   use command <- command_maps(commands)
   case command {
@@ -150,10 +146,10 @@ pub fn build_command_maps(
 }
 
 pub fn handle_command_maps(
-  interaction: discord.CommandInteraction,
+  interaction: discord.Interaction,
   command_maps: Dict(
     String,
-    fn(discord.CommandInteraction, Dict(String, Dynamic)) -> CommandResponse,
+    fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
   ),
 ) {
   let assert Ok(#(path, options)) = get_command_data(interaction)
@@ -165,7 +161,7 @@ pub fn handle_command_maps(
 }
 
 fn get_command_data(
-  interaction: discord.CommandInteraction,
+  interaction: discord.Interaction,
 ) -> Result(#(String, Dict(String, Dynamic)), HandlingError) {
   use typ <- result.try(
     decode.run(todo, decode.at(["data", "type"], decode.int))
@@ -184,7 +180,7 @@ fn get_command_data(
 }
 
 pub fn handle_command_dict(
-  interaction: discord.CommandInteraction,
+  interaction: discord.Interaction,
   commands: Dict(String, Command),
 ) {
   todo
@@ -193,13 +189,13 @@ pub fn handle_command_dict(
 // TODO review autocomplete run signature
 pub fn build_autocomplete_map(
   commands: List(Command),
-) -> Dict(String, fn(discord.CommandInteraction, Dynamic) -> Dynamic) {
+) -> Dict(String, fn(discord.Interaction, Dynamic) -> Dynamic) {
   todo
 }
 
 // TODO
 pub fn handle_autocomplete_map(
-  interaction: discord.CommandInteraction,
+  interaction: discord.Interaction,
   autocomplete_map: Dict(a, b),
 ) {
   todo

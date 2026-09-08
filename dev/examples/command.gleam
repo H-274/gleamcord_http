@@ -1,18 +1,18 @@
+import gleam/option
 import gleamcord_http.{
-  ChatCommand, ChatCommandGroup, ChatGroupSubCommand, ChatSubCommand,
-  ChatSubCommandGroup, CommandDeferredMessageResponse, CommandMessageResponse,
-  MessageCommand, UserCommand, basic_command_definition,
-  command_group_element_dict, sub_command_dict,
+  basic_command_definition as command_def, command_group_element_dict,
+  sub_command_dict,
 }
 import gleamcord_http/command_option
+import gleamcord_http/discord
 
 pub fn chat_command() {
-  use _i, _o <- ChatCommand(
-    def: basic_command_definition(name: "hello", desc: "world"),
+  use _i, _o <- gleamcord_http.ChatCommand(
+    def: gleamcord_http.basic_command_definition(name: "hello", desc: "world"),
     options: [],
   )
 
-  CommandMessageResponse(todo as "Missing message type")
+  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
 }
 
 const user_opt = command_option.User(
@@ -22,13 +22,16 @@ const user_opt = command_option.User(
 )
 
 pub fn slow_command() {
-  use i, o <- ChatCommand(
-    def: basic_command_definition(name: "slow", desc: "hello"),
+  use i, o <- gleamcord_http.ChatCommand(
+    def: command_def(name: "slow", desc: "hello"),
     options: [user_opt],
   )
+  let assert discord.CommandInteraction(
+    data: discord.ChatCommandData(resolved: option.Some(resolved), ..),
+    ..,
+  ) = i
 
-  use <- CommandDeferredMessageResponse
-  let resolved = i.data |> fn(_) { todo as "get resolved" }
+  use <- gleamcord_http.CommandDeferredMessageResponse
   let assert Ok(#(Ok(user), Ok(member))) =
     command_option.get_user_value(o, resolved, "user")
 
@@ -39,16 +42,18 @@ pub fn slow_command() {
 }
 
 pub fn chat_command_group_example() {
-  ChatCommandGroup(
-    def: basic_command_definition(name: "settings", desc: "settings"),
+  gleamcord_http.ChatCommandGroup(
+    def: command_def(name: "settings", desc: "settings"),
     elements: command_group_element_dict([
-      ChatSubCommandGroup(
+      gleamcord_http.ChatSubCommandGroup(
         name: "user",
         description: "user settings",
-        sub_commands: sub_command_dict([sub_command_group_command()]),
+        sub_commands: sub_command_dict([
+          sub_command_group_command(),
+        ]),
       ),
       group_element_command()
-        |> ChatGroupSubCommand,
+        |> gleamcord_http.ChatGroupSubCommand,
     ]),
   )
 }
@@ -62,7 +67,7 @@ const nickname_option = command_option.String(
 )
 
 fn sub_command_group_command() {
-  use _i, o <- ChatSubCommand(
+  use _i, o <- gleamcord_http.ChatSubCommand(
     name: "nickname",
     description: "set nickname",
     options: [nickname_option],
@@ -72,33 +77,33 @@ fn sub_command_group_command() {
 
   echo value
 
-  CommandMessageResponse(todo as "Missing message type")
+  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
 }
 
 fn group_element_command() {
-  use _i, _o <- ChatSubCommand(
+  use _i, _o <- gleamcord_http.ChatSubCommand(
     name: "secret",
     description: "secret setting",
     options: [],
   )
 
-  CommandMessageResponse(todo as "Missing message type")
+  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
 }
 
 pub fn user_command() {
-  use _i <- UserCommand(basic_command_definition(
+  use _i <- gleamcord_http.UserCommand(command_def(
     name: "greet",
     desc: "greets user",
   ))
 
-  CommandMessageResponse(todo as "Missing message type")
+  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
 }
 
 pub fn message_command() {
-  use _i <- MessageCommand(def: basic_command_definition(
+  use _i <- gleamcord_http.MessageCommand(def: command_def(
     name: "report",
     desc: "reports message",
   ))
 
-  CommandMessageResponse(todo as "Missing message type")
+  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
 }

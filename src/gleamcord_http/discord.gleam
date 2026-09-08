@@ -11,7 +11,27 @@ pub type Interaction {
     token: String,
     version: Int,
   )
-  CommandInteraction(CommandInteraction)
+  CommandInteraction(
+    id: String,
+    application_id: String,
+    token: String,
+    version: Int,
+    data: CommandData,
+    guild: Option(Dynamic),
+    guild_id: Option(String),
+    channel: Option(Dynamic),
+    channel_id: Option(String),
+    member: Option(Dynamic),
+    user: Option(Dynamic),
+    message: Option(Dynamic),
+    app_permissions: Option(String),
+    locale: Option(Locale),
+    guild_locale: Option(Locale),
+    entitlements: List(Dynamic),
+    auth_integ_owners: Dict(Dynamic, Dynamic),
+    context: Int,
+    attach_size_limit: Int,
+  )
   ComponentInteraction(
     id: String,
     application_id: String,
@@ -88,7 +108,7 @@ pub fn interaction_decoder() {
       PingInteraction(id:, application_id:, token:, version:) |> decode.success
     2 -> {
       use data <- decode.field("data", todo)
-      CommandInteractionVariant(
+      CommandInteraction(
         id:,
         application_id:,
         token:,
@@ -109,7 +129,6 @@ pub fn interaction_decoder() {
         context: todo,
         attach_size_limit: todo,
       )
-      |> CommandInteraction
       |> decode.success
     }
     3 -> todo
@@ -119,31 +138,29 @@ pub fn interaction_decoder() {
   }
 }
 
-pub type CommandInteraction {
-  CommandInteractionVariant(
+pub type CommandData {
+  ChatCommandData(
     id: String,
-    application_id: String,
-    token: String,
-    version: Int,
-    data: CommandData,
-    guild: Option(Dynamic),
+    name: String,
+    resolved: Option(Dynamic),
     guild_id: Option(String),
-    channel: Option(Dynamic),
-    channel_id: Option(String),
-    member: Option(Dynamic),
-    user: Option(Dynamic),
-    message: Option(Dynamic),
-    app_permissions: Option(String),
-    locale: Option(Locale),
-    guild_locale: Option(Locale),
-    entitlements: List(Dynamic),
-    auth_integ_owners: Dict(Dynamic, Dynamic),
-    context: Int,
-    attach_size_limit: Int,
+    options: Option(Dynamic),
+  )
+  UserCommandData(
+    id: String,
+    name: String,
+    resolved: Option(Dynamic),
+    guild_id: Option(String),
+    target_id: Option(String),
+  )
+  MessageCommandData(
+    id: String,
+    name: String,
+    resolved: Option(Dynamic),
+    guild_id: Option(String),
+    target_id: Option(String),
   )
 }
-
-pub type CommandData
 
 pub type ComponentData
 
