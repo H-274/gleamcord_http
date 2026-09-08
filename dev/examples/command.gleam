@@ -1,21 +1,20 @@
 import gleam/option
 import gleamcord_http.{
-  basic_command_definition as command_def, command_group_element_dict,
-  sub_command_dict,
+  basic_command_definition as command_def, command_group_elements, sub_commands,
 }
-import gleamcord_http/command_option
 import gleamcord_http/discord
 
 pub fn chat_command() {
   use _i, _o <- gleamcord_http.ChatCommand(
-    def: gleamcord_http.basic_command_definition(name: "hello", desc: "world"),
+    def: command_def(name: "hello", desc: "world"),
     options: [],
   )
 
-  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
+  todo as "Missing message type"
+  |> gleamcord_http.CommandMessageResponse
 }
 
-const user_opt = command_option.User(
+const user_opt = gleamcord_http.UserOption(
   name: "user",
   description: "",
   required: True,
@@ -33,7 +32,7 @@ pub fn slow_command() {
 
   use <- gleamcord_http.CommandDeferredMessageResponse
   let assert Ok(#(Ok(user), Ok(member))) =
-    command_option.get_user_value(o, resolved, "user")
+    discord.extract_user(o, resolved, "user")
 
   // process.sleep(10_000)
 
@@ -44,11 +43,11 @@ pub fn slow_command() {
 pub fn chat_command_group_example() {
   gleamcord_http.ChatCommandGroup(
     def: command_def(name: "settings", desc: "settings"),
-    elements: command_group_element_dict([
+    elements: command_group_elements([
       gleamcord_http.ChatSubCommandGroup(
         name: "user",
         description: "user settings",
-        sub_commands: sub_command_dict([
+        sub_commands: sub_commands([
           sub_command_group_command(),
         ]),
       ),
@@ -58,7 +57,7 @@ pub fn chat_command_group_example() {
   )
 }
 
-const nickname_option = command_option.String(
+const nickname_option = gleamcord_http.StringOption(
   name: "value",
   description: "new nickname",
   min_len: 1,
@@ -73,11 +72,12 @@ fn sub_command_group_command() {
     options: [nickname_option],
   )
 
-  let assert Ok(value) = command_option.get_string_value(o, "value")
+  let assert Ok(value) = discord.extract_string(o, "value")
 
   echo value
 
-  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
+  todo as "Missing message type"
+  |> gleamcord_http.CommandMessageResponse
 }
 
 fn group_element_command() {
@@ -87,7 +87,8 @@ fn group_element_command() {
     options: [],
   )
 
-  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
+  todo as "Missing message type"
+  |> gleamcord_http.CommandMessageResponse
 }
 
 pub fn user_command() {
@@ -96,7 +97,8 @@ pub fn user_command() {
     desc: "greets user",
   ))
 
-  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
+  todo as "Missing message type"
+  |> gleamcord_http.CommandMessageResponse
 }
 
 pub fn message_command() {
@@ -105,5 +107,6 @@ pub fn message_command() {
     desc: "reports message",
   ))
 
-  gleamcord_http.CommandMessageResponse(todo as "Missing message type")
+  todo as "Missing message type"
+  |> gleamcord_http.CommandMessageResponse
 }

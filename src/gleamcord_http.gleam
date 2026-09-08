@@ -4,7 +4,6 @@ import gleam/dynamic/decode
 import gleam/list
 import gleam/result
 import gleam/string
-import gleamcord_http/command_option.{type CommandOption}
 import gleamcord_http/component
 import gleamcord_http/discord
 
@@ -64,7 +63,7 @@ pub type ChatCommandGroupElement {
   ChatGroupSubCommand(ChatSubCommand)
 }
 
-pub fn command_group_element_dict(elements: List(ChatCommandGroupElement)) {
+pub fn command_group_elements(elements: List(ChatCommandGroupElement)) {
   list.map(elements, fn(item) {
     case item {
       ChatSubCommandGroup(name:, ..) -> #(name, item)
@@ -102,7 +101,7 @@ pub fn sub_command(
   ChatSubCommand(name:, description:, options:, run:)
 }
 
-pub fn sub_command_dict(sub_commands: List(ChatSubCommand)) {
+pub fn sub_commands(sub_commands: List(ChatSubCommand)) {
   list.map(sub_commands, fn(item) { #(item.name, item) })
   |> dict.from_list
 }
@@ -199,6 +198,83 @@ pub fn handle_autocomplete_map(
   autocomplete_map: Dict(a, b),
 ) {
   todo
+}
+
+pub type CommandOption {
+  StringOption(
+    name: String,
+    description: String,
+    min_len: Int,
+    max_len: Int,
+    required: Bool,
+  )
+  StringChoiceOption(
+    name: String,
+    description: String,
+    choices: List(#(String, String)),
+    required: Bool,
+  )
+  StringAutocompleteOption(
+    name: String,
+    description: String,
+    min_len: Int,
+    max_len: Int,
+    required: Bool,
+    run: fn(discord.Interaction, String) -> List(#(String, String)),
+  )
+  IntegerOption(
+    name: String,
+    description: String,
+    min_value: Int,
+    max_value: Int,
+    required: Bool,
+  )
+  IntegerChoiceOption(
+    name: String,
+    description: String,
+    choices: List(#(String, Int)),
+    required: Bool,
+  )
+  IntegerAutocompleteOption(
+    name: String,
+    description: String,
+    min_value: Int,
+    max_value: Int,
+    required: Bool,
+    run: fn(discord.Interaction, Int) -> List(#(String, Int)),
+  )
+  BoooleanOption(name: String, description: String, required: Bool)
+  UserOption(name: String, description: String, required: Bool)
+  ChannelOption(
+    name: String,
+    description: String,
+    channel_types: List(Int),
+    required: Bool,
+  )
+  RoleOption(name: String, description: String, required: Bool)
+  MentionableOption(name: String, description: String, required: Bool)
+  NumberOption(
+    name: String,
+    description: String,
+    min_value: Float,
+    max_value: Float,
+    required: Bool,
+  )
+  NumberChoiceOption(
+    name: String,
+    description: String,
+    choices: List(#(String, Float)),
+    required: Bool,
+  )
+  NumberAutocompleteOption(
+    name: String,
+    description: String,
+    min_value: Float,
+    max_value: Float,
+    required: Bool,
+    run: fn(discord.Interaction, Float) -> List(#(String, Float)),
+  )
+  AttachmentOption(name: String, description: String, required: Bool)
 }
 
 pub type MessageComponent {
