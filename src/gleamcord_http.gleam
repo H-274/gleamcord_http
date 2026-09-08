@@ -1,7 +1,9 @@
+import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/list
+import gleam/option.{type Option}
 import gleam/result
 import gleam/string
 import gleamcord_http/component
@@ -11,7 +13,7 @@ pub type Command {
   ChatCommand(
     def: CommandDefinition,
     options: List(CommandOption),
-    run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
+    run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
   )
   ChatCommandGroup(
     def: CommandDefinition,
@@ -77,7 +79,7 @@ pub fn group_sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
+  run run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
   |> ChatGroupSubCommand
@@ -88,7 +90,7 @@ pub type ChatSubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
+    run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
   )
 }
 
@@ -96,7 +98,7 @@ pub fn sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
+  run run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
 }
@@ -116,11 +118,11 @@ fn command_maps(commands, map) {
   dict.from_list(list.flatten(list.map(commands, map)))
 }
 
-pub fn build_command_maps(
+pub fn map_commands(
   commands: List(Command),
 ) -> Dict(
   String,
-  fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
+  fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
 ) {
   use command <- command_maps(commands)
   case command {
@@ -144,14 +146,15 @@ pub fn build_command_maps(
   }
 }
 
-pub fn handle_command_maps(
+pub fn handle_mapped_command(
   interaction: discord.Interaction,
+  data: discord.CommandData,
   command_maps: Dict(
     String,
-    fn(discord.Interaction, Dict(String, Dynamic)) -> CommandResponse,
+    fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
   ),
 ) {
-  let assert Ok(#(path, options)) = get_command_data(interaction)
+  use #(path, options) <- result.try(parse_command_data(data))
 
   case dict.get(command_maps, path) {
     Ok(run) -> run(interaction, options) |> Ok
@@ -159,27 +162,65 @@ pub fn handle_command_maps(
   }
 }
 
-fn get_command_data(
-  interaction: discord.Interaction,
-) -> Result(#(String, Dict(String, Dynamic)), HandlingError) {
-  use typ <- result.try(
-    decode.run(todo, decode.at(["data", "type"], decode.int))
-    |> result.map_error(DecodingError),
-  )
+fn parse_command_data(
+  data: discord.CommandData,
+) -> Result(#(String, discord.CommandOptions), HandlingError) {
+  case data {
+    discord.UserCommandData(..) | discord.MessageCommandData(..) ->
+      Ok(#(data.name, dict.new()))
+    discord.ChatCommandData(name:, options:, ..) -> {
+      let option_values = dict.to_list(options)
 
-  case typ {
-    1 -> todo
-    2 | 3 ->
-      decode.run(todo, decode.at(["name"], decode.string))
-      |> result.map_error(DecodingError)
-      |> result.map(fn(path) { #(path, dict.new()) })
+      case list.first(option_values) {
+        Error(Nil) -> Ok(#(name, options))
+        Ok(option1) -> {
+          use typ <- result.try(
+            decode.run(option1.1, decode.at(["type"], decode.int))
+            |> result.map_error(DecodingError),
+          )
+          use <- bool.guard(typ >= 3 && typ <= 11, Ok(#(name, options)))
+          use option1_options <- result.try(
+            decode.run(
+              option1.1,
+              decode.at(["options"], discord.command_options_decoder()),
+            )
+            |> result.map_error(DecodingError),
+          )
 
-    _ -> Error(NotFound("Path"))
+          case typ {
+            1 -> Ok(#(name <> "/" <> option1.0, option1_options))
+            2 -> {
+              use option2 <- result.try(
+                dict.to_list(option1_options)
+                |> list.first
+                |> result.replace_error(NotFound(
+                  "Missing subcommand group options",
+                )),
+              )
+              use option2_options <- result.try(
+                decode.run(
+                  option2.1,
+                  decode.at(["options"], discord.command_options_decoder()),
+                )
+                |> result.map_error(DecodingError),
+              )
+
+              Ok(#(
+                name <> "/" <> option1.0 <> "/" <> option2.0,
+                option2_options,
+              ))
+            }
+            _ -> Error(NotFound("Unknown option type"))
+          }
+        }
+      }
+    }
   }
 }
 
 pub fn handle_command_dict(
   interaction: discord.Interaction,
+  data: discord.CommandData,
   commands: Dict(String, Command),
 ) {
   todo
@@ -195,6 +236,7 @@ pub fn build_autocomplete_map(
 // TODO
 pub fn handle_autocomplete_map(
   interaction: discord.Interaction,
+  data: discord.CommandData,
   autocomplete_map: Dict(a, b),
 ) {
   todo
