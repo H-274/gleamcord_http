@@ -328,7 +328,7 @@ pub fn command_data_decoder() {
       )
       use options <- decode.optional_field(
         "options",
-        dict.new(),
+        ValueOptions(dict.new()),
         command_options_decoder(),
       )
       decode.success(ChatCommandData(id:, name:, resolved:, guild_id:, options:))
@@ -384,144 +384,233 @@ pub fn command_data_decoder() {
           name: "",
           resolved: option.None,
           guild_id: option.None,
-          options: dict.new(),
+          options: ValueOptions(dict.new()),
         ),
         "CommandData",
       )
   }
 }
 
-pub type CommandOptions =
-  Dict(String, Dynamic)
+pub type CommandOptions {
+  SubCommandGroupOption(name: String, sub_command: SubCommand)
+  SubCommandOption(SubCommand)
+  ValueOptions(Dict(String, ValueOption))
+}
 
 pub fn command_options_decoder() {
-  decode.list({
+  use #(name, typ) <- decode.field(0, {
     use name <- decode.field("name", decode.string)
-    use value <- decode.then(decode.dynamic)
-    decode.success(#(name, value))
+    use typ <- decode.field("type", decode.int)
+    decode.success(#(name, typ))
   })
-  |> decode.map(dict.from_list)
+
+  case typ {
+    3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 ->
+      decode.list(value_option_decoder() |> decode.map(fn(o) { #(o.name, o) }))
+      |> decode.map(dict.from_list)
+      |> decode.map(ValueOptions)
+    1 -> {
+      use sub_command_options <- decode.field(
+        ["options"],
+        decode.list(
+          value_option_decoder()
+          |> decode.map(fn(o) { #(o.name, o) }),
+        )
+          |> decode.map(dict.from_list),
+      )
+
+      decode.success(
+        SubCommandOption(SubCommand(name:, options: sub_command_options)),
+      )
+    }
+    2 -> todo
+    _ -> decode.failure(ValueOptions(dict.new()), "CommandOptions")
+  }
 }
 
-pub fn extract_string(opts options: CommandOptions, name name: String) {
-  dict.get(options, name)
-  |> result.replace_error([])
-  |> result.map(decode.run(_, decode.string))
-  |> result.flatten
+pub type SubCommand {
+  SubCommand(name: String, options: Dict(String, ValueOption))
 }
 
-pub fn extract_integer(opts options: CommandOptions, name name: String) {
-  dict.get(options, name)
-  |> result.replace_error([])
-  |> result.map(decode.run(_, decode.int))
-  |> result.flatten
+pub type ValueOption {
+  StringOption(name: String, value: String, focused: Bool)
+  IntegerOption(name: String, value: Int, focused: Bool)
+  BooleanOption(name: String, value: Bool)
+  UserOption(name: String, value: String)
+  ChannelOption(name: String, value: String)
+  RoleOption(name: String, value: String)
+  MentionableOption(name: String, value: String)
+  NumberOption(name: String, value: Float, focused: Bool)
+  AttachmentOption(name: String, value: String)
 }
 
-pub fn extract_boolean(opts options: CommandOptions, name name: String) {
-  dict.get(options, name)
-  |> result.replace_error([])
-  |> result.map(decode.run(_, decode.bool))
-  |> result.flatten
+pub fn value_option_decoder() -> decode.Decoder(ValueOption) {
+  use variant <- decode.field("type", decode.int)
+  case variant {
+    3 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(StringOption(name:, value:, focused:))
+    }
+    4 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.int)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(IntegerOption(name:, value:, focused:))
+    }
+    5 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.bool)
+      decode.success(BooleanOption(name:, value:))
+    }
+    6 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(UserOption(name:, value:))
+    }
+    7 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(ChannelOption(name:, value:))
+    }
+    8 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(RoleOption(name:, value:))
+    }
+    9 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(MentionableOption(name:, value:))
+    }
+    10 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.float)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(NumberOption(name:, value:, focused:))
+    }
+    11 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(AttachmentOption(name:, value:))
+    }
+    _ -> decode.failure(BooleanOption(name: "", value: False), "ValueOption")
+  }
 }
 
-pub fn extract_user(
-  opts options: CommandOptions,
-  res resolved: Dynamic,
-  name name: String,
+pub fn options_string(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    StringOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_integer(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    IntegerOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_boolean(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    BooleanOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_user(options: Dict(String, ValueOption), key: String, resolved) {
+  use snowflake <- result.try(options_user_id(options, key))
+  echo #(snowflake, resolved)
+  todo
+}
+
+pub fn options_user_id(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    UserOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_channel(
+  options: Dict(String, ValueOption),
+  key: String,
+  resolved,
 ) {
-  use user_id <- result.try(
-    dict.get(options, name)
-    |> result.replace_error([])
-    |> result.map(decode.run(_, decode.string))
-    |> result.flatten,
-  )
-
-  let users =
-    decode.run(resolved, decode.at(["users", user_id], decode.dynamic))
-  let members =
-    decode.run(resolved, decode.at(["members", user_id], decode.dynamic))
-
-  Ok(#(users, members))
+  use snowflake <- result.try(options_channel_id(options, key))
+  echo #(snowflake, resolved)
+  todo
 }
 
-pub fn extract_channel(
-  opts options: CommandOptions,
-  res resolved: Dynamic,
-  name name: String,
+pub fn options_channel_id(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    ChannelOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_role(options: Dict(String, ValueOption), key: String, resolved) {
+  use snowflake <- result.try(options_role_id(options, key))
+  echo #(snowflake, resolved)
+  todo
+}
+
+pub fn options_role_id(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    RoleOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_mentionable(
+  options: Dict(String, ValueOption),
+  key: String,
+  resolved,
 ) {
-  use channel_id <- result.try(
-    dict.get(options, name)
-    |> result.replace_error([])
-    |> result.map(decode.run(_, decode.string))
-    |> result.flatten,
-  )
-
-  decode.run(resolved, decode.at(["channels", channel_id], decode.dynamic))
+  use snowflake <- result.try(options_role_id(options, key))
+  echo #(snowflake, resolved)
+  todo
 }
 
-pub fn extract_role(
-  opts options: CommandOptions,
-  res resolved: Dynamic,
-  name name: String,
+pub fn options_mentionable_id(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    MentionableOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_number(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    NumberOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn options_attachment(
+  options: Dict(String, ValueOption),
+  key: String,
+  resolved,
 ) {
-  use role_id <- result.try(
-    dict.get(options, name)
-    |> result.replace_error([])
-    |> result.map(decode.run(_, decode.string))
-    |> result.flatten,
-  )
-
-  decode.run(resolved, decode.at(["channels", role_id], decode.dynamic))
+  use snowflake <- result.try(options_attachment_id(options, key))
+  echo #(snowflake, resolved)
+  todo
 }
 
-pub fn extract_mention(
-  opts options: CommandOptions,
-  res resolved: Dynamic,
-  name name: String,
-) {
-  use mention_id <- result.try(
-    dict.get(options, name)
-    |> result.replace_error([])
-    |> result.map(decode.run(_, decode.string))
-    |> result.flatten,
-  )
-
-  let role =
-    decode.run(resolved, decode.at(["roles", mention_id], decode.dynamic))
-    |> option.from_result
-  let users =
-    decode.run(resolved, decode.at(["users", mention_id], decode.dynamic))
-    |> option.from_result
-  let members =
-    decode.run(resolved, decode.at(["members", mention_id], decode.dynamic))
-    |> option.from_result
-
-  Ok(#(role, users, members))
-}
-
-pub fn extract_number(opts options: CommandOptions, name name: String) {
-  dict.get(options, name)
-  |> result.replace_error([])
-  |> result.map(decode.run(_, decode.float))
-  |> result.flatten
-}
-
-pub fn extract_attachment(
-  opts options: CommandOptions,
-  res resolved: Dynamic,
-  name name: String,
-) {
-  use attachment_id <- result.try(
-    dict.get(options, name)
-    |> result.replace_error([])
-    |> result.map(decode.run(_, decode.string))
-    |> result.flatten,
-  )
-
-  decode.run(
-    resolved,
-    decode.at(["attachments", attachment_id], decode.dynamic),
-  )
+pub fn options_attachment_id(options: Dict(String, ValueOption), key: String) {
+  use option <- result.try(dict.get(options, key))
+  case option {
+    AttachmentOption(value:, ..) -> Ok(value)
+    _ -> Error(Nil)
+  }
 }
 
 pub type ComponentData

@@ -13,7 +13,8 @@ pub type Command {
   ChatCommand(
     def: CommandDefinition,
     options: List(CommandOption),
-    run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
+    run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
+      CommandResponse,
   )
   ChatCommandGroup(
     def: CommandDefinition,
@@ -79,7 +80,8 @@ pub fn group_sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
+  run run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
+    CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
   |> ChatGroupSubCommand
@@ -90,7 +92,8 @@ pub type ChatSubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
+    run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
+      CommandResponse,
   )
 }
 
@@ -98,7 +101,8 @@ pub fn sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
+  run run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
+    CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
 }
@@ -122,7 +126,7 @@ pub fn map_commands(
   commands: List(Command),
 ) -> Dict(
   String,
-  fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
+  fn(discord.Interaction, Dict(String, discord.ValueOption)) -> CommandResponse,
 ) {
   use command <- command_maps(commands)
   case command {
@@ -151,10 +155,11 @@ pub fn handle_mapped_command(
   data: discord.CommandData,
   command_maps: Dict(
     String,
-    fn(discord.Interaction, discord.CommandOptions) -> CommandResponse,
+    fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
+      CommandResponse,
   ),
 ) {
-  use #(path, options) <- result.try(parse_command_data(data))
+  let #(path, options) = parse_command_data(data)
 
   case dict.get(command_maps, path) {
     Ok(run) -> run(interaction, options) |> Ok
@@ -164,55 +169,20 @@ pub fn handle_mapped_command(
 
 fn parse_command_data(
   data: discord.CommandData,
-) -> Result(#(String, discord.CommandOptions), HandlingError) {
+) -> #(String, Dict(String, discord.ValueOption)) {
   case data {
-    discord.UserCommandData(..) | discord.MessageCommandData(..) ->
-      Ok(#(data.name, dict.new()))
+    discord.UserCommandData(..) | discord.MessageCommandData(..) -> #(
+      data.name,
+      dict.new(),
+    )
     discord.ChatCommandData(name:, options:, ..) -> {
-      let option_values = dict.to_list(options)
-
-      case list.first(option_values) {
-        Error(Nil) -> Ok(#(name, options))
-        Ok(option1) -> {
-          use typ <- result.try(
-            decode.run(option1.1, decode.at(["type"], decode.int))
-            |> result.map_error(DecodingError),
-          )
-          use <- bool.guard(typ >= 3 && typ <= 11, Ok(#(name, options)))
-          use option1_options <- result.try(
-            decode.run(
-              option1.1,
-              decode.at(["options"], discord.command_options_decoder()),
-            )
-            |> result.map_error(DecodingError),
-          )
-
-          case typ {
-            1 -> Ok(#(name <> "/" <> option1.0, option1_options))
-            2 -> {
-              use option2 <- result.try(
-                dict.to_list(option1_options)
-                |> list.first
-                |> result.replace_error(NotFound(
-                  "Missing subcommand group options",
-                )),
-              )
-              use option2_options <- result.try(
-                decode.run(
-                  option2.1,
-                  decode.at(["options"], discord.command_options_decoder()),
-                )
-                |> result.map_error(DecodingError),
-              )
-
-              Ok(#(
-                name <> "/" <> option1.0 <> "/" <> option2.0,
-                option2_options,
-              ))
-            }
-            _ -> Error(NotFound("Unknown option type"))
-          }
-        }
+      case options {
+        discord.ValueOptions(options) -> #(name, options)
+        discord.SubCommandOption(sub) -> #(name <> "/" <> sub.name, sub.options)
+        discord.SubCommandGroupOption(name: sub_group, sub_command: sub) -> #(
+          name <> "/" <> sub_group <> "/" <> sub.name,
+          sub.options,
+        )
       }
     }
   }

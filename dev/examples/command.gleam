@@ -32,7 +32,7 @@ pub fn slow_command() {
 
   use <- gleamcord_http.CommandDeferredMessageResponse
   let assert Ok(#(Ok(user), Ok(member))) =
-    discord.extract_user(o, resolved, "user")
+    discord.options_user(o, "user", resolved)
 
   // process.sleep(10_000)
 
@@ -72,7 +72,7 @@ fn sub_command_group_command() {
     options: [nickname_option],
   )
 
-  let assert Ok(value) = discord.extract_string(o, "value")
+  let assert Ok(value) = discord.options_string(o, "value")
 
   echo value
 
