@@ -106,8 +106,7 @@ pub fn interaction_decoder() {
   use version <- decode.field("version", decode.int)
 
   case typ {
-    1 ->
-      PingInteraction(id:, application_id:, token:, version:) |> decode.success
+    1 -> decode.success(PingInteraction(id:, application_id:, token:, version:))
     _ -> {
       use guild <- decode.optional_field(
         "guild",

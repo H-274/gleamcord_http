@@ -115,56 +115,63 @@ pub type CommandResponse {
   CommandModalResponse(Nil)
 }
 
-fn command_maps(commands, map) {
-  dict.from_list(list.flatten(list.map(commands, map)))
-}
-
-pub fn map_commands(
+pub fn generate_commands_map(
   commands: List(Command),
 ) -> Dict(
   String,
   fn(discord.Interaction, Dict(String, discord.ValueOption)) -> CommandResponse,
 ) {
-  use command <- command_maps(commands)
-  case command {
-    ChatCommand(def: command, run:, ..) -> [#(command.name, run)]
-    ChatCommandGroup(def: group, elements:) ->
-      list.map(dict.values(elements), fn(item) {
-        case item {
-          ChatGroupSubCommand(sub_command) -> [
-            #(string.join([group.name, sub_command.name], "/"), sub_command.run),
-          ]
-          ChatSubCommandGroup(name: sub_group, sub_commands:, ..) ->
-            list.map(dict.values(sub_commands), fn(item) {
-              #(string.join([group.name, sub_group, item.name], "/"), item.run)
-            })
-        }
-      })
-      |> list.flatten
+  list.map(commands, fn(command) {
+    case command {
+      ChatCommand(def: command, run:, ..) -> [#(command.name, run)]
+      ChatCommandGroup(def: group, elements:) ->
+        list.map(dict.values(elements), fn(item) {
+          case item {
+            ChatGroupSubCommand(sub_command) -> [
+              #(
+                string.join([group.name, sub_command.name], "/"),
+                sub_command.run,
+              ),
+            ]
+            ChatSubCommandGroup(name: sub_group, sub_commands:, ..) ->
+              list.map(dict.values(sub_commands), fn(item) {
+                #(
+                  string.join([group.name, sub_group, item.name], "/"),
+                  item.run,
+                )
+              })
+          }
+        })
+        |> list.flatten
 
-    UserCommand(def: command, run:) -> [#(command.name, fn(i, _) { run(i) })]
-    MessageCommand(def: command, run:) -> [#(command.name, fn(i, _) { run(i) })]
-  }
+      UserCommand(def: command, run:) -> [#(command.name, fn(i, _) { run(i) })]
+      MessageCommand(def: command, run:) -> [
+        #(command.name, fn(i, _) { run(i) }),
+      ]
+    }
+  })
+  |> list.flatten
+  |> dict.from_list
 }
 
 pub fn handle_mapped_command(
   interaction: discord.Interaction,
   data: discord.CommandData,
-  command_maps: Dict(
+  commands_map: Dict(
     String,
     fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
       CommandResponse,
   ),
 ) {
-  let #(path, options) = parse_command_data(data)
+  let #(path, options) = extract_command_path_options(data)
 
-  case dict.get(command_maps, path) {
+  case dict.get(commands_map, path) {
     Ok(run) -> run(interaction, options) |> Ok
     Error(_) -> Error(NotFound("Chat Command"))
   }
 }
 
-fn parse_command_data(
+fn extract_command_path_options(
   data: discord.CommandData,
 ) -> #(String, Dict(String, discord.ValueOption)) {
   case data {
@@ -175,9 +182,12 @@ fn parse_command_data(
     discord.ChatCommandData(name:, options:, ..) -> {
       case options {
         discord.ValueOptions(options) -> #(name, options)
-        discord.SubCommandOption(sub) -> #(name <> "/" <> sub.name, sub.options)
+        discord.SubCommandOption(sub) -> #(
+          string.join([name, sub.name], "/"),
+          sub.options,
+        )
         discord.SubCommandGroupOption(name: sub_group, sub_command: sub) -> #(
-          name <> "/" <> sub_group <> "/" <> sub.name,
+          string.join([name, sub_group, sub.name], "/"),
           sub.options,
         )
       }
@@ -190,7 +200,41 @@ pub fn handle_command_dict(
   data: discord.CommandData,
   commands: Dict(String, Command),
 ) {
-  todo
+  case data, dict.get(commands, data.name) {
+    discord.UserCommandData(..), Ok(UserCommand(run:, ..)) ->
+      Ok(run(interaction))
+    discord.MessageCommandData(..), Ok(MessageCommand(run:, ..)) ->
+      Ok(run(interaction))
+
+    discord.ChatCommandData(options:, ..), Ok(ChatCommand(run:, ..)) ->
+      case options {
+        discord.ValueOptions(options) -> Ok(run(interaction, options))
+        _ -> Error(NotFound)
+      }
+
+    discord.ChatCommandData(options:, ..), Ok(ChatCommandGroup(elements:, ..))
+    ->
+      case options {
+        discord.SubCommandOption(sub_opt) ->
+          case dict.get(elements, sub_opt.name) {
+            Ok(ChatGroupSubCommand(sub)) ->
+              Ok(sub.run(interaction, sub_opt.options))
+            _ -> Error(NotFound)
+          }
+        discord.SubCommandGroupOption(name: sub_name, sub_command:) ->
+          case dict.get(elements, sub_name) {
+            Ok(ChatSubCommandGroup(sub_commands:, ..)) ->
+              case dict.get(sub_commands, sub_command.name) {
+                Ok(ChatSubCommand(run:, ..)) ->
+                  Ok(run(interaction, sub_command.options))
+                _ -> Error(NotFound)
+              }
+            _ -> Error(NotFound)
+          }
+        _ -> Error(NotFound)
+      }
+    _, _ -> Error(NotFound)
+  }
 }
 
 // TODO review autocomplete run signature
