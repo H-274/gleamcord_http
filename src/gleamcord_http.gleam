@@ -232,7 +232,7 @@ pub fn handle_command_dict(
             _ -> Error(NotFound("Sub command group: " <> group_name))
           }
         discord.ValueOptions(_) ->
-          Error(NotFound("No sub command or command group for value options"))
+          panic as "Command group should not have value options"
       }
     _, _ -> Error(NotFound("Command matching: " <> data.name))
   }
