@@ -209,7 +209,7 @@ pub fn handle_command_dict(
     discord.ChatCommandData(options:, ..), Ok(ChatCommand(run:, ..)) ->
       case options {
         discord.ValueOptions(options) -> Ok(run(interaction, options))
-        _ -> Error(NotFound("Chat command value options"))
+        _ -> Error(NotFound("Value options for: " <> data.name))
       }
 
     discord.ChatCommandData(options:, ..), Ok(ChatCommandGroup(elements:, ..))
@@ -229,7 +229,7 @@ pub fn handle_command_dict(
                   Ok(run(interaction, sub_command.options))
                 _ -> Error(NotFound("Group sub command: " <> sub_command.name))
               }
-            _ -> Error(NotFound("Command group: " <> group_name))
+            _ -> Error(NotFound("Sub command group: " <> group_name))
           }
         discord.ValueOptions(_) ->
           Error(NotFound("No sub command or command group for value options"))
