@@ -221,8 +221,8 @@ pub fn handle_command_dict(
               Ok(sub.run(interaction, sub_opt.options))
             _ -> Error(NotFound)
           }
-        discord.SubCommandGroupOption(name: sub_name, sub_command:) ->
-          case dict.get(elements, sub_name) {
+        discord.SubCommandGroupOption(name: group_name, sub_command:) ->
+          case dict.get(elements, group_name) {
             Ok(ChatSubCommandGroup(sub_commands:, ..)) ->
               case dict.get(sub_commands, sub_command.name) {
                 Ok(ChatSubCommand(run:, ..)) ->
