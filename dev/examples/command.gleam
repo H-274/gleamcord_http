@@ -25,18 +25,17 @@ pub fn slow_command() {
     def: command_def(name: "slow", desc: "hello"),
     options: [user_opt],
   )
-  let assert discord.CommandInteraction(
-    data: discord.ChatCommandData(resolved: option.Some(resolved), ..),
-    ..,
-  ) = i
+
+  let assert discord.CommandInteraction(data:, ..) = i
+  let assert option.Some(resolved) = data.resolved
+  let assert Ok(#(option.Some(user), _)) =
+    discord.options_user(o, "user", resolved)
 
   use <- gleamcord_http.CommandDeferredMessageResponse
-  let assert Ok(#(Ok(user), Ok(member))) =
-    discord.options_user(o, "user", resolved)
 
   // process.sleep(10_000)
 
-  echo #(user, member)
+  echo user
   todo as "Missing message type"
 }
 

@@ -1,10 +1,7 @@
-import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/list
-import gleam/option.{type Option}
-import gleam/result
 import gleam/string
 import gleamcord_http/component
 import gleamcord_http/discord

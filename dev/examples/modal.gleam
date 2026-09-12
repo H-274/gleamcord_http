@@ -10,7 +10,6 @@ pub const ice_cream_input = component.ShortTextInput(
   placeholder: "",
 )
 
-// TODO
 pub const channel_select = component.ChannelSelect(custom_id: "channel")
 
 pub fn modal_example() {

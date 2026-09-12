@@ -398,38 +398,42 @@ pub type CommandOptions {
 }
 
 pub fn command_options_decoder() {
-  use #(name, typ) <- decode.field(0, {
-    use name <- decode.field("name", decode.string)
-    use typ <- decode.field("type", decode.int)
-    decode.success(#(name, typ))
-  })
+  use typ <- decode.field(0, decode.at(["type"], decode.int))
 
   case typ {
+    1 ->
+      decode.at([0], sub_command_decoder())
+      |> decode.map(SubCommandOption)
+    2 ->
+      decode.at([0], {
+        use name <- decode.field("name", decode.string)
+        use sub_command <- decode.field("options", sub_command_decoder())
+        decode.success(SubCommandGroupOption(name:, sub_command:))
+      })
     3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 ->
       decode.list(value_option_decoder() |> decode.map(fn(o) { #(o.name, o) }))
       |> decode.map(dict.from_list)
       |> decode.map(ValueOptions)
-    1 -> {
-      use sub_command_options <- decode.field(
-        ["options"],
-        decode.list(
-          value_option_decoder()
-          |> decode.map(fn(o) { #(o.name, o) }),
-        )
-          |> decode.map(dict.from_list),
-      )
 
-      decode.success(
-        SubCommandOption(SubCommand(name:, options: sub_command_options)),
-      )
-    }
-    2 -> todo
     _ -> decode.failure(ValueOptions(dict.new()), "CommandOptions")
   }
 }
 
 pub type SubCommand {
   SubCommand(name: String, options: Dict(String, ValueOption))
+}
+
+fn sub_command_decoder() -> decode.Decoder(SubCommand) {
+  use name <- decode.field("name", decode.string)
+  use options <- decode.field(
+    "options",
+    decode.list(
+      value_option_decoder()
+      |> decode.map(fn(o) { #(o.name, o) }),
+    )
+      |> decode.map(dict.from_list),
+  )
+  decode.success(SubCommand(name:, options:))
 }
 
 pub type ValueOption {
@@ -499,7 +503,10 @@ pub fn value_option_decoder() -> decode.Decoder(ValueOption) {
   }
 }
 
-pub fn options_string(options: Dict(String, ValueOption), key: String) {
+pub fn options_string(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(String, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     StringOption(value:, ..) -> Ok(value)
@@ -507,7 +514,10 @@ pub fn options_string(options: Dict(String, ValueOption), key: String) {
   }
 }
 
-pub fn options_integer(options: Dict(String, ValueOption), key: String) {
+pub fn options_integer(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(Int, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     IntegerOption(value:, ..) -> Ok(value)
@@ -515,7 +525,10 @@ pub fn options_integer(options: Dict(String, ValueOption), key: String) {
   }
 }
 
-pub fn options_boolean(options: Dict(String, ValueOption), key: String) {
+pub fn options_boolean(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(Bool, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     BooleanOption(value:, ..) -> Ok(value)
@@ -523,13 +536,21 @@ pub fn options_boolean(options: Dict(String, ValueOption), key: String) {
   }
 }
 
-pub fn options_user(options: Dict(String, ValueOption), key: String, resolved) {
+/// Tuple options are: user, member
+pub fn options_user(
+  options: Dict(String, ValueOption),
+  key: String,
+  resolved,
+) -> Result(#(Option(Dynamic), Option(Dynamic)), Nil) {
   use snowflake <- result.try(options_user_id(options, key))
   echo #(snowflake, resolved)
   todo
 }
 
-pub fn options_user_id(options: Dict(String, ValueOption), key: String) {
+pub fn options_user_id(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(String, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     UserOption(value:, ..) -> Ok(value)
@@ -541,13 +562,16 @@ pub fn options_channel(
   options: Dict(String, ValueOption),
   key: String,
   resolved,
-) {
+) -> Result(Dynamic, Nil) {
   use snowflake <- result.try(options_channel_id(options, key))
   echo #(snowflake, resolved)
   todo
 }
 
-pub fn options_channel_id(options: Dict(String, ValueOption), key: String) {
+pub fn options_channel_id(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(String, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     ChannelOption(value:, ..) -> Ok(value)
@@ -555,13 +579,20 @@ pub fn options_channel_id(options: Dict(String, ValueOption), key: String) {
   }
 }
 
-pub fn options_role(options: Dict(String, ValueOption), key: String, resolved) {
+pub fn options_role(
+  options: Dict(String, ValueOption),
+  key: String,
+  resolved,
+) -> Result(Dynamic, Nil) {
   use snowflake <- result.try(options_role_id(options, key))
   echo #(snowflake, resolved)
   todo
 }
 
-pub fn options_role_id(options: Dict(String, ValueOption), key: String) {
+pub fn options_role_id(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(String, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     RoleOption(value:, ..) -> Ok(value)
@@ -569,17 +600,21 @@ pub fn options_role_id(options: Dict(String, ValueOption), key: String) {
   }
 }
 
+/// Tuple options are: user, member, role
 pub fn options_mentionable(
   options: Dict(String, ValueOption),
   key: String,
   resolved,
-) {
+) -> Result(#(Option(Dynamic), Option(Dynamic), Option(Dynamic)), Nil) {
   use snowflake <- result.try(options_role_id(options, key))
   echo #(snowflake, resolved)
   todo
 }
 
-pub fn options_mentionable_id(options: Dict(String, ValueOption), key: String) {
+pub fn options_mentionable_id(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(String, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     MentionableOption(value:, ..) -> Ok(value)
@@ -587,7 +622,10 @@ pub fn options_mentionable_id(options: Dict(String, ValueOption), key: String) {
   }
 }
 
-pub fn options_number(options: Dict(String, ValueOption), key: String) {
+pub fn options_number(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(Float, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     NumberOption(value:, ..) -> Ok(value)
@@ -599,13 +637,16 @@ pub fn options_attachment(
   options: Dict(String, ValueOption),
   key: String,
   resolved,
-) {
+) -> Result(Dynamic, Nil) {
   use snowflake <- result.try(options_attachment_id(options, key))
   echo #(snowflake, resolved)
   todo
 }
 
-pub fn options_attachment_id(options: Dict(String, ValueOption), key: String) {
+pub fn options_attachment_id(
+  options: Dict(String, ValueOption),
+  key: String,
+) -> Result(String, Nil) {
   use option <- result.try(dict.get(options, key))
   case option {
     AttachmentOption(value:, ..) -> Ok(value)
