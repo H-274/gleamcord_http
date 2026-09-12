@@ -285,25 +285,71 @@ pub fn interaction_decoder() {
   }
 }
 
+pub type Resolved {
+  Resolved(
+    users: Option(Dict(String, Dynamic)),
+    members: Option(Dict(String, Dynamic)),
+    roles: Option(Dict(String, Dynamic)),
+    channels: Option(Dict(String, Dynamic)),
+    messages: Option(Dict(String, Dynamic)),
+    attachments: Option(Dict(String, Dynamic)),
+  )
+}
+
+fn resolved_decoder() -> decode.Decoder(Resolved) {
+  use users <- decode.field(
+    "users",
+    decode.optional(decode.dict(decode.string, decode.dynamic)),
+  )
+  use members <- decode.field(
+    "members",
+    decode.optional(decode.dict(decode.string, decode.dynamic)),
+  )
+  use roles <- decode.field(
+    "roles",
+    decode.optional(decode.dict(decode.string, decode.dynamic)),
+  )
+  use channels <- decode.field(
+    "channels",
+    decode.optional(decode.dict(decode.string, decode.dynamic)),
+  )
+  use messages <- decode.field(
+    "messages",
+    decode.optional(decode.dict(decode.string, decode.dynamic)),
+  )
+  use attachments <- decode.field(
+    "attachments",
+    decode.optional(decode.dict(decode.string, decode.dynamic)),
+  )
+  decode.success(Resolved(
+    users:,
+    members:,
+    roles:,
+    channels:,
+    messages:,
+    attachments:,
+  ))
+}
+
 pub type CommandData {
   ChatCommandData(
     id: String,
     name: String,
-    resolved: Option(Dynamic),
+    resolved: Option(Resolved),
     guild_id: Option(String),
     options: CommandOptions,
   )
   UserCommandData(
     id: String,
     name: String,
-    resolved: Option(Dynamic),
+    resolved: Option(Resolved),
     guild_id: Option(String),
     target_id: Option(String),
   )
   MessageCommandData(
     id: String,
     name: String,
-    resolved: Option(Dynamic),
+    resolved: Option(Resolved),
     guild_id: Option(String),
     target_id: Option(String),
   )
@@ -318,7 +364,7 @@ pub fn command_data_decoder() {
       use resolved <- decode.optional_field(
         "resolved",
         option.None,
-        decode.optional(decode.dynamic),
+        decode.optional(resolved_decoder()),
       )
       use guild_id <- decode.optional_field(
         "guild_id",
@@ -338,7 +384,7 @@ pub fn command_data_decoder() {
       use resolved <- decode.optional_field(
         "resolved",
         option.None,
-        decode.optional(decode.dynamic),
+        decode.optional(resolved_decoder()),
       )
       use guild_id <- decode.optional_field(
         "guild_id",
@@ -360,7 +406,7 @@ pub fn command_data_decoder() {
       use resolved <- decode.optional_field(
         "resolved",
         option.None,
-        decode.optional(decode.dynamic),
+        decode.optional(resolved_decoder()),
       )
       use guild_id <- decode.optional_field(
         "guild_id",
@@ -539,11 +585,21 @@ pub fn options_boolean(
 pub fn options_user(
   options: Dict(String, ValueOption),
   key: String,
-  resolved,
+  resolved: Resolved,
 ) -> Result(#(Option(Dynamic), Option(Dynamic)), Nil) {
   use snowflake <- result.try(options_user_id(options, key))
-  echo #(snowflake, resolved)
-  todo
+  let user =
+    resolved.users
+    |> option.map(dict.get(_, snowflake))
+    |> option.map(option.from_result)
+    |> option.flatten
+  let member =
+    resolved.members
+    |> option.map(dict.get(_, snowflake))
+    |> option.map(option.from_result)
+    |> option.flatten
+
+  Ok(#(user, member))
 }
 
 pub fn options_user_id(
@@ -560,11 +616,13 @@ pub fn options_user_id(
 pub fn options_channel(
   options: Dict(String, ValueOption),
   key: String,
-  resolved,
+  resolved: Resolved,
 ) -> Result(Dynamic, Nil) {
   use snowflake <- result.try(options_channel_id(options, key))
-  echo #(snowflake, resolved)
-  todo
+  case resolved.channels {
+    option.Some(channels) -> dict.get(channels, snowflake)
+    _ -> Error(Nil)
+  }
 }
 
 pub fn options_channel_id(
@@ -581,11 +639,13 @@ pub fn options_channel_id(
 pub fn options_role(
   options: Dict(String, ValueOption),
   key: String,
-  resolved,
+  resolved: Resolved,
 ) -> Result(Dynamic, Nil) {
   use snowflake <- result.try(options_role_id(options, key))
-  echo #(snowflake, resolved)
-  todo
+  case resolved.roles {
+    option.Some(roles) -> dict.get(roles, snowflake)
+    _ -> Error(Nil)
+  }
 }
 
 pub fn options_role_id(
@@ -603,11 +663,26 @@ pub fn options_role_id(
 pub fn options_mentionable(
   options: Dict(String, ValueOption),
   key: String,
-  resolved,
+  resolved: Resolved,
 ) -> Result(#(Option(Dynamic), Option(Dynamic), Option(Dynamic)), Nil) {
-  use snowflake <- result.try(options_role_id(options, key))
-  echo #(snowflake, resolved)
-  todo
+  use snowflake <- result.try(options_mentionable_id(options, key))
+  let user =
+    resolved.users
+    |> option.map(dict.get(_, snowflake))
+    |> option.map(option.from_result)
+    |> option.flatten
+  let member =
+    resolved.members
+    |> option.map(dict.get(_, snowflake))
+    |> option.map(option.from_result)
+    |> option.flatten
+  let role =
+    resolved.roles
+    |> option.map(dict.get(_, snowflake))
+    |> option.map(option.from_result)
+    |> option.flatten
+
+  Ok(#(user, member, role))
 }
 
 pub fn options_mentionable_id(
@@ -635,11 +710,13 @@ pub fn options_number(
 pub fn options_attachment(
   options: Dict(String, ValueOption),
   key: String,
-  resolved,
+  resolved: Resolved,
 ) -> Result(Dynamic, Nil) {
   use snowflake <- result.try(options_attachment_id(options, key))
-  echo #(snowflake, resolved)
-  todo
+  case resolved.attachments {
+    option.Some(channels) -> dict.get(channels, snowflake)
+    _ -> Error(Nil)
+  }
 }
 
 pub fn options_attachment_id(
