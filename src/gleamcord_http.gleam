@@ -199,7 +199,7 @@ pub fn handle_command_dict(
   interaction: discord.Interaction,
   data: discord.CommandData,
   commands: Dict(String, Command),
-) {
+) -> Result(CommandResponse, HandlingError) {
   case data, dict.get(commands, data.name) {
     discord.UserCommandData(..), Ok(UserCommand(run:, ..)) ->
       Ok(run(interaction))
@@ -209,7 +209,7 @@ pub fn handle_command_dict(
     discord.ChatCommandData(options:, ..), Ok(ChatCommand(run:, ..)) ->
       case options {
         discord.ValueOptions(options) -> Ok(run(interaction, options))
-        _ -> Error(NotFound)
+        _ -> Error(NotFound("Chat command value options"))
       }
 
     discord.ChatCommandData(options:, ..), Ok(ChatCommandGroup(elements:, ..))
@@ -219,7 +219,7 @@ pub fn handle_command_dict(
           case dict.get(elements, sub_opt.name) {
             Ok(ChatGroupSubCommand(sub)) ->
               Ok(sub.run(interaction, sub_opt.options))
-            _ -> Error(NotFound)
+            _ -> Error(NotFound("Sub command: " <> sub_opt.name))
           }
         discord.SubCommandGroupOption(name: group_name, sub_command:) ->
           case dict.get(elements, group_name) {
@@ -227,13 +227,14 @@ pub fn handle_command_dict(
               case dict.get(sub_commands, sub_command.name) {
                 Ok(ChatSubCommand(run:, ..)) ->
                   Ok(run(interaction, sub_command.options))
-                _ -> Error(NotFound)
+                _ -> Error(NotFound("Group sub command: " <> sub_command.name))
               }
-            _ -> Error(NotFound)
+            _ -> Error(NotFound("Command group: " <> group_name))
           }
-        _ -> Error(NotFound)
+        discord.ValueOptions(_) ->
+          Error(NotFound("No sub command or command group for value options"))
       }
-    _, _ -> Error(NotFound)
+    _, _ -> Error(NotFound("Command matching: " <> data.name))
   }
 }
 
