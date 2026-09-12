@@ -1,6 +1,6 @@
 import gleam/option
 import gleamcord_http.{
-  basic_command_definition as command_def, command_group_elements, sub_commands,
+  basic_command_definition as command_def, group_elements, sub_command_elements,
 }
 import gleamcord_http/discord
 
@@ -43,11 +43,11 @@ pub fn slow_command() {
 pub fn chat_command_group_example() {
   gleamcord_http.ChatCommandGroup(
     def: command_def(name: "settings", desc: "settings"),
-    elements: command_group_elements([
+    elements: group_elements([
       gleamcord_http.ChatSubCommandGroup(
         name: "user",
         description: "user settings",
-        sub_commands: sub_commands([
+        sub_commands: sub_command_elements([
           sub_command_group_command(),
         ]),
       ),

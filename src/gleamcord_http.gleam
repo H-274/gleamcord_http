@@ -63,7 +63,7 @@ pub type ChatCommandGroupElement {
   ChatGroupSubCommand(ChatSubCommand)
 }
 
-pub fn command_group_elements(elements: List(ChatCommandGroupElement)) {
+pub fn group_elements(elements: List(ChatCommandGroupElement)) {
   list.map(elements, fn(item) {
     case item {
       ChatSubCommandGroup(name:, ..) -> #(name, item)
@@ -104,7 +104,7 @@ pub fn sub_command(
   ChatSubCommand(name:, description:, options:, run:)
 }
 
-pub fn sub_commands(sub_commands: List(ChatSubCommand)) {
+pub fn sub_command_elements(sub_commands: List(ChatSubCommand)) {
   list.map(sub_commands, fn(item) { #(item.name, item) })
   |> dict.from_list
 }
