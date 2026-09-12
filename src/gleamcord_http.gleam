@@ -167,7 +167,7 @@ pub fn handle_mapped_command(
 
   case dict.get(commands_map, path) {
     Ok(run) -> run(interaction, options) |> Ok
-    Error(_) -> Error(NotFound("Chat Command"))
+    Error(_) -> Error(NotFound("Command with path: " <> path))
   }
 }
 
