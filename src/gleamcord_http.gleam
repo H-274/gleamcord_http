@@ -10,8 +10,11 @@ pub type Command {
   ChatCommand(
     def: CommandDefinition,
     options: List(CommandOption),
-    run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
-      CommandResponse,
+    run: fn(
+      discord.Interaction,
+      discord.CommandData,
+      Dict(String, discord.ValueOption),
+    ) -> CommandResponse,
   )
   ChatCommandGroup(
     def: CommandDefinition,
@@ -19,11 +22,11 @@ pub type Command {
   )
   UserCommand(
     def: CommandDefinition,
-    run: fn(discord.Interaction) -> CommandResponse,
+    run: fn(discord.Interaction, discord.CommandData) -> CommandResponse,
   )
   MessageCommand(
     def: CommandDefinition,
-    run: fn(discord.Interaction) -> CommandResponse,
+    run: fn(discord.Interaction, discord.CommandData) -> CommandResponse,
   )
 }
 
@@ -77,8 +80,11 @@ pub fn group_sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
-    CommandResponse,
+  run run: fn(
+    discord.Interaction,
+    discord.CommandData,
+    Dict(String, discord.ValueOption),
+  ) -> CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
   |> ChatGroupSubCommand
@@ -89,8 +95,11 @@ pub type ChatSubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
-      CommandResponse,
+    run: fn(
+      discord.Interaction,
+      discord.CommandData,
+      Dict(String, discord.ValueOption),
+    ) -> CommandResponse,
   )
 }
 
@@ -98,8 +107,11 @@ pub fn sub_command(
   name name: String,
   desc description: String,
   opts options: List(CommandOption),
-  run run: fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
-    CommandResponse,
+  run run: fn(
+    discord.Interaction,
+    discord.CommandData,
+    Dict(String, discord.ValueOption),
+  ) -> CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
 }
@@ -119,7 +131,11 @@ pub fn generate_commands_map(
   commands: List(Command),
 ) -> Dict(
   String,
-  fn(discord.Interaction, Dict(String, discord.ValueOption)) -> CommandResponse,
+  fn(
+    discord.Interaction,
+    discord.CommandData,
+    Dict(String, discord.ValueOption),
+  ) -> CommandResponse,
 ) {
   list.map(commands, fn(command) {
     case command {
@@ -144,9 +160,8 @@ pub fn generate_commands_map(
         })
         |> list.flatten
 
-      UserCommand(def: command, run:) -> [#(command.name, fn(i, _) { run(i) })]
-      MessageCommand(def: command, run:) -> [
-        #(command.name, fn(i, _) { run(i) }),
+      UserCommand(def: command, run:) | MessageCommand(def: command, run:) -> [
+        #(command.name, fn(i, d, _) { run(i, d) }),
       ]
     }
   })
@@ -201,14 +216,13 @@ pub fn handle_command_dict(
   commands: Dict(String, Command),
 ) -> Result(CommandResponse, HandlingError) {
   case data, dict.get(commands, data.name) {
-    discord.UserCommandData(..), Ok(UserCommand(run:, ..)) ->
-      Ok(run(interaction))
-    discord.MessageCommandData(..), Ok(MessageCommand(run:, ..)) ->
-      Ok(run(interaction))
+    discord.UserCommandData(..), Ok(UserCommand(run:, ..))
+    | discord.MessageCommandData(..), Ok(MessageCommand(run:, ..))
+    -> Ok(run(interaction, data))
 
     discord.ChatCommandData(options:, ..), Ok(ChatCommand(run:, ..)) ->
       case options {
-        discord.ValueOptions(options) -> Ok(run(interaction, options))
+        discord.ValueOptions(options) -> Ok(run(interaction, data, options))
         _ -> Error(NotFound("Value options for: " <> data.name))
       }
 
@@ -218,7 +232,7 @@ pub fn handle_command_dict(
         discord.SubCommandOption(sub_opt) ->
           case dict.get(elements, sub_opt.name) {
             Ok(ChatGroupSubCommand(sub)) ->
-              Ok(sub.run(interaction, sub_opt.options))
+              Ok(sub.run(interaction, data, sub_opt.options))
             _ -> Error(NotFound("Sub command: " <> sub_opt.name))
           }
         discord.SubCommandGroupOption(name: group_name, sub_command:) ->
@@ -226,7 +240,7 @@ pub fn handle_command_dict(
             Ok(ChatSubCommandGroup(sub_commands:, ..)) ->
               case dict.get(sub_commands, sub_command.name) {
                 Ok(ChatSubCommand(run:, ..)) ->
-                  Ok(run(interaction, sub_command.options))
+                  Ok(run(interaction, data, sub_command.options))
                 _ -> Error(NotFound("Group sub command: " <> sub_command.name))
               }
             _ -> Error(NotFound("Sub command group: " <> group_name))

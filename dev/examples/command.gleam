@@ -5,7 +5,7 @@ import gleamcord_http.{
 import gleamcord_http/discord
 
 pub fn chat_command() {
-  use _i, _o <- gleamcord_http.ChatCommand(
+  use _i, _d, _o <- gleamcord_http.ChatCommand(
     def: command_def(name: "hello", desc: "world"),
     options: [],
   )
@@ -21,13 +21,12 @@ const user_opt = gleamcord_http.UserOption(
 )
 
 pub fn slow_command() {
-  use i, o <- gleamcord_http.ChatCommand(
+  use _i, d, o <- gleamcord_http.ChatCommand(
     def: command_def(name: "slow", desc: "hello"),
     options: [user_opt],
   )
 
-  let assert discord.CommandInteraction(data:, ..) = i
-  let assert option.Some(resolved) = data.resolved
+  let assert option.Some(resolved) = d.resolved
 
   let assert Ok(#(option.Some(user), _)) =
     discord.options_user(o, user_opt.name, resolved)
@@ -66,7 +65,7 @@ const nickname_option = gleamcord_http.StringOption(
 )
 
 fn sub_command_group_command() {
-  use _i, o <- gleamcord_http.ChatSubCommand(
+  use _i, _d, o <- gleamcord_http.ChatSubCommand(
     name: "nickname",
     description: "set nickname",
     options: [nickname_option],
@@ -81,7 +80,7 @@ fn sub_command_group_command() {
 }
 
 fn group_element_command() {
-  use _i, _o <- gleamcord_http.ChatSubCommand(
+  use _i, _d, _o <- gleamcord_http.ChatSubCommand(
     name: "secret",
     description: "secret setting",
     options: [],
@@ -92,7 +91,7 @@ fn group_element_command() {
 }
 
 pub fn user_command() {
-  use _i <- gleamcord_http.UserCommand(command_def(
+  use _i, _d <- gleamcord_http.UserCommand(command_def(
     name: "greet",
     desc: "greets user",
   ))
@@ -102,7 +101,7 @@ pub fn user_command() {
 }
 
 pub fn message_command() {
-  use _i <- gleamcord_http.MessageCommand(def: command_def(
+  use _i, _d <- gleamcord_http.MessageCommand(def: command_def(
     name: "report",
     desc: "reports message",
   ))
