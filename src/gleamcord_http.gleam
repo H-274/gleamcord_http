@@ -174,14 +174,17 @@ pub fn handle_mapped_command(
   data: discord.CommandData,
   commands_map: Dict(
     String,
-    fn(discord.Interaction, Dict(String, discord.ValueOption)) ->
-      CommandResponse,
+    fn(
+      discord.Interaction,
+      discord.CommandData,
+      Dict(String, discord.ValueOption),
+    ) -> CommandResponse,
   ),
 ) {
   let #(path, options) = extract_command_path_options(data)
 
   case dict.get(commands_map, path) {
-    Ok(run) -> run(interaction, options) |> Ok
+    Ok(run) -> run(interaction, data, options) |> Ok
     Error(_) -> Error(NotFound("Command with path: " <> path))
   }
 }
