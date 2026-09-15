@@ -13,14 +13,14 @@
 
 ### Handlers
 
-Interaction handlers have between 1 and 2 parameters.
+Interaction handlers have between 2 and 3 parameters.
 
-- They will always, at least, have their respective interaction
-- Chat input commands, and components that take an input have a second parameter.
+- They will always, at least, have their respective interaction, and interaction data
+- Chat input commands, modals, and components that take an input have a third parameter.
 
 #### Chat Input Handlers
 
-They will always have a second parameter referred to as `options`, representing **VALUE** command options from discord
+They will always have a third parameter referred to as `options`, representing **VALUE** command options from discord
 
 > [!NOTE]
 > Subcommand group and subcommand options are not present as "options" in this library.
@@ -31,8 +31,8 @@ They will always have a second parameter referred to as `options`, representing 
 
 Message component handlers vary based on the variant of component used.
 
-- Buttons only have the 1 basic handler parameter
-- Selectors have 2 parameters, the second one is a `Dict` of either the string values, or of snowflake strings to use with the `Resolved` type present in the interaction.
+- Buttons only have the 2 basic handler parameters
+- Selectors have 3 parameters, the third one is a `Dict` of either the string values, or of snowflake strings to use with the `Resolved` type present in the interaction.
 
 #### Modal Component Handlers
 
@@ -42,16 +42,11 @@ Message component handlers vary based on the variant of component used.
 Modal *components* don't have handlers, since all components of a modal are submitted at once.
 Instead, the *modal* has the handler.
 
-The modal's handler has the default parameter, but also a `Dict` of the different components and their values
+The modal's handler has the default 2 parameters, but also a `Dict` of the different components and their values
 
-## Handling
+## Handling (TODO update)
 
 ```gleam
-import gleam/dynamic.{type Dynamic}
-import gleam/dynamic/decode
-import gleamcord_http/bot.{type Bot}
-import gleamcord_http/interaction
-
 pub fn app() {
   let app =
     bot.new()
@@ -80,26 +75,21 @@ pub fn handle_body(app: Bot, req_body: Dynamic) {
 ## Commands
 
 ```gleam
-import gleamcord_http/command.{type Command}
-import gleamcord_http/command/command_options.{StringValue as StrVal}
-import gleamcord_http/message
-import gleam/erlang/process
-import gleam/dict
-
 // A hello world slash command
-pub fn hello_world() -> Command {
-  let sig = command.simple_signature(name: "hello_world", desc: "basic slash command")
+pub fn hello_world() {
+  use _i, _d, _o <- ChatCommand(
+    def: command_def(name: "hello", desc: "world"),
+    options: [],
+  )
 
-  use _i, _o <- command.chat_input(sig:, opts: [])
-
-  { "Hello world!" }
-  |> message.NewText([])
-  |> command.MessageResponse
+  todo as "Hello world!"
+  |> CommandMessageResponse
 }
+
 
 // Define command options as constants
 const name_option = 
-  command.StringOption(
+  StringOption(
     name: "name",
     description: "name",
     required: True,
@@ -109,33 +99,33 @@ const name_option =
 
 // A slash command with an option
 pub fn command_options() -> Command {
-  let sig = command.simple_signature(name: "options", desc: "options example")
-  let opts = [name_option]
-
-  use _i, o <- command.chat_input(sig:, opts:)
+  use _i, _d, _o <- ChatCommand(
+    def: command_def(name: "options", desc: "options example"),
+    options: [name_option],
+  )
   // Extract options through the provided dictionary
-  let assert Ok(StrVal(value: name, ..)) = dict.get(o, name_option.name)
+  let assert Ok(name) = discord.options_string(o, name_option.name)
 
-  {"You wrote the name: " <> name}
-  |> message.NewText([])
-  |> command.MessageResponse
+  {todo as {"You wrote the name: " <> name}}
+  |> CommandMessageResponse
 }
 
 // Defining a user command with a deferred response
-pub fn slow_user() -> Command {
-  let sig = command.simple_signature(name: "slow_hello", desc: "slow hello command")
+pub fn slow_hello() {
+  use _i, _d, _o <- ChatCommand(
+    def: command_def(name: "slow_hello", desc: "slow hello command"),
+    options: [],
+  )
 
-  use _, _ <- command.user(sig:, opts: [])
-  use <- command.DeferredMessageResponse
+  use <- CommandDeferredMessageResponse
 
   process.sleep(10_000)
 
-  { "Slow hello!" }
-  |> message.NewText([])
+  todo as "Slow hello!"
 }
 ```
 
-## Components
+## Components (TODO update)
 
 Components are designed to be reuseable betweeen modals and message components. As such, they require both the `disabled` and `required` fields.
 
@@ -179,34 +169,24 @@ const select_animals = StringSelect(
 ### In a modal
 
 ```gleam
-import gleamcord_http/component/layout
-import gleamcord_http/modal
-import gleamcord_http/message
-import gleam/dict
-
 pub fn modal_animals() {
-  let id = "animals-modal"
-  let title = "Animals"
-  let components = [
-    layout.Label(
+  use _i, _d, c <- Modal(custom_id: "animals-modal", title: "Animals", components: [
+    component.Label(
       label: "Animals",
       description: "",
-      component: layout.LabelStringSelect(select_animals),
+      component: component.LabelStringSelect(ice_cream_input),
     )
-  ]
+  ])
 
-  use _i, values <- modal.new(id:, title:, components:)
-  let assert Ok(animals) = dict.get(values, select_animals.custom_id)
+  let assert Ok(animals) =
+    discord.component_string_select(c, select_animals.custom_id)
 
-  echo animals
-
-  { "Form submitted!" }
-  |> message.NewText([])
-  |> modal.MessageResponse
+  todo as "Form submitted"
+  |> ModalMessageResponse
 }
 ```
 
-### In a message component
+### In a message component (TODO update)
 
 ```gleam
 import gleamcord_http/message_component
