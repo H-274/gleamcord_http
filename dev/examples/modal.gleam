@@ -1,5 +1,6 @@
 import gleamcord_http.{Modal, ModalMessageResponse}
 import gleamcord_http/component
+import gleamcord_http/discord
 
 pub const ice_cream_input = component.ShortTextInput(
   custom_id: "ice_cream_input",
@@ -28,9 +29,9 @@ pub fn modal_example() {
 
   let assert Ok(resolved) = i |> fn(_) { todo as "get resolved" }
   let assert Ok(ice_cream) =
-    component.get_text_input_value(c, ice_cream_input.custom_id)
+    discord.component_text_input(c, ice_cream_input.custom_id)
   let assert Ok(channels) =
-    component.get_channel_select_values(c, resolved, channel_select.custom_id)
+    discord.component_channel_select(c, channel_select.custom_id, resolved)
 
   echo #(ice_cream, channels)
 

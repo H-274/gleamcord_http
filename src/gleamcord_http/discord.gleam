@@ -1,6 +1,7 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
+import gleam/list
 import gleam/option.{type Option}
 import gleam/result
 import gleamcord_http/locale.{type Locale}
@@ -589,15 +590,13 @@ pub fn options_user(
 ) -> Result(#(Option(Dynamic), Option(Dynamic)), Nil) {
   use snowflake <- result.try(options_user_id(options, key))
   let user =
-    resolved.users
-    |> option.map(dict.get(_, snowflake))
-    |> option.map(option.from_result)
-    |> option.flatten
+    option.then(resolved.users, fn(users) {
+      dict.get(users, snowflake) |> option.from_result
+    })
   let member =
-    resolved.members
-    |> option.map(dict.get(_, snowflake))
-    |> option.map(option.from_result)
-    |> option.flatten
+    option.then(resolved.members, fn(members) {
+      dict.get(members, snowflake) |> option.from_result
+    })
 
   Ok(#(user, member))
 }
@@ -667,20 +666,17 @@ pub fn options_mentionable(
 ) -> Result(#(Option(Dynamic), Option(Dynamic), Option(Dynamic)), Nil) {
   use snowflake <- result.try(options_mentionable_id(options, key))
   let user =
-    resolved.users
-    |> option.map(dict.get(_, snowflake))
-    |> option.map(option.from_result)
-    |> option.flatten
+    option.then(resolved.users, fn(users) {
+      dict.get(users, snowflake) |> option.from_result
+    })
   let member =
-    resolved.members
-    |> option.map(dict.get(_, snowflake))
-    |> option.map(option.from_result)
-    |> option.flatten
+    option.then(resolved.members, fn(members) {
+      dict.get(members, snowflake) |> option.from_result
+    })
   let role =
-    resolved.roles
-    |> option.map(dict.get(_, snowflake))
-    |> option.map(option.from_result)
-    |> option.flatten
+    option.then(resolved.roles, fn(roles) {
+      dict.get(roles, snowflake) |> option.from_result
+    })
 
   Ok(#(user, member, role))
 }
@@ -731,5 +727,134 @@ pub fn options_attachment_id(
 }
 
 pub type ComponentData
+
+pub fn component_text_input(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+) {
+  dict.get(components, custom_id)
+  |> result.replace_error([])
+  |> result.map(decode.run(_, decode.at(["value"], decode.string)))
+  |> result.flatten
+}
+
+pub fn component_user_select(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+  resolved: Resolved,
+) -> Result(List(#(Option(Dynamic), Option(Dynamic))), Nil) {
+  use snowflakes <- result.try(component_user_select_id(components, custom_id))
+
+  Ok({
+    use snowflake <- list.map(snowflakes)
+    let user =
+      option.then(resolved.users, fn(users) {
+        dict.get(users, snowflake) |> option.from_result
+      })
+    let member =
+      option.then(resolved.members, fn(members) {
+        dict.get(members, snowflake) |> option.from_result
+      })
+
+    #(user, member)
+  })
+}
+
+pub fn component_user_select_id(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+) {
+  todo
+}
+
+pub fn component_role_select(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+  resolved: Resolved,
+) {
+  use snowflakes <- result.try(component_role_select_id(components, custom_id))
+
+  Ok({
+    use snowflake <- list.map(snowflakes)
+    let assert option.Some(user) =
+      option.then(resolved.roles, fn(users) {
+        dict.get(users, snowflake) |> option.from_result
+      })
+      as "Snowflake in component should be present in resolved"
+    user
+  })
+}
+
+pub fn component_role_select_id(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+) {
+  todo
+}
+
+pub fn component_mentionable_select(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+  resolved: Resolved,
+) {
+  use snowflakes <- result.try(component_mentionable_select_id(
+    components,
+    custom_id,
+  ))
+
+  Ok({
+    use snowflake <- list.map(snowflakes)
+    let user =
+      option.then(resolved.users, fn(users) {
+        dict.get(users, snowflake) |> option.from_result
+      })
+    let member =
+      option.then(resolved.members, fn(members) {
+        dict.get(members, snowflake) |> option.from_result
+      })
+    let role =
+      option.then(resolved.roles, fn(roles) {
+        dict.get(roles, snowflake) |> option.from_result
+      })
+
+    #(user, member, role)
+  })
+}
+
+pub fn component_mentionable_select_id(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+) {
+  todo
+}
+
+pub fn component_channel_select(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+  resolved: Resolved,
+) {
+  use snowflakes <- result.try(component_channel_select_id(
+    components,
+    custom_id,
+  ))
+
+  Ok({
+    use snowflake <- list.map(snowflakes)
+    let assert option.Some(channel) =
+      option.then(resolved.channels, fn(channels) {
+        dict.get(channels, snowflake) |> option.from_result
+      })
+      as "Snowflake in component should be present in resolved"
+
+    channel
+  })
+}
+
+pub fn component_channel_select_id(
+  components: Dict(String, Dynamic),
+  custom_id: String,
+) {
+  todo
+}
 
 pub type ModalData
