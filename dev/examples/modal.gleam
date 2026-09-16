@@ -14,24 +14,27 @@ pub const ice_cream_input = component.ShortTextInput(
 pub const channel_select = component.ChannelSelect(custom_id: "channel")
 
 pub fn modal_example() {
-  use i, c <- Modal(custom_id: "modal_example", title: "Example", components: [
-    component.Label(
-      label: "Ice Cream Flavor",
-      description: "Fav. flavour",
-      component: component.LabelTextInput(ice_cream_input),
-    ),
-    component.Label(
-      label: "Channels",
-      description: "",
-      component: component.LabelChannelSelect(channel_select),
-    ),
-  ])
+  use _i, d, c <- Modal(
+    custom_id: "modal_example",
+    title: "Example",
+    components: [
+      component.Label(
+        label: "Ice Cream Flavor",
+        description: "Fav. flavour",
+        component: component.LabelTextInput(ice_cream_input),
+      ),
+      component.Label(
+        label: "Channels",
+        description: "",
+        component: component.LabelChannelSelect(channel_select),
+      ),
+    ],
+  )
 
-  let assert Ok(resolved) = i |> fn(_) { todo as "get resolved" }
   let assert Ok(ice_cream) =
     discord.component_text_input(c, ice_cream_input.custom_id)
   let assert Ok(channels) =
-    discord.component_channel_select(c, channel_select.custom_id, resolved)
+    discord.component_channel_select(c, channel_select.custom_id, d.resolved)
 
   echo #(ice_cream, channels)
 

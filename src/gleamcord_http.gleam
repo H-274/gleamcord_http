@@ -388,7 +388,7 @@ pub type Modal {
     custom_id: String,
     title: String,
     components: List(component.Label),
-    run: fn(Dynamic, Dict(String, Dynamic)) -> ModalResponse,
+    run: fn(Dynamic, discord.ModalData, Dict(String, Dynamic)) -> ModalResponse,
   )
 }
 

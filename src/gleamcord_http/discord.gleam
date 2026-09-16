@@ -857,4 +857,10 @@ pub fn component_channel_select_id(
   todo
 }
 
-pub type ModalData
+pub type ModalData {
+  ModalData(
+    custom_id: String,
+    components: Dict(String, Dynamic),
+    resolved: Resolved,
+  )
+}
