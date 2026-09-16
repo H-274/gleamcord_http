@@ -256,7 +256,7 @@ pub fn interaction_decoder() {
           |> decode.success
         }
         5 -> {
-          use data <- decode.field("data", todo)
+          use data <- decode.field("data", modal_data_decoder())
           ModalInteraction(
             id:,
             application_id:,
@@ -863,4 +863,19 @@ pub type ModalData {
     components: Dict(String, Dynamic),
     resolved: Resolved,
   )
+}
+
+fn modal_data_decoder() -> decode.Decoder(ModalData) {
+  use custom_id <- decode.field("custom_id", decode.string)
+  use components <- decode.field(
+    "components",
+    decode.list({
+      use custom_id <- decode.field("custom_id", decode.string)
+      use data <- decode.then(decode.dynamic)
+      decode.success(#(custom_id, data))
+    })
+      |> decode.map(dict.from_list),
+  )
+  use resolved <- decode.field("resolved", resolved_decoder())
+  decode.success(ModalData(custom_id:, components:, resolved:))
 }
