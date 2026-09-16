@@ -1,3 +1,4 @@
+import gleam/option
 import gleamcord_http.{Modal, ModalMessageResponse}
 import gleamcord_http/component
 import gleamcord_http/discord
@@ -31,10 +32,11 @@ pub fn modal_example() {
     ],
   )
 
+  let assert option.Some(resolved) = d.resolved
   let assert Ok(ice_cream) =
     discord.component_text_input(c, ice_cream_input.custom_id)
   let assert Ok(channels) =
-    discord.component_channel_select(c, channel_select.custom_id, d.resolved)
+    discord.component_channel_select(c, channel_select.custom_id, resolved)
 
   echo #(ice_cream, channels)
 

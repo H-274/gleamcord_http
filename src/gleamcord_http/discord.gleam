@@ -861,7 +861,7 @@ pub type ModalData {
   ModalData(
     custom_id: String,
     components: Dict(String, Dynamic),
-    resolved: Resolved,
+    resolved: Option(Resolved),
   )
 }
 
@@ -876,6 +876,10 @@ fn modal_data_decoder() -> decode.Decoder(ModalData) {
     })
       |> decode.map(dict.from_list),
   )
-  use resolved <- decode.field("resolved", resolved_decoder())
+  use resolved <- decode.optional_field(
+    "resolved",
+    option.None,
+    decode.optional(resolved_decoder()),
+  )
   decode.success(ModalData(custom_id:, components:, resolved:))
 }
