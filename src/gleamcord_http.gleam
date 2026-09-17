@@ -1,6 +1,7 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
+import gleam/json.{type Json}
 import gleam/list
 import gleam/string
 import gleamcord_http/component
@@ -121,10 +122,19 @@ pub fn sub_commands(sub_commands: List(ChatSubCommand)) {
   |> dict.from_list
 }
 
+pub type NewMessage {
+  NewMessage
+  NewComponentMessage
+}
+
+pub fn new_message_json(new_message: NewMessage) -> Json {
+  todo
+}
+
 pub type CommandResponse {
-  CommandMessageResponse(Nil)
-  CommandDeferredMessageResponse(fn() -> Nil)
-  CommandModalResponse(Nil)
+  CommandMessageResponse(NewMessage)
+  CommandDeferredMessageResponse(fn() -> NewMessage)
+  CommandModalResponse(Modal)
 }
 
 pub fn generate_commands_map(
@@ -376,11 +386,11 @@ pub type MessageComponent {
 }
 
 pub type MessageComponentResponse {
-  MessageComponentMessageResponse(Nil)
-  MessageComponentDeferredMessageResponse(fn() -> Nil)
-  MessageComponentMessageUpdate(Nil)
-  MessageComponentDeferredMessageUpdate(fn() -> Nil)
-  MessageComponentModalResponse(Nil)
+  MessageComponentMessageResponse(NewMessage)
+  MessageComponentDeferredMessageResponse(fn() -> NewMessage)
+  MessageComponentMessageUpdate(NewMessage)
+  MessageComponentDeferredMessageUpdate(fn() -> NewMessage)
+  MessageComponentModalResponse(Modal)
 }
 
 pub type Modal {
@@ -392,11 +402,15 @@ pub type Modal {
   )
 }
 
+pub fn modal_json(modal: Modal) -> Json {
+  todo
+}
+
 pub type ModalResponse {
-  ModalMessageResponse(Nil)
-  ModalDeferredMessageResponse(fn() -> Nil)
-  ModalMessageUpdate(Nil)
-  ModalDeferredMessageUpdate(fn() -> Nil)
+  ModalMessageResponse(NewMessage)
+  ModalDeferredMessageResponse(fn() -> NewMessage)
+  ModalMessageUpdate(NewMessage)
+  ModalDeferredMessageUpdate(fn() -> NewMessage)
 }
 
 pub type HandlingError {

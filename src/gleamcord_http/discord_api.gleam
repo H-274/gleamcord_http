@@ -1,4 +1,6 @@
 import gleam/http/request.{type Request}
+import gleam/json.{type Json}
+import gleam/list
 import gleam/string
 
 const url_base = "https://discord.com/api/v10"
@@ -15,23 +17,33 @@ pub fn set_auth_header(request: Request(_), auth: Auth) {
   })
 }
 
+pub type QueryParams =
+  List(#(String, String))
+
+fn query_params_string(query_params: QueryParams) {
+  "?"
+  <> {
+    list.map(query_params, fn(param) { param.0 <> "=" <> param.1 })
+    |> string.join("&")
+  }
+}
+
+/// body parameter is a multipart/form bit array
 pub fn edit_original_interaction_response(
   auth: Auth,
   app_id: String,
   interaction_token: String,
-  query_params: String,
-  content_type: String,
-  body: BitArray,
+  query_params: List(#(String, String)),
+  response: Json,
 ) {
   let assert Ok(request) =
     request.to(
       string.join([url_base, app_id, interaction_token], "/")
-      <> "?"
-      <> query_params,
+      <> query_params_string(query_params),
     )
 
   set_auth_header(request, auth)
-  |> request.set_header("Content-Type", content_type)
-  |> request.set_body(body)
+  |> request.set_header("Content-Type", "application/json")
+  |> request.set_body(json.to_string(response))
   |> Ok
 }
