@@ -58,19 +58,19 @@ pub fn basic_command_definition(name name: String, desc description: String) {
 }
 
 pub type ChatCommandGroupElement {
-  ChatSubCommandGroup(
+  SubCommandGroupElement(
     name: String,
     description: String,
     sub_commands: Dict(String, ChatSubCommand),
   )
-  ChatGroupSubCommand(ChatSubCommand)
+  SubCommandElement(ChatSubCommand)
 }
 
 pub fn group_elements(elements: List(ChatCommandGroupElement)) {
   list.map(elements, fn(item) {
     case item {
-      ChatSubCommandGroup(name:, ..) -> #(name, item)
-      ChatGroupSubCommand(sub_command) -> #(sub_command.name, item)
+      SubCommandGroupElement(name:, ..) -> #(name, item)
+      SubCommandElement(sub_command) -> #(sub_command.name, item)
     }
   })
   |> dict.from_list
@@ -87,7 +87,7 @@ pub fn group_sub_command(
   ) -> CommandResponse,
 ) {
   ChatSubCommand(name:, description:, options:, run:)
-  |> ChatGroupSubCommand
+  |> SubCommandElement
 }
 
 pub type ChatSubCommand {
@@ -116,7 +116,7 @@ pub fn sub_command(
   ChatSubCommand(name:, description:, options:, run:)
 }
 
-pub fn sub_command_elements(sub_commands: List(ChatSubCommand)) {
+pub fn sub_commands(sub_commands: List(ChatSubCommand)) {
   list.map(sub_commands, fn(item) { #(item.name, item) })
   |> dict.from_list
 }
@@ -143,13 +143,13 @@ pub fn generate_commands_map(
       ChatCommandGroup(def: group, elements:) ->
         list.map(dict.values(elements), fn(item) {
           case item {
-            ChatGroupSubCommand(sub_command) -> [
+            SubCommandElement(sub_command) -> [
               #(
                 string.join([group.name, sub_command.name], "/"),
                 sub_command.run,
               ),
             ]
-            ChatSubCommandGroup(name: sub_group, sub_commands:, ..) ->
+            SubCommandGroupElement(name: sub_group, sub_commands:, ..) ->
               list.map(dict.values(sub_commands), fn(item) {
                 #(
                   string.join([group.name, sub_group, item.name], "/"),
@@ -234,13 +234,13 @@ pub fn handle_command_dict(
       case options {
         discord.SubCommandOption(sub_opt) ->
           case dict.get(elements, sub_opt.name) {
-            Ok(ChatGroupSubCommand(sub)) ->
+            Ok(SubCommandElement(sub)) ->
               Ok(sub.run(interaction, data, sub_opt.options))
             _ -> Error(NotFound("Sub command: " <> sub_opt.name))
           }
         discord.SubCommandGroupOption(name: group_name, sub_command:) ->
           case dict.get(elements, group_name) {
-            Ok(ChatSubCommandGroup(sub_commands:, ..)) ->
+            Ok(SubCommandGroupElement(sub_commands:, ..)) ->
               case dict.get(sub_commands, sub_command.name) {
                 Ok(ChatSubCommand(run:, ..)) ->
                   Ok(run(interaction, data, sub_command.options))
