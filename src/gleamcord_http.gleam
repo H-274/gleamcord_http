@@ -170,8 +170,6 @@ pub fn generate_commands_map(
 }
 
 pub fn handle_mapped_command(
-  interaction: discord.Interaction,
-  data: discord.CommandData,
   commands_map: Dict(
     String,
     fn(
@@ -180,6 +178,8 @@ pub fn handle_mapped_command(
       Dict(String, discord.ValueOption),
     ) -> CommandResponse,
   ),
+  interaction: discord.Interaction,
+  data: discord.CommandData,
 ) {
   let #(path, options) = extract_command_path_options(data)
 
@@ -214,9 +214,9 @@ fn extract_command_path_options(
 }
 
 pub fn handle_command_dict(
+  commands: Dict(String, Command),
   interaction: discord.Interaction,
   data: discord.CommandData,
-  commands: Dict(String, Command),
 ) -> Result(CommandResponse, HandlingError) {
   case data, dict.get(commands, data.name) {
     discord.UserCommandData(..), Ok(UserCommand(run:, ..))
@@ -264,9 +264,9 @@ pub fn build_autocomplete_map(
 
 // TODO
 pub fn handle_autocomplete_map(
+  autocomplete_map: Dict(a, b),
   interaction: discord.Interaction,
   data: discord.CommandData,
-  autocomplete_map: Dict(a, b),
 ) {
   todo
 }
