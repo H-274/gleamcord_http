@@ -726,7 +726,10 @@ pub fn options_attachment_id(
   }
 }
 
-pub type ComponentData
+// TODO
+pub type ComponentData {
+  CommandData(custom_id: String)
+}
 
 pub fn component_text_input(
   components: Dict(String, Dynamic),

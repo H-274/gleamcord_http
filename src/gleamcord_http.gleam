@@ -3,6 +3,7 @@ import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
 import gleam/json.{type Json}
 import gleam/list
+import gleam/result
 import gleam/string
 import gleamcord_http/component
 import gleamcord_http/discord
@@ -361,27 +362,33 @@ pub type CommandOption {
 pub type MessageComponent {
   ButtonMessageComponent(
     btn: component.CustomButton,
-    run: fn(discord.Interaction) -> MessageComponentResponse,
+    run: fn(discord.Interaction, discord.ComponentData) ->
+      MessageComponentResponse,
   )
   StringSelectMessageComponent(
     select: component.StringSelect,
-    run: fn(discord.Interaction, List(String)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, discord.ComponentData, List(String)) ->
+      MessageComponentResponse,
   )
   UserSelectMessageComponent(
     select: component.UserSelect,
-    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, discord.ComponentData, List(Dynamic)) ->
+      MessageComponentResponse,
   )
   RoleSelectMessageComponent(
     select: component.RoleSelect,
-    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, discord.ComponentData, List(Dynamic)) ->
+      MessageComponentResponse,
   )
   MentionableSelectMessageComponent(
     select: component.MentionableSelect,
-    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, discord.ComponentData, List(Dynamic)) ->
+      MessageComponentResponse,
   )
   ChannelSelectMessageComponent(
     select: component.ChannelSelect,
-    run: fn(discord.Interaction, List(Dynamic)) -> MessageComponentResponse,
+    run: fn(discord.Interaction, discord.ComponentData, List(Dynamic)) ->
+      MessageComponentResponse,
   )
 }
 
@@ -391,6 +398,25 @@ pub type MessageComponentResponse {
   MessageComponentMessageUpdate(NewMessage)
   MessageComponentDeferredMessageUpdate(fn() -> NewMessage)
   MessageComponentModalResponse(Modal)
+}
+
+pub fn handle_component_dict(
+  components: Dict(String, MessageComponent),
+  interaction: discord.Interaction,
+  data: discord.ComponentData,
+) {
+  use component <- result.try(
+    dict.get(components, data.custom_id)
+    |> result.replace_error(NotFound("Component: " <> data.custom_id)),
+  )
+  case component {
+    ButtonMessageComponent(run:, ..) -> todo
+    StringSelectMessageComponent(run:, ..) -> todo
+    UserSelectMessageComponent(run:, ..) -> todo
+    RoleSelectMessageComponent(run:, ..) -> todo
+    MentionableSelectMessageComponent(run:, ..) -> todo
+    ChannelSelectMessageComponent(run:, ..) -> todo
+  }
 }
 
 pub type Modal {
