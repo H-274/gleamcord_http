@@ -424,7 +424,8 @@ pub type Modal {
     custom_id: String,
     title: String,
     components: List(component.Label),
-    run: fn(Dynamic, discord.ModalData, Dict(String, Dynamic)) -> ModalResponse,
+    run: fn(discord.Interaction, discord.ModalData, Dict(String, Dynamic)) ->
+      ModalResponse,
   )
 }
 
@@ -437,6 +438,19 @@ pub type ModalResponse {
   ModalDeferredMessageResponse(fn() -> NewMessage)
   ModalMessageUpdate(NewMessage)
   ModalDeferredMessageUpdate(fn() -> NewMessage)
+}
+
+pub fn handle_modal_dict(
+  modals: Dict(String, Modal),
+  interaction: discord.Interaction,
+  data: discord.ModalData,
+) {
+  use modal <- result.try(
+    dict.get(modals, data.custom_id)
+    |> result.replace_error(NotFound("Modal: " <> data.custom_id)),
+  )
+
+  Ok(modal.run(interaction, data, data.components))
 }
 
 pub type HandlingError {
