@@ -302,7 +302,8 @@ pub type CommandOption {
     min_len: Int,
     max_len: Int,
     required: Bool,
-    run: fn(discord.Interaction, String) -> List(#(String, String)),
+    run: fn(discord.Interaction, discord.CommandData, String) ->
+      List(#(String, String)),
   )
   IntegerOption(
     name: String,
@@ -323,7 +324,8 @@ pub type CommandOption {
     min_value: Int,
     max_value: Int,
     required: Bool,
-    run: fn(discord.Interaction, Int) -> List(#(String, Int)),
+    run: fn(discord.Interaction, discord.CommandData, Int) ->
+      List(#(String, Int)),
   )
   BoooleanOption(name: String, description: String, required: Bool)
   UserOption(name: String, description: String, required: Bool)
@@ -354,7 +356,8 @@ pub type CommandOption {
     min_value: Float,
     max_value: Float,
     required: Bool,
-    run: fn(discord.Interaction, Float) -> List(#(String, Float)),
+    run: fn(discord.Interaction, discord.CommandData, Float) ->
+      List(#(String, Float)),
   )
   AttachmentOption(name: String, description: String, required: Bool)
 }
