@@ -282,6 +282,14 @@ pub fn handle_autocomplete_map(
   todo
 }
 
+pub fn handle_autocomplete_dict(
+  commands: Dict(String, Command),
+  interaction: discord.Interaction,
+  data: discord.CommandData,
+) {
+  todo
+}
+
 pub type CommandOption {
   StringOption(
     name: String,
