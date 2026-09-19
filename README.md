@@ -174,7 +174,7 @@ pub fn modal_animals() {
     component.Label(
       label: "Animals",
       description: "",
-      component: component.LabelStringSelect(ice_cream_input),
+      component: component.LabelStringSelect(select_animals),
     )
   ])
 
