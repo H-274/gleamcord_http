@@ -726,6 +726,17 @@ pub fn options_attachment_id(
   }
 }
 
+pub fn options_find_focused(options: Dict(String, ValueOption)) {
+  let values = dict.values(options)
+  use option <- list.find(values)
+  case option {
+    StringOption(focused:, ..)
+    | IntegerOption(focused:, ..)
+    | NumberOption(focused:, ..) -> focused
+    _ -> False
+  }
+}
+
 // TODO
 pub type ComponentData {
   CommandData(custom_id: String)

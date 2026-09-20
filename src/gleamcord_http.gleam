@@ -262,7 +262,7 @@ pub fn handle_command_dict(
         discord.ValueOptions(_) ->
           panic as "Command group should not have value options"
       }
-    _, _ -> Error(NotFound("Command matching: " <> data.name))
+    _, _ -> Error(NotFound("Command: " <> data.name))
   }
 }
 
@@ -273,13 +273,31 @@ pub fn build_autocomplete_map(
   todo
 }
 
-// TODO
-pub fn handle_autocomplete_map(
-  autocomplete_map: Dict(a, b),
+pub fn handle_mapped_autocomplete(
+  autocomplete_map: Dict(String, AutocompleteRun),
   interaction: discord.Interaction,
   data: discord.CommandData,
 ) {
-  todo
+  use #(path, option) <- result.try(extract_autocomplete_path(data))
+
+  case dict.get(autocomplete_map, path), option {
+    Ok(StringAutocomplete(run)), discord.StringOption(value:, ..) ->
+      StringAutocompleteResponse(run(interaction, data, value)) |> Ok
+    Ok(IntegerAutocomplete(run)), discord.IntegerOption(value:, ..) ->
+      IntegerAutocompleteResponse(run(interaction, data, value)) |> Ok
+    Ok(NumberAutocomplete(run)), discord.NumberOption(value:, ..) ->
+      NumberAutocompleteResponse(run(interaction, data, value)) |> Ok
+    _, _ -> Error(NotFound("Autocomplete with path: " <> path))
+  }
+}
+
+fn extract_autocomplete_path(data) {
+  let #(path, options) = extract_command_path_options(data)
+  case discord.options_find_focused(options) {
+    Ok(focused_option) ->
+      Ok(#(path <> "/" <> focused_option.name, focused_option))
+    _ -> Error(NotFound("Focused option"))
+  }
 }
 
 pub fn handle_autocomplete_dict(
@@ -287,7 +305,70 @@ pub fn handle_autocomplete_dict(
   interaction: discord.Interaction,
   data: discord.CommandData,
 ) {
-  todo
+  case data, dict.get(commands, data.name) {
+    discord.ChatCommandData(options: discord.ValueOptions(options), ..),
+      Ok(ChatCommand(options: option_defs, ..))
+    -> run_option_autocomplete(option_defs, options, interaction, data)
+    discord.ChatCommandData(options: discord.SubCommandOption(sub_command), ..),
+      Ok(ChatCommandGroup(elements:, ..))
+    ->
+      case dict.get(elements, sub_command.name) {
+        Ok(SubCommandElement(def)) ->
+          run_option_autocomplete(
+            def.options,
+            sub_command.options,
+            interaction,
+            data,
+          )
+        _ -> Error(NotFound("Sub command: " <> sub_command.name))
+      }
+    discord.ChatCommandData(
+      options: discord.SubCommandGroupOption(name:, sub_command:),
+      ..,
+    ),
+      Ok(ChatCommandGroup(elements:, ..))
+    -> {
+      case dict.get(elements, name) {
+        Ok(SubCommandGroupElement(sub_commands:, ..)) ->
+          case dict.get(sub_commands, sub_command.name) {
+            Ok(ChatSubCommand(options:, ..)) ->
+              run_option_autocomplete(
+                options,
+                sub_command.options,
+                interaction,
+                data,
+              )
+            _ -> Error(NotFound("Sub command: " <> sub_command.name))
+          }
+        _ -> Error(NotFound("Sub command group: " <> sub_command.name))
+      }
+    }
+    _, _ -> Error(NotFound("Command: " <> data.name))
+  }
+}
+
+fn run_option_autocomplete(
+  option_defs: List(CommandOption),
+  options: Dict(String, discord.ValueOption),
+  interaction: discord.Interaction,
+  data: discord.CommandData,
+) {
+  use focused_option <- result.try(
+    discord.options_find_focused(options)
+    |> result.replace_error(NotFound("Focused option")),
+  )
+  case
+    list.find(option_defs, fn(o) { o.name == focused_option.name }),
+    focused_option
+  {
+    Ok(StringAutocompleteOption(run:, ..)), discord.StringOption(value:, ..) ->
+      StringAutocompleteResponse(run(interaction, data, value)) |> Ok
+    Ok(IntegerAutocompleteOption(run:, ..)), discord.IntegerOption(value:, ..)
+    -> IntegerAutocompleteResponse(run(interaction, data, value)) |> Ok
+    Ok(NumberAutocompleteOption(run:, ..)), discord.NumberOption(value:, ..) ->
+      NumberAutocompleteResponse(run(interaction, data, value)) |> Ok
+    _, _ -> Error(NotFound("Focused option definition"))
+  }
 }
 
 pub type CommandOption {
@@ -310,8 +391,7 @@ pub type CommandOption {
     min_len: Int,
     max_len: Int,
     required: Bool,
-    run: fn(discord.Interaction, discord.CommandData, String) ->
-      List(#(String, String)),
+    run: StringAutocomplete,
   )
   IntegerOption(
     name: String,
@@ -332,8 +412,7 @@ pub type CommandOption {
     min_value: Int,
     max_value: Int,
     required: Bool,
-    run: fn(discord.Interaction, discord.CommandData, Int) ->
-      List(#(String, Int)),
+    run: IntegerAutocomplete,
   )
   BoooleanOption(name: String, description: String, required: Bool)
   UserOption(name: String, description: String, required: Bool)
@@ -364,10 +443,36 @@ pub type CommandOption {
     min_value: Float,
     max_value: Float,
     required: Bool,
-    run: fn(discord.Interaction, discord.CommandData, Float) ->
-      List(#(String, Float)),
+    run: NumberAutocomplete,
   )
   AttachmentOption(name: String, description: String, required: Bool)
+}
+
+pub fn command_options(options: List(CommandOption)) {
+  list.map(options, fn(o) { #(o.name, o) })
+  |> dict.from_list
+}
+
+pub type AutocompleteRun {
+  StringAutocomplete(StringAutocomplete)
+  IntegerAutocomplete(IntegerAutocomplete)
+  NumberAutocomplete(NumberAutocomplete)
+}
+
+pub type StringAutocomplete =
+  fn(discord.Interaction, discord.CommandData, String) ->
+    List(#(String, String))
+
+pub type IntegerAutocomplete =
+  fn(discord.Interaction, discord.CommandData, Int) -> List(#(String, Int))
+
+pub type NumberAutocomplete =
+  fn(discord.Interaction, discord.CommandData, Float) -> List(#(String, Float))
+
+pub type AutocompleteResponse {
+  StringAutocompleteResponse(List(#(String, String)))
+  IntegerAutocompleteResponse(List(#(String, Int)))
+  NumberAutocompleteResponse(List(#(String, Float)))
 }
 
 pub type MessageComponent {
