@@ -7,6 +7,7 @@ import gleam/result
 import gleam/string
 import gleamcord_http/component
 import gleamcord_http/discord
+import gleamcord_http/locale
 
 pub type Command {
   ChatCommand(
@@ -121,6 +122,129 @@ pub fn sub_command(
 pub fn sub_commands(sub_commands: List(ChatSubCommand)) {
   list.map(sub_commands, fn(item) { #(item.name, item) })
   |> dict.from_list
+}
+
+// TODO reduce code duplication
+pub fn command_json(command: Command, translator: locale.Translator) {
+  [
+    #("name", json.string(command.def.name)),
+    #(
+      "name_localizations",
+      json.dict(translator(command.def.name), locale.to_string, json.string),
+    ),
+    #("description", json.string(command.def.description)),
+    #(
+      "description_localizations",
+      json.dict(
+        translator(command.def.description),
+        locale.to_string,
+        json.string,
+      ),
+    ),
+    #(
+      "default_member_permissions",
+      json.string(command.def.default_member_permissions),
+    ),
+    #("integration_types", json.array(command.def.integ_types, json.int)),
+    #("contexts", json.array(command.def.contexts, json.int)),
+    #("nsfw", json.bool(command.def.nsfw)),
+    ..case command {
+      ChatCommand(options:, ..) -> [
+        #("type", json.int(1)),
+        #("options", json.array(options, option_json(_, translator))),
+      ]
+      ChatCommandGroup(elements:, ..) -> [
+        #("type", json.int(1)),
+        #(
+          "options",
+          json.array(dict.values(elements), fn(e) {
+            case e {
+              SubCommandElement(sub_command) -> [
+                #("type", json.int(1)),
+                #("name", json.string(sub_command.name)),
+                #(
+                  "name_localizations",
+                  json.dict(
+                    translator(sub_command.name),
+                    locale.to_string,
+                    json.string,
+                  ),
+                ),
+                #("description", json.string(sub_command.description)),
+                #(
+                  "description_localizations",
+                  json.dict(
+                    translator(sub_command.description),
+                    locale.to_string,
+                    json.string,
+                  ),
+                ),
+                #(
+                  "options",
+                  json.array(sub_command.options, option_json(_, translator)),
+                ),
+              ]
+              SubCommandGroupElement(name:, description:, sub_commands:) -> [
+                #("type", json.int(1)),
+                #("name", json.string(name)),
+                #(
+                  "name_localizations",
+                  json.dict(translator(name), locale.to_string, json.string),
+                ),
+                #("description", json.string(description)),
+                #(
+                  "description_localizations",
+                  json.dict(
+                    translator(description),
+                    locale.to_string,
+                    json.string,
+                  ),
+                ),
+                #(
+                  "options",
+                  json.array(dict.values(sub_commands), fn(sub_command) {
+                    [
+                      #("type", json.int(1)),
+                      #("name", json.string(sub_command.name)),
+                      #(
+                        "name_localizations",
+                        json.dict(
+                          translator(sub_command.name),
+                          locale.to_string,
+                          json.string,
+                        ),
+                      ),
+                      #("description", json.string(sub_command.description)),
+                      #(
+                        "description_localizations",
+                        json.dict(
+                          translator(sub_command.description),
+                          locale.to_string,
+                          json.string,
+                        ),
+                      ),
+                      #(
+                        "options",
+                        json.array(sub_command.options, option_json(
+                          _,
+                          translator,
+                        )),
+                      ),
+                    ]
+                    |> json.object
+                  }),
+                ),
+              ]
+            }
+            |> json.object
+          }),
+        ),
+      ]
+      UserCommand(..) -> [#("type", json.int(3))]
+      MessageCommand(..) -> [#("type", json.int(4))]
+    }
+  ]
+  |> json.object
 }
 
 pub type NewMessage {
@@ -400,43 +524,43 @@ pub type CommandOption {
   StringOption(
     name: String,
     description: String,
+    required: Bool,
     min_len: Int,
     max_len: Int,
-    required: Bool,
   )
   StringChoiceOption(
     name: String,
     description: String,
-    choices: List(#(String, String)),
     required: Bool,
+    choices: List(#(String, String)),
   )
   StringAutocompleteOption(
     name: String,
     description: String,
+    required: Bool,
     min_len: Int,
     max_len: Int,
-    required: Bool,
     run: StringAutocomplete,
   )
   IntegerOption(
     name: String,
     description: String,
+    required: Bool,
     min_value: Int,
     max_value: Int,
-    required: Bool,
   )
   IntegerChoiceOption(
     name: String,
     description: String,
-    choices: List(#(String, Int)),
     required: Bool,
+    choices: List(#(String, Int)),
   )
   IntegerAutocompleteOption(
     name: String,
     description: String,
+    required: Bool,
     min_value: Int,
     max_value: Int,
-    required: Bool,
     run: IntegerAutocomplete,
   )
   BoooleanOption(name: String, description: String, required: Bool)
@@ -444,30 +568,30 @@ pub type CommandOption {
   ChannelOption(
     name: String,
     description: String,
-    channel_types: List(Int),
     required: Bool,
+    channel_types: List(Int),
   )
   RoleOption(name: String, description: String, required: Bool)
   MentionableOption(name: String, description: String, required: Bool)
   NumberOption(
     name: String,
     description: String,
+    required: Bool,
     min_value: Float,
     max_value: Float,
-    required: Bool,
   )
   NumberChoiceOption(
     name: String,
     description: String,
-    choices: List(#(String, Float)),
     required: Bool,
+    choices: List(#(String, Float)),
   )
   NumberAutocompleteOption(
     name: String,
     description: String,
+    required: Bool,
     min_value: Float,
     max_value: Float,
-    required: Bool,
     run: NumberAutocomplete,
   )
   AttachmentOption(name: String, description: String, required: Bool)
@@ -476,6 +600,103 @@ pub type CommandOption {
 pub fn command_options(options: List(CommandOption)) {
   list.map(options, fn(o) { #(o.name, o) })
   |> dict.from_list
+}
+
+pub fn option_json(option: CommandOption, translator: locale.Translator) {
+  [
+    #("name", json.string(option.name)),
+    #(
+      "name_localizations",
+      json.dict(translator(option.name), locale.to_string, json.string),
+    ),
+    #("description", json.string(option.description)),
+    #(
+      "description_localizations",
+      json.dict(translator(option.description), locale.to_string, json.string),
+    ),
+    #("required", json.bool(option.required)),
+    ..case option {
+      StringOption(min_len:, max_len:, ..)
+      | StringAutocompleteOption(min_len:, max_len:, ..) -> [
+        #("type", json.int(3)),
+        #("min_length", json.int(min_len)),
+        #("max_length", json.int(max_len)),
+      ]
+      StringChoiceOption(choices:, ..) -> [
+        #("type", json.int(3)),
+        #(
+          "choices",
+          json.array(choices, fn(c) {
+            [
+              #("name", json.string(c.0)),
+              #(
+                "name_localizations",
+                json.dict(translator(c.0), locale.to_string, json.string),
+              ),
+              #("value", json.string(c.1)),
+            ]
+            |> json.object
+          }),
+        ),
+      ]
+      IntegerOption(min_value:, max_value:, ..)
+      | IntegerAutocompleteOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(4)),
+        #("min_value", json.int(min_value)),
+        #("max_value", json.int(max_value)),
+      ]
+      IntegerChoiceOption(choices:, ..) -> [
+        #("type", json.int(4)),
+        #(
+          "choices",
+          json.array(choices, fn(c) {
+            [
+              #("name", json.string(c.0)),
+              #(
+                "name_localizations",
+                json.dict(translator(c.0), locale.to_string, json.string),
+              ),
+              #("value", json.int(c.1)),
+            ]
+            |> json.object
+          }),
+        ),
+      ]
+      BoooleanOption(..) -> [#("type", json.int(5))]
+      UserOption(..) -> [#("type", json.int(6))]
+      ChannelOption(channel_types:, ..) -> [
+        #("type", json.int(7)),
+        #("channel_types", json.array(channel_types, json.int)),
+      ]
+      RoleOption(..) -> [#("type", json.int(8))]
+      MentionableOption(..) -> [#("type", json.int(9))]
+      NumberOption(min_value:, max_value:, ..)
+      | NumberAutocompleteOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(10)),
+        #("min_value", json.float(min_value)),
+        #("max_value", json.float(max_value)),
+      ]
+      NumberChoiceOption(choices:, ..) -> [
+        #("type", json.int(10)),
+        #(
+          "choices",
+          json.array(choices, fn(c) {
+            [
+              #("name", json.string(c.0)),
+              #(
+                "name_localizations",
+                json.dict(translator(c.0), locale.to_string, json.string),
+              ),
+              #("value", json.float(c.1)),
+            ]
+            |> json.object
+          }),
+        ),
+      ]
+      AttachmentOption(..) -> [#("type", json.int(11))]
+    }
+  ]
+  |> json.object
 }
 
 pub type AutocompleteRun {
