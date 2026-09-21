@@ -1,3 +1,4 @@
+import gleam/http
 import gleam/http/request.{type Request}
 import gleam/json.{type Json}
 import gleam/list
@@ -28,12 +29,30 @@ fn query_params_string(query_params: QueryParams) {
   }
 }
 
+pub fn overwrite_guild_application_commands(
+  auth: Auth,
+  app_id: String,
+  guild_id: String,
+  commands: Json,
+) {
+  let assert Ok(request) =
+    request.to(string.join(
+      [url_base, "applications", app_id, "guilds", guild_id, "commands"],
+      "/",
+    ))
+
+  set_auth_header(request, auth)
+  |> request.set_method(http.Put)
+  |> request.set_header("Content-Type", "application/json")
+  |> request.set_body(json.to_string(commands))
+}
+
 pub fn edit_original_interaction_response(
   auth: Auth,
   app_id: String,
   interaction_token: String,
   query_params: QueryParams,
-  response: Json,
+  interaction_response: Json,
 ) -> Request(String) {
   let assert Ok(request) =
     request.to(
@@ -43,5 +62,5 @@ pub fn edit_original_interaction_response(
 
   set_auth_header(request, auth)
   |> request.set_header("Content-Type", "application/json")
-  |> request.set_body(json.to_string(response))
+  |> request.set_body(json.to_string(interaction_response))
 }
