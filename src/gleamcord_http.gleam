@@ -53,7 +53,7 @@ pub fn basic_command_definition(name name: String, desc description: String) {
   CommandDefinition(
     name:,
     description:,
-    default_member_permissions: "",
+    default_member_permissions: "0",
     integ_types: [0],
     contexts: [1],
     nsfw: False,
