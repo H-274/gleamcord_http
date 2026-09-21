@@ -32,7 +32,7 @@ pub fn edit_original_interaction_response(
   auth: Auth,
   app_id: String,
   interaction_token: String,
-  query_params: List(#(String, String)),
+  query_params: QueryParams,
   response: Json,
 ) -> Request(String) {
   let assert Ok(request) =

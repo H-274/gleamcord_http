@@ -231,7 +231,7 @@ pub fn interaction_decoder() {
           |> decode.success
         }
         4 -> {
-          use data <- decode.field("data", todo)
+          use data <- decode.field("data", command_data_decoder())
           AutocompleteInteraction(
             id:,
             application_id:,
