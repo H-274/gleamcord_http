@@ -28,7 +28,6 @@ fn query_params_string(query_params: QueryParams) {
   }
 }
 
-/// body parameter is a multipart/form bit array
 pub fn edit_original_interaction_response(
   auth: Auth,
   app_id: String,
