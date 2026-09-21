@@ -185,7 +185,7 @@ pub fn command_json(command: Command, translator: locale.Translator) {
                 ),
               ]
               SubCommandGroupElement(name:, description:, sub_commands:) -> [
-                #("type", json.int(1)),
+                #("type", json.int(2)),
                 #("name", json.string(name)),
                 #(
                   "name_localizations",
