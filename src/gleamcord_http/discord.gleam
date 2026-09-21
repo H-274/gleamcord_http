@@ -453,7 +453,10 @@ pub fn command_options_decoder() {
     2 ->
       decode.at([0], {
         use name <- decode.field("name", decode.string)
-        use sub_command <- decode.field("options", sub_command_decoder())
+        use sub_command <- decode.field(
+          "options",
+          decode.at([0], sub_command_decoder()),
+        )
         decode.success(SubCommandGroupOption(name:, sub_command:))
       })
     3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 ->
@@ -500,13 +503,13 @@ pub fn value_option_decoder() -> decode.Decoder(ValueOption) {
     3 -> {
       use name <- decode.field("name", decode.string)
       use value <- decode.field("value", decode.string)
-      use focused <- decode.field("focused", decode.bool)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(StringOption(name:, value:, focused:))
     }
     4 -> {
       use name <- decode.field("name", decode.string)
       use value <- decode.field("value", decode.int)
-      use focused <- decode.field("focused", decode.bool)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(IntegerOption(name:, value:, focused:))
     }
     5 -> {
@@ -537,7 +540,7 @@ pub fn value_option_decoder() -> decode.Decoder(ValueOption) {
     10 -> {
       use name <- decode.field("name", decode.string)
       use value <- decode.field("value", decode.float)
-      use focused <- decode.field("focused", decode.bool)
+      use focused <- decode.optional_field("focused", False, decode.bool)
       decode.success(NumberOption(name:, value:, focused:))
     }
     11 -> {
