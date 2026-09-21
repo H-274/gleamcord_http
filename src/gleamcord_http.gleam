@@ -228,7 +228,7 @@ pub fn handle_mapped_command(
 
   case dict.get(commands_map, path) {
     Ok(run) -> run(interaction, data, options) |> Ok
-    Error(_) -> Error(NotFound("Command with path: " <> path))
+    Error(_) -> Error(NotFound("command with path, " <> path))
   }
 }
 
@@ -269,7 +269,7 @@ pub fn handle_command_dict(
     discord.ChatCommandData(options:, ..), Ok(ChatCommand(run:, ..)) ->
       case options {
         discord.ValueOptions(options) -> Ok(run(interaction, data, options))
-        _ -> Error(NotFound("Value options for: " <> data.name))
+        _ -> Error(NotFound("value options for, " <> data.name))
       }
 
     discord.ChatCommandData(options:, ..), Ok(ChatCommandGroup(elements:, ..))
@@ -279,7 +279,7 @@ pub fn handle_command_dict(
           case dict.get(elements, sub_opt.name) {
             Ok(SubCommandElement(sub)) ->
               Ok(sub.run(interaction, data, sub_opt.options))
-            _ -> Error(NotFound("Sub command: " <> sub_opt.name))
+            _ -> Error(NotFound("sub command, " <> sub_opt.name))
           }
         discord.SubCommandGroupOption(name: group_name, sub_command:) ->
           case dict.get(elements, group_name) {
@@ -287,9 +287,9 @@ pub fn handle_command_dict(
               case dict.get(sub_commands, sub_command.name) {
                 Ok(ChatSubCommand(run:, ..)) ->
                   Ok(run(interaction, data, sub_command.options))
-                _ -> Error(NotFound("Group sub command: " <> sub_command.name))
+                _ -> Error(NotFound("group sub command, " <> sub_command.name))
               }
-            _ -> Error(NotFound("Sub command group: " <> group_name))
+            _ -> Error(NotFound("sub command group, " <> group_name))
           }
         discord.ValueOptions(_) ->
           panic as "Command group should not have value options"
@@ -312,7 +312,7 @@ pub fn handle_mapped_autocomplete(
       IntegerAutocompleteResponse(run(interaction, data, value)) |> Ok
     Ok(NumberAutocomplete(run)), discord.NumberOption(value:, ..) ->
       NumberAutocompleteResponse(run(interaction, data, value)) |> Ok
-    _, _ -> Error(NotFound("Autocomplete with path: " <> path))
+    _, _ -> Error(NotFound("autocomplete with path, " <> path))
   }
 }
 
@@ -321,7 +321,7 @@ fn extract_autocomplete_path(data) {
   case discord.options_find_focused(options) {
     Ok(focused_option) ->
       Ok(#(path <> "/" <> focused_option.name, focused_option))
-    _ -> Error(NotFound("Focused option"))
+    _ -> Error(NotFound("docused option"))
   }
 }
 
@@ -345,7 +345,7 @@ pub fn handle_autocomplete_dict(
             interaction,
             data,
           )
-        _ -> Error(NotFound("Sub command: " <> sub_command.name))
+        _ -> Error(NotFound("sub command, " <> sub_command.name))
       }
     discord.ChatCommandData(
       options: discord.SubCommandGroupOption(name:, sub_command:),
@@ -363,12 +363,12 @@ pub fn handle_autocomplete_dict(
                 interaction,
                 data,
               )
-            _ -> Error(NotFound("Sub command: " <> sub_command.name))
+            _ -> Error(NotFound("sub command, " <> sub_command.name))
           }
-        _ -> Error(NotFound("Sub command group: " <> sub_command.name))
+        _ -> Error(NotFound("sub command group, " <> sub_command.name))
       }
     }
-    _, _ -> Error(NotFound("Command: " <> data.name))
+    _, _ -> Error(NotFound("command, " <> data.name))
   }
 }
 
@@ -392,7 +392,7 @@ fn run_option_autocomplete(
     -> IntegerAutocompleteResponse(run(interaction, data, value)) |> Ok
     Ok(NumberAutocompleteOption(run:, ..)), discord.NumberOption(value:, ..) ->
       NumberAutocompleteResponse(run(interaction, data, value)) |> Ok
-    _, _ -> Error(NotFound("Focused option definition"))
+    _, _ -> Error(NotFound("focused option definition"))
   }
 }
 
@@ -548,7 +548,7 @@ pub fn handle_component_dict(
 ) {
   use component <- result.try(
     dict.get(components, data.custom_id)
-    |> result.replace_error(NotFound("Component: " <> data.custom_id)),
+    |> result.replace_error(NotFound("component, " <> data.custom_id)),
   )
   case component {
     ButtonMessageComponent(run:, ..) -> todo
@@ -588,7 +588,7 @@ pub fn handle_modal_dict(
 ) {
   use modal <- result.try(
     dict.get(modals, data.custom_id)
-    |> result.replace_error(NotFound("Modal: " <> data.custom_id)),
+    |> result.replace_error(NotFound("modal, " <> data.custom_id)),
   )
 
   Ok(modal.run(interaction, data, data.components))
