@@ -35,7 +35,7 @@ pub fn edit_original_interaction_response(
   interaction_token: String,
   query_params: List(#(String, String)),
   response: Json,
-) {
+) -> Request(String) {
   let assert Ok(request) =
     request.to(
       string.join([url_base, app_id, interaction_token], "/")
@@ -45,5 +45,4 @@ pub fn edit_original_interaction_response(
   set_auth_header(request, auth)
   |> request.set_header("Content-Type", "application/json")
   |> request.set_body(json.to_string(response))
-  |> Ok
 }

@@ -138,57 +138,89 @@ pub type CommandResponse {
   CommandModalResponse(Modal)
 }
 
-pub fn generate_commands_map(
-  commands: List(Command),
-) -> Dict(
-  String,
-  fn(
-    discord.Interaction,
-    discord.CommandData,
-    Dict(String, discord.ValueOption),
-  ) -> CommandResponse,
-) {
-  list.map(commands, fn(command) {
-    case command {
-      ChatCommand(def: command, run:, ..) -> [#(command.name, run)]
-      ChatCommandGroup(def: group, elements:) ->
-        list.map(dict.values(elements), fn(item) {
-          case item {
-            SubCommandElement(sub_command) -> [
-              #(
-                string.join([group.name, sub_command.name], "/"),
-                sub_command.run,
-              ),
-            ]
-            SubCommandGroupElement(name: sub_group, sub_commands:, ..) ->
-              list.map(dict.values(sub_commands), fn(item) {
-                #(
-                  string.join([group.name, sub_group, item.name], "/"),
-                  item.run,
-                )
-              })
-          }
-        })
-        |> list.flatten
-
-      UserCommand(def: command, run:) | MessageCommand(def: command, run:) -> [
-        #(command.name, fn(i, d, _) { run(i, d) }),
-      ]
-    }
-  })
-  |> list.flatten
-  |> dict.from_list
-}
-
-pub fn handle_mapped_command(
-  commands_map: Dict(
+type CommandMap =
+  Dict(
     String,
     fn(
       discord.Interaction,
       discord.CommandData,
       Dict(String, discord.ValueOption),
     ) -> CommandResponse,
-  ),
+  )
+
+type AutocompleteMap =
+  Dict(String, AutocompleteRun)
+
+pub fn generate_command_maps(
+  commands: List(Command),
+) -> #(CommandMap, AutocompleteMap) {
+  let #(command_map, autocomplete_map) =
+    list.map(commands, fn(command) {
+      case command {
+        UserCommand(def:, run:) | MessageCommand(def:, run:) -> #(
+          [#(def.name, fn(i, d, _) { run(i, d) })],
+          [],
+        )
+        ChatCommand(def:, options:, run:) -> #(
+          [#(def.name, run)],
+          filter_map_options(def.name, options),
+        )
+        ChatCommandGroup(def:, elements:) -> {
+          let #(command_maps, autocomplete_maps) =
+            list.map(dict.values(elements), fn(element) {
+              case element {
+                SubCommandGroupElement(name: sub_group_name, sub_commands:, ..) -> {
+                  let path = string.join([def.name, sub_group_name], "/")
+                  list.map(dict.values(sub_commands), fn(sub_command) {
+                    let path = string.join([path, sub_command.name], "/")
+                    #(
+                      [#(path, sub_command.run)],
+                      filter_map_options(path, sub_command.options),
+                    )
+                  })
+                }
+                SubCommandElement(sub_command) -> {
+                  let path = string.join([def.name, sub_command.name], "/")
+                  [
+                    #(
+                      [#(path, sub_command.run)],
+                      filter_map_options(path, sub_command.options),
+                    ),
+                  ]
+                }
+              }
+            })
+            |> list.flatten
+            |> list.unzip
+          #(command_maps |> list.flatten, autocomplete_maps |> list.flatten)
+        }
+      }
+    })
+    |> list.unzip()
+
+  #(
+    command_map |> list.flatten |> dict.from_list,
+    autocomplete_map |> list.flatten |> dict.from_list,
+  )
+}
+
+fn filter_map_options(prior_path: String, options: List(CommandOption)) {
+  list.filter_map(options, fn(o) {
+    let option_path = string.join([prior_path, o.name], "/")
+    case o {
+      StringAutocompleteOption(run:, ..) ->
+        Ok(#(option_path, StringAutocomplete(run)))
+      IntegerAutocompleteOption(run:, ..) ->
+        Ok(#(option_path, IntegerAutocomplete(run)))
+      NumberAutocompleteOption(run:, ..) ->
+        Ok(#(option_path, NumberAutocomplete(run)))
+      _ -> Error(Nil)
+    }
+  })
+}
+
+pub fn handle_mapped_command(
+  commands_map: CommandMap,
   interaction: discord.Interaction,
   data: discord.CommandData,
 ) {
@@ -266,21 +298,14 @@ pub fn handle_command_dict(
   }
 }
 
-// TODO review autocomplete run signature
-pub fn build_autocomplete_map(
-  commands: List(Command),
-) -> Dict(String, fn(discord.Interaction, Dynamic) -> Dynamic) {
-  todo
-}
-
 pub fn handle_mapped_autocomplete(
-  autocomplete_map: Dict(String, AutocompleteRun),
+  command_map: AutocompleteMap,
   interaction: discord.Interaction,
   data: discord.CommandData,
 ) {
   use #(path, option) <- result.try(extract_autocomplete_path(data))
 
-  case dict.get(autocomplete_map, path), option {
+  case dict.get(command_map, option.name), option {
     Ok(StringAutocomplete(run)), discord.StringOption(value:, ..) ->
       StringAutocompleteResponse(run(interaction, data, value)) |> Ok
     Ok(IntegerAutocomplete(run)), discord.IntegerOption(value:, ..) ->
