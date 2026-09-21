@@ -30,7 +30,7 @@ pub type Interaction {
     locale: Option(Locale),
     guild_locale: Option(Locale),
     entitlements: List(Dynamic),
-    auth_integ_owners: Dict(Int, String),
+    auth_integ_owners: Dict(String, String),
     context: Option(Int),
     attach_size_limit: Int,
   )
@@ -51,7 +51,7 @@ pub type Interaction {
     locale: Option(Locale),
     guild_locale: Option(Locale),
     entitlements: List(Dynamic),
-    auth_integ_owners: Dict(Int, String),
+    auth_integ_owners: Dict(String, String),
     context: Option(Int),
     attach_size_limit: Int,
   )
@@ -72,7 +72,7 @@ pub type Interaction {
     locale: Option(Locale),
     guild_locale: Option(Locale),
     entitlements: List(Dynamic),
-    auth_integ_owners: Dict(Int, String),
+    auth_integ_owners: Dict(String, String),
     context: Option(Int),
     attach_size_limit: Int,
   )
@@ -93,7 +93,7 @@ pub type Interaction {
     locale: Option(Locale),
     guild_locale: Option(Locale),
     entitlements: List(Dynamic),
-    auth_integ_owners: Dict(Int, String),
+    auth_integ_owners: Dict(String, String),
     context: Option(Int),
     attach_size_limit: Int,
   )
@@ -171,7 +171,7 @@ pub fn interaction_decoder() {
       )
       use auth_integ_owners <- decode.field(
         "authorizing_integration_owners",
-        decode.dict(decode.int, decode.string),
+        decode.dict(decode.string, decode.string),
       )
       use context <- decode.optional_field(
         "context",
