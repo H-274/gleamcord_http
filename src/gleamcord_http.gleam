@@ -616,11 +616,16 @@ pub fn option_json(option: CommandOption, translator: locale.Translator) {
     ),
     #("required", json.bool(option.required)),
     ..case option {
-      StringOption(min_len:, max_len:, ..)
-      | StringAutocompleteOption(min_len:, max_len:, ..) -> [
+      StringOption(min_len:, max_len:, ..) -> [
         #("type", json.int(3)),
         #("min_length", json.int(min_len)),
         #("max_length", json.int(max_len)),
+      ]
+      StringAutocompleteOption(min_len:, max_len:, ..) -> [
+        #("type", json.int(3)),
+        #("min_length", json.int(min_len)),
+        #("max_length", json.int(max_len)),
+        #("autocomplete", json.bool(True)),
       ]
       StringChoiceOption(choices:, ..) -> [
         #("type", json.int(3)),
@@ -639,11 +644,16 @@ pub fn option_json(option: CommandOption, translator: locale.Translator) {
           }),
         ),
       ]
-      IntegerOption(min_value:, max_value:, ..)
-      | IntegerAutocompleteOption(min_value:, max_value:, ..) -> [
+      IntegerOption(min_value:, max_value:, ..) -> [
         #("type", json.int(4)),
         #("min_value", json.int(min_value)),
         #("max_value", json.int(max_value)),
+      ]
+      IntegerAutocompleteOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(4)),
+        #("min_value", json.int(min_value)),
+        #("max_value", json.int(max_value)),
+        #("autocomplete", json.bool(True)),
       ]
       IntegerChoiceOption(choices:, ..) -> [
         #("type", json.int(4)),
@@ -670,11 +680,16 @@ pub fn option_json(option: CommandOption, translator: locale.Translator) {
       ]
       RoleOption(..) -> [#("type", json.int(8))]
       MentionableOption(..) -> [#("type", json.int(9))]
-      NumberOption(min_value:, max_value:, ..)
-      | NumberAutocompleteOption(min_value:, max_value:, ..) -> [
+      NumberOption(min_value:, max_value:, ..) -> [
         #("type", json.int(10)),
         #("min_value", json.float(min_value)),
         #("max_value", json.float(max_value)),
+      ]
+      NumberAutocompleteOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(10)),
+        #("min_value", json.float(min_value)),
+        #("max_value", json.float(max_value)),
+        #("autocomplete", json.bool(True)),
       ]
       NumberChoiceOption(choices:, ..) -> [
         #("type", json.int(10)),
