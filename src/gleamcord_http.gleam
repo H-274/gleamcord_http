@@ -4,7 +4,6 @@ import gleam/dynamic/decode
 import gleam/json.{type Json}
 import gleam/list
 import gleam/result
-import gleam/string
 import gleamcord_http/component
 import gleamcord_http/discord
 import gleamcord_http/locale
@@ -262,124 +261,6 @@ pub type CommandResponse {
   CommandModalResponse(Modal)
 }
 
-type CommandMap =
-  Dict(
-    String,
-    fn(
-      discord.Interaction,
-      discord.CommandData,
-      Dict(String, discord.ValueOption),
-    ) -> CommandResponse,
-  )
-
-type AutocompleteMap =
-  Dict(String, AutocompleteRun)
-
-pub fn generate_command_maps(
-  commands: List(Command),
-) -> #(CommandMap, AutocompleteMap) {
-  let #(command_map, autocomplete_map) =
-    list.map(commands, fn(command) {
-      case command {
-        UserCommand(def:, run:) | MessageCommand(def:, run:) -> #(
-          [#(def.name, fn(i, d, _) { run(i, d) })],
-          [],
-        )
-        ChatCommand(def:, options:, run:) -> #(
-          [#(def.name, run)],
-          filter_map_options(def.name, options),
-        )
-        ChatCommandGroup(def:, elements:) -> {
-          let #(command_maps, autocomplete_maps) =
-            list.map(dict.values(elements), fn(element) {
-              case element {
-                SubCommandGroupElement(name: sub_group_name, sub_commands:, ..) -> {
-                  let path = string.join([def.name, sub_group_name], "/")
-                  list.map(dict.values(sub_commands), fn(sub_command) {
-                    let path = string.join([path, sub_command.name], "/")
-                    #(
-                      [#(path, sub_command.run)],
-                      filter_map_options(path, sub_command.options),
-                    )
-                  })
-                }
-                SubCommandElement(sub_command) -> {
-                  let path = string.join([def.name, sub_command.name], "/")
-                  [
-                    #(
-                      [#(path, sub_command.run)],
-                      filter_map_options(path, sub_command.options),
-                    ),
-                  ]
-                }
-              }
-            })
-            |> list.flatten
-            |> list.unzip
-          #(command_maps |> list.flatten, autocomplete_maps |> list.flatten)
-        }
-      }
-    })
-    |> list.unzip()
-
-  #(
-    command_map |> list.flatten |> dict.from_list,
-    autocomplete_map |> list.flatten |> dict.from_list,
-  )
-}
-
-fn filter_map_options(prior_path: String, options: List(CommandOption)) {
-  list.filter_map(options, fn(o) {
-    let option_path = string.join([prior_path, o.name], "/")
-    case o {
-      StringAutocompleteOption(run:, ..) ->
-        Ok(#(option_path, StringAutocomplete(run)))
-      IntegerAutocompleteOption(run:, ..) ->
-        Ok(#(option_path, IntegerAutocomplete(run)))
-      NumberAutocompleteOption(run:, ..) ->
-        Ok(#(option_path, NumberAutocomplete(run)))
-      _ -> Error(Nil)
-    }
-  })
-}
-
-pub fn handle_mapped_command(
-  commands_map: CommandMap,
-  interaction: discord.Interaction,
-  data: discord.CommandData,
-) {
-  let #(path, options) = extract_command_path_options(data)
-
-  case dict.get(commands_map, path) {
-    Ok(run) -> run(interaction, data, options) |> Ok
-    Error(_) -> Error(NotFound("command with path, " <> path))
-  }
-}
-
-fn extract_command_path_options(
-  data: discord.CommandData,
-) -> #(String, Dict(String, discord.ValueOption)) {
-  case data {
-    discord.UserCommandData(..) | discord.MessageCommandData(..) -> #(
-      data.name,
-      dict.new(),
-    )
-    discord.ChatCommandData(name:, options:, ..) -> {
-      case options {
-        discord.ValueOptions(options) -> #(name, options)
-        discord.SubCommandOption(sub) -> #(
-          string.join([name, sub.name], "/"),
-          sub.options,
-        )
-        discord.SubCommandGroupOption(name: sub_group, sub_command: sub) -> #(
-          string.join([name, sub_group, sub.name], "/"),
-          sub.options,
-        )
-      }
-    }
-  }
-}
-
 pub fn handle_command_dict(
   commands: Dict(String, Command),
   interaction: discord.Interaction,
@@ -419,33 +300,6 @@ pub fn handle_command_dict(
           panic as "Command group should not have value options"
       }
     _, _ -> Error(NotFound("Command: " <> data.name))
-  }
-}
-
-pub fn handle_mapped_autocomplete(
-  command_map: AutocompleteMap,
-  interaction: discord.Interaction,
-  data: discord.CommandData,
-) {
-  use #(path, option) <- result.try(extract_autocomplete_path(data))
-
-  case dict.get(command_map, option.name), option {
-    Ok(StringAutocomplete(run)), discord.StringOption(value:, ..) ->
-      StringAutocompleteResponse(run(interaction, data, value)) |> Ok
-    Ok(IntegerAutocomplete(run)), discord.IntegerOption(value:, ..) ->
-      IntegerAutocompleteResponse(run(interaction, data, value)) |> Ok
-    Ok(NumberAutocomplete(run)), discord.NumberOption(value:, ..) ->
-      NumberAutocompleteResponse(run(interaction, data, value)) |> Ok
-    _, _ -> Error(NotFound("autocomplete with path, " <> path))
-  }
-}
-
-fn extract_autocomplete_path(data) {
-  let #(path, options) = extract_command_path_options(data)
-  case discord.options_find_focused(options) {
-    Ok(focused_option) ->
-      Ok(#(path <> "/" <> focused_option.name, focused_option))
-    _ -> Error(NotFound("docused option"))
   }
 }
 
