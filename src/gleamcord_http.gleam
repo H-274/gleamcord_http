@@ -299,7 +299,7 @@ pub fn handle_command_dict(
         discord.ValueOptions(_) ->
           panic as "Command group should not have value options"
       }
-    _, _ -> Error(NotFound("Command: " <> data.name))
+    _, _ -> Error(NotFound("command, " <> data.name))
   }
 }
 
