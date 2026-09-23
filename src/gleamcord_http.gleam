@@ -117,7 +117,7 @@ pub fn commands_dicts(
   )
 }
 
-pub fn command_dicts_lists(
+fn command_dicts_lists(
   command: GleamcordCommand,
 ) -> List(
   #(dict.Dict(String, CommandHandler), dict.Dict(String, AutocompleteHandler)),
