@@ -7,12 +7,18 @@ pub opaque type Bot {
   Bot(
     commands_dicts: Dict(String, gleamcord_http.CommandHandler),
     autocomplete_dicts: Dict(String, gleamcord_http.AutocompleteHandler),
-    other: Nil,
+    component_dicts: Dict(String, Nil),
+    modal_dicts: Dict(String, Nil),
   )
 }
 
 pub fn bot() {
-  Bot(commands_dicts: dict.new(), autocomplete_dicts: dict.new(), other: Nil)
+  Bot(
+    commands_dicts: dict.new(),
+    autocomplete_dicts: dict.new(),
+    component_dicts: dict.new(),
+    modal_dicts: dict.new(),
+  )
 }
 
 pub fn set_commands(bot: Bot, commands: List(GleamcordCommand)) {
