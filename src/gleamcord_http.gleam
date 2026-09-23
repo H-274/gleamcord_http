@@ -96,7 +96,7 @@ pub type NumberAutocompleteResponse =
   List(#(String, Float))
 
 /// Converts a list of `GleamcordCommands` to a set of dictionaries.
-/// There dictionaries are to get a certain command/autocomplete interaction's handler based on its path
+/// These dictionaries are to get a certain command/autocomplete interaction's handler based on its path
 /// 
 /// If multiple commands in the list share a path, the last command with the path takes precedence
 pub fn commands_dicts(
