@@ -1,4 +1,4 @@
-import gleam/dict
+import gleam/dict.{type Dict}
 import gleam/list
 import gleam/string
 import gleamcord_http/discord
@@ -138,7 +138,8 @@ pub type CommandHandler {
 }
 
 pub type ChatCommandHandler =
-  fn(discord.CommandInteraction, List(discord.CommandOption)) -> CommandResponse
+  fn(discord.CommandInteraction, Dict(String, discord.ValueOption)) ->
+    CommandResponse
 
 pub type ContextCommandHandler =
   fn(discord.CommandInteraction) -> CommandResponse
