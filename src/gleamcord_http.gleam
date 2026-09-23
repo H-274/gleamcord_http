@@ -17,18 +17,35 @@ pub type GleamcordCommand {
   MessageCommand(definition: CommandDefinition, handle: ContextCommandHandler)
 }
 
-/// TODO
 pub type CommandDefinition {
-  CommandDefinition(name: String, description: String)
+  CommandDefinition(
+    name: String,
+    description: String,
+    default_member_permissions: String,
+    integration_types: List(Int),
+    contexts: List(Int),
+    nsfw: Bool,
+  )
 }
 
-/// TODO
+pub const guild_command_definition = CommandDefinition(
+  name: "todo",
+  description: "todo",
+  default_member_permissions: "0",
+  integration_types: [0],
+  contexts: [1],
+  nsfw: False,
+)
+
 pub type CommandGroupElement {
-  SubCommandGroup(name: String, sub_commands: List(SubCommand))
+  SubCommandGroup(
+    name: String,
+    description: String,
+    sub_commands: List(SubCommand),
+  )
   SubCommandElement(SubCommand)
 }
 
-/// TODO
 pub type SubCommand {
   SubCommand(
     name: String,
@@ -38,25 +55,81 @@ pub type SubCommand {
   )
 }
 
-/// TODO
 pub type CommandOption {
-  StringOption(name: String)
-  StringChoicesOption(name: String)
+  StringOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_length: Int,
+    max_length: Int,
+  )
+  StringChoicesOption(
+    name: String,
+    description: String,
+    required: Bool,
+    choices: List(#(String, String)),
+  )
   StringAutocompleteOption(
     name: String,
     description: String,
+    required: Bool,
+    min_length: Int,
+    max_length: Int,
     autocomplete: StringAutocompleteHandler,
+  )
+  IntegerOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_value: Int,
+    max_value: Int,
+  )
+  IntegerChoicesOption(
+    name: String,
+    description: String,
+    required: Bool,
+    choices: List(#(String, Int)),
   )
   IntegerAutocompleteOption(
     name: String,
     description: String,
+    required: Bool,
+    min_value: Int,
+    max_value: Int,
     autocomplete: IntegerAutocompleteHandler,
+  )
+  BooleanOption(name: String, description: String, required: Bool)
+  UserOption(name: String, description: String, required: Bool)
+  ChannelOption(
+    name: String,
+    description: String,
+    required: Bool,
+    channel_types: List(Int),
+  )
+  RoleOption(name: String, description: String, required: Bool)
+  MentionableOption(name: String, description: String, required: Bool)
+  NumberOption(
+    name: String,
+    description: String,
+    required: Bool,
+    min_value: Float,
+    max_value: Float,
+  )
+  NumberChoicesOption(
+    name: String,
+    description: String,
+    required: Bool,
+    choices: List(#(String, Float)),
   )
   NumberAutocompleteOption(
     name: String,
     description: String,
+    required: Bool,
+    min_value: Float,
+    max_value: Float,
     autocomplete: NumberAutocompleteHandler,
   )
+  AttachmentOption(name: String, description: String, required: Bool)
 }
 
 pub type CommandHandler {
@@ -70,8 +143,11 @@ pub type ChatCommandHandler =
 pub type ContextCommandHandler =
   fn(discord.CommandInteraction) -> CommandResponse
 
-/// TODO
-pub type CommandResponse
+pub type CommandResponse {
+  CommandMessageResponse(String)
+  CommandDeferredMessageResponse(fn() -> String)
+  CommandModalResponse
+}
 
 pub type AutocompleteHandler {
   StringAutocompleteHandler(StringAutocompleteHandler)
@@ -159,7 +235,7 @@ fn group_elements_dicts_list(
     SubCommandElement(sub_command) -> [
       sub_command_dicts(command_path, sub_command),
     ]
-    SubCommandGroup(name:, sub_commands:) -> {
+    SubCommandGroup(name:, sub_commands:, ..) -> {
       let path = string.join([command_path, name], "/")
       list.map(sub_commands, sub_command_dicts(path, _))
     }
