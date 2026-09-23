@@ -7,14 +7,14 @@ pub type GleamcordCommand {
   ChatCommand(
     definition: CommandDefinition,
     options: List(CommandOption),
-    handler: CommandHandler,
+    handle: ChatCommandHandler,
   )
   ChatCommandGroup(
     definition: CommandDefinition,
     elements: List(CommandGroupElement),
   )
-  UserCommand(definition: CommandDefinition, handler: CommandHandler)
-  MessageCommand(definition: CommandDefinition, handler: CommandHandler)
+  UserCommand(definition: CommandDefinition, handle: ContextCommandHandler)
+  MessageCommand(definition: CommandDefinition, handle: ContextCommandHandler)
 }
 
 /// TODO
@@ -34,7 +34,7 @@ pub type SubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    handler: CommandHandler,
+    handle: ChatCommandHandler,
   )
 }
 
@@ -59,7 +59,15 @@ pub type CommandOption {
   )
 }
 
-pub type CommandHandler =
+pub type CommandHandler {
+  ChatCommandHandler(ChatCommandHandler)
+  ContextCommandHandler(ContextCommandHandler)
+}
+
+pub type ChatCommandHandler =
+  fn(discord.CommandInteraction, List(discord.CommandOption)) -> CommandResponse
+
+pub type ContextCommandHandler =
   fn(discord.CommandInteraction) -> CommandResponse
 
 /// TODO
@@ -123,17 +131,19 @@ fn command_dicts_lists(
   #(dict.Dict(String, CommandHandler), dict.Dict(String, AutocompleteHandler)),
 ) {
   case command {
-    ChatCommand(definition:, options:, handler:) -> [
+    ChatCommand(definition:, options:, handle:) -> [
       #(
-        dict.from_list([#(definition.name, handler)]),
+        dict.from_list([#(definition.name, ChatCommandHandler(handle))]),
         dict.from_list(autocomplete_list(definition.name, options)),
       ),
     ]
     ChatCommandGroup(definition:, elements:) ->
       group_elements_dicts_list(definition.name, elements)
-    UserCommand(definition:, handler:)
-    | MessageCommand(definition:, handler:) -> [
-      #(dict.from_list([#(definition.name, handler)]), dict.new()),
+    UserCommand(definition:, handle:) | MessageCommand(definition:, handle:) -> [
+      #(
+        dict.from_list([#(definition.name, ContextCommandHandler(handle))]),
+        dict.new(),
+      ),
     ]
   }
 }
@@ -165,7 +175,7 @@ fn sub_command_dicts(
 ) {
   let path = string.join([command_path, sub_command.name], "/")
   #(
-    dict.from_list([#(path, sub_command.handler)]),
+    dict.from_list([#(path, ChatCommandHandler(sub_command.handle))]),
     dict.from_list(autocomplete_list(path, sub_command.options)),
   )
 }

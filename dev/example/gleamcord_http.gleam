@@ -6,12 +6,12 @@ pub const hello_command = gleamcord_http.ChatCommand(
     description: "greets a name",
   ),
   options: [name_option],
-  handler: hello_handler,
+  handle: hello_handle,
 )
 
 const name_option = gleamcord_http.StringOption(name: "name")
 
-fn hello_handler(_i) {
+fn hello_handle(_i, _options) {
   let name = todo as "extract name option"
 
   todo as { "Hello, " <> name <> "!" }
@@ -42,10 +42,10 @@ const ping_sub_command = gleamcord_http.SubCommand(
   name: "ping",
   description: "pongs",
   options: [],
-  handler: ping_handler,
+  handle: ping_handle,
 )
 
-fn ping_handler(_i) {
+fn ping_handle(_i, _options) {
   todo as "Pong"
 }
 
@@ -53,10 +53,10 @@ const slow_sub_command = gleamcord_http.SubCommand(
   name: "slow",
   description: "slow command",
   options: [],
-  handler: slow_handler,
+  handle: slow_handle,
 )
 
-fn slow_handler(_i) {
+fn slow_handle(_i, _options) {
   // process.sleep(5000)
   todo as "Waited 5000 ms"
 }

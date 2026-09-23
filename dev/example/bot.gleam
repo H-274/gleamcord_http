@@ -51,8 +51,12 @@ pub fn remove_commands(bot: Bot, commands: List(GleamcordCommand)) {
 }
 
 pub fn handle_command(bot: Bot, interaction: discord.CommandInteraction) {
-  let path = todo as "Extract path from interaction"
+  let #(path, options) = todo as "Extract path from interaction"
 
-  use handler <- result.try(dict.get(bot.commands_dicts, path))
-  Ok(handler(interaction))
+  use handle <- result.try(dict.get(bot.commands_dicts, path))
+  case handle {
+    gleamcord_http.ChatCommandHandler(handle) -> handle(interaction, options)
+    gleamcord_http.ContextCommandHandler(handle) -> handle(interaction)
+  }
+  |> Ok
 }
