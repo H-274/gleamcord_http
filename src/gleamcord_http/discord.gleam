@@ -1,7 +1,17 @@
 import gleam/dict.{type Dict}
 
 pub type Interaction {
+  ApplicationPingInteraction(PingInteraction)
   ApplicationCommandInteraction
+}
+
+pub type PingInteraction {
+  PingInteraction(
+    id: String,
+    application_id: String,
+    token: String,
+    version: Int,
+  )
 }
 
 pub type CommandInteraction {
