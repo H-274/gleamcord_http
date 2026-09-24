@@ -184,53 +184,35 @@ pub type NumberAutocompleteResponse =
 /// These dictionaries are to get a certain command/autocomplete interaction's handler based on its path
 /// 
 /// If multiple commands in the list share a path, the last command with the path takes precedence
-pub fn commands_dicts(
-  commands: List(GleamcordCommand),
-) -> #(
-  dict.Dict(String, CommandHandler),
-  dict.Dict(String, AutocompleteHandler),
-) {
-  let final = #(dict.new(), dict.new())
-  use
-    #(final_command_dict, final_autocomplete_dict),
-    #(command_dict, autocomplete_dict)
-  <- list.fold(list.flat_map(commands, command_dicts_lists), final)
-
-  #(
-    dict.merge(final_command_dict, command_dict),
-    dict.merge(final_autocomplete_dict, autocomplete_dict),
-  )
+pub fn command_dicts(commands: List(GleamcordCommand)) -> CommandDicts {
+  let acc = #(dict.new(), dict.new())
+  use acc, dicts <- list.fold(list.flat_map(commands, command_dicts_lists), acc)
+  #(dict.merge(acc.0, dicts.0), dict.merge(acc.1, dicts.1))
 }
 
-fn command_dicts_lists(
-  command: GleamcordCommand,
-) -> List(
-  #(dict.Dict(String, CommandHandler), dict.Dict(String, AutocompleteHandler)),
-) {
+fn command_dicts_lists(command: GleamcordCommand) -> List(CommandDicts) {
   case command {
-    ChatCommand(definition:, options:, handle:) -> [
-      #(
-        dict.from_list([#(definition.name, ChatCommandHandler(handle))]),
-        dict.from_list(autocomplete_list(definition.name, options)),
-      ),
-    ]
+    ChatCommand(definition:, options:, handle:) -> {
+      let command_dict =
+        dict.from_list([#(definition.name, ChatCommandHandler(handle))])
+      let autocomplete_dict =
+        dict.from_list(autocomplete_list(definition.name, options))
+      [#(command_dict, autocomplete_dict)]
+    }
     ChatCommandGroup(definition:, elements:) ->
       group_elements_dicts_list(definition.name, elements)
-    UserCommand(definition:, handle:) | MessageCommand(definition:, handle:) -> [
-      #(
-        dict.from_list([#(definition.name, ContextCommandHandler(handle))]),
-        dict.new(),
-      ),
-    ]
+    UserCommand(definition:, handle:) | MessageCommand(definition:, handle:) -> {
+      let command_dict =
+        dict.from_list([#(definition.name, ContextCommandHandler(handle))])
+      [#(command_dict, dict.new())]
+    }
   }
 }
 
 fn group_elements_dicts_list(
   command_path: String,
   elements: List(CommandGroupElement),
-) -> List(
-  #(dict.Dict(String, CommandHandler), dict.Dict(String, AutocompleteHandler)),
-) {
+) -> List(CommandDicts) {
   use element <- list.flat_map(elements)
   case element {
     SubCommandElement(sub_command) -> [
@@ -246,16 +228,17 @@ fn group_elements_dicts_list(
 fn sub_command_dicts(
   command_path: String,
   sub_command: SubCommand,
-) -> #(
-  dict.Dict(String, CommandHandler),
-  dict.Dict(String, AutocompleteHandler),
-) {
+) -> CommandDicts {
   let path = string.join([command_path, sub_command.name], "/")
-  #(
-    dict.from_list([#(path, ChatCommandHandler(sub_command.handle))]),
-    dict.from_list(autocomplete_list(path, sub_command.options)),
-  )
+  let command_dict =
+    dict.from_list([#(path, ChatCommandHandler(sub_command.handle))])
+  let autocomplete_dict =
+    dict.from_list(autocomplete_list(path, sub_command.options))
+  #(command_dict, autocomplete_dict)
 }
+
+type CommandDicts =
+  #(dict.Dict(String, CommandHandler), dict.Dict(String, AutocompleteHandler))
 
 fn autocomplete_list(
   command_path: String,
@@ -270,7 +253,6 @@ fn autocomplete_list(
       #(path, IntegerAutocompleteHandler(autocomplete)) |> Ok
     NumberAutocompleteOption(autocomplete:, ..) ->
       #(path, NumberAutocompleteHandler(autocomplete)) |> Ok
-
     _ -> Error(Nil)
   }
 }

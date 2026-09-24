@@ -23,13 +23,13 @@ pub fn bot() {
 
 pub fn set_commands(bot: Bot, commands: List(GleamcordCommand)) {
   let #(commands_dicts, autocomplete_dicts) =
-    gleamcord_http.commands_dicts(commands)
+    gleamcord_http.command_dicts(commands)
   Bot(..bot, commands_dicts:, autocomplete_dicts:)
 }
 
 pub fn add_commands(bot: Bot, commands: List(GleamcordCommand)) {
   let #(commands_dicts, autocomplete_dicts) =
-    gleamcord_http.commands_dicts(commands)
+    gleamcord_http.command_dicts(commands)
   Bot(
     ..bot,
     commands_dicts: dict.merge(bot.commands_dicts, commands_dicts),
@@ -39,7 +39,7 @@ pub fn add_commands(bot: Bot, commands: List(GleamcordCommand)) {
 
 pub fn remove_commands(bot: Bot, commands: List(GleamcordCommand)) {
   let #(commands_dicts, autocomplete_dicts) =
-    gleamcord_http.commands_dicts(commands)
+    gleamcord_http.command_dicts(commands)
   Bot(
     ..bot,
     commands_dicts: dict.drop(bot.commands_dicts, dict.keys(commands_dicts)),
