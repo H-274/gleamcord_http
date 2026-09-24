@@ -2,7 +2,7 @@ import gleam/dict.{type Dict}
 
 pub type Interaction {
   ApplicationPingInteraction(PingInteraction)
-  ApplicationCommandInteraction
+  ApplicationCommandInteraction(CommandInteraction)
 }
 
 pub type PingInteraction {
@@ -17,6 +17,18 @@ pub type PingInteraction {
 pub type CommandInteraction {
   CommandInteraction
 }
+
+pub const string_min_len = 0
+
+pub const string_max_len = 6000
+
+pub const integer_min_val = -9_007_199_254_740_991
+
+pub const integer_max_val = 9_007_199_254_740_991
+
+pub const number_min_val = -1.7976931348623157e308
+
+pub const number_max_val = 1.7976931348623157e308
 
 pub type ValueOption {
   StringOption(name: String, value: String, focused: Bool)
