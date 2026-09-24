@@ -157,13 +157,16 @@ pub type AutocompleteHandler {
 }
 
 pub type StringAutocompleteHandler =
-  fn(discord.CommandInteraction, String) -> List(#(String, String))
+  fn(discord.CommandInteraction, Dict(String, discord.ValueOption), String) ->
+    List(#(String, String))
 
 pub type IntegerAutocompleteHandler =
-  fn(discord.CommandInteraction, Int) -> List(#(String, Int))
+  fn(discord.CommandInteraction, Dict(String, discord.ValueOption), Int) ->
+    List(#(String, Int))
 
 pub type NumberAutocompleteHandler =
-  fn(discord.CommandInteraction, Float) -> List(#(String, Float))
+  fn(discord.CommandInteraction, Dict(String, discord.ValueOption), Float) ->
+    List(#(String, Float))
 
 pub type AutocompleteResponse {
   StringAutocompleteResponse(StringAutocompleteResponse)
