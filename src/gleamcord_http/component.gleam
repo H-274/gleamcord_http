@@ -3,6 +3,7 @@ import gleam/option.{type Option}
 
 /// Start of content components
 pub type ActionRow {
+  /// Button action row must have between 1-5 (inclusive) buttons
   ButtonRow(List(Button))
   StringSelectRow(StringSelect)
   UserSelectRow(UserSelect)
@@ -11,6 +12,7 @@ pub type ActionRow {
   ChannelSelectRow(ChannelSelect)
 }
 
+/// `components` must have between 1-3 (inclusive) items
 pub type Section {
   ButtonSection(components: List(SectionChild), accessory: Button)
   ThumbnailSection(components: List(SectionChild), accessory: Thumbnail)
@@ -76,6 +78,7 @@ pub type Thumbnail {
 }
 
 pub type MediaGallery {
+  /// `items` should contain between 1-10 (inclusive) elements
   MediaGallery(items: List(GalleryItem))
 }
 
@@ -107,8 +110,12 @@ pub type ButtonDisplay {
   StringEmojiButton(label: String, emoji: Dynamic)
 }
 
-/// `required` only applies in modals, and `disabled` only applies to message components
 pub type StringSelect {
+  /// Important notes:
+  /// - number of elements in `options` should be between `min_values` and `max_values`
+  /// - `min_values` should be between 0-25 (inclusive), and less than `max_values`
+  /// - `max_values` should be between 1-25 (inclusive), and more than `min_values` 
+  /// - `required` only applies to modals, and `disabled` only applies to message components
   StringSelect(
     custom_id: String,
     options: List(SelectOption),
@@ -149,8 +156,12 @@ pub type TextInput {
   )
 }
 
-/// `required` only applies in modals, and `disabled` only applies to message components
 pub type UserSelect {
+  /// Important notes:
+  /// - number of elements in `default_values` should be between `min_values` and `max_values`
+  /// - `min_values` should be between 0-25 (inclusive), and less than `max_values`
+  /// - `max_values` should be between 1-25 (inclusive), and more than `min_values` 
+  /// - `required` only applies to modals, and `disabled` only applies to message components
   UserSelect(
     custom_id: String,
     placeholder: String,
@@ -162,8 +173,12 @@ pub type UserSelect {
   )
 }
 
-/// `required` only applies in modals, and `disabled` only applies to message components
 pub type RoleSelect {
+  /// Important notes:
+  /// - number of elements in `default_values` should be between `min_values` and `max_values`
+  /// - `min_values` should be between 0-25 (inclusive), and less than `max_values`
+  /// - `max_values` should be between 1-25 (inclusive), and more than `min_values` 
+  /// - `required` only applies to modals, and `disabled` only applies to message components
   RoleSelect(
     custom_id: String,
     placeholder: String,
@@ -175,8 +190,12 @@ pub type RoleSelect {
   )
 }
 
-/// `required` only applies in modals, and `disabled` only applies to message components
 pub type MentionableSelect {
+  /// Important notes:
+  /// - number of elements in `options` should be between `min_values` and `max_values`
+  /// - `min_values` should be between 0-25 (inclusive), and less than `max_values`
+  /// - `max_values` should be between 1-25 (inclusive), and more than `min_values` 
+  /// - `required` only applies to modals, and `disabled` only applies to message components
   MentionableSelect(
     custom_id: String,
     placeholder: String,
@@ -188,8 +207,12 @@ pub type MentionableSelect {
   )
 }
 
-/// `required` only applies in modals, and `disabled` only applies to message components
 pub type ChannelSelect {
+  /// Important notes:
+  /// - number of elements in `default_values` should be between `min_values` and `max_values`
+  /// - `min_values` should be between 0-25 (inclusive), and less than `max_values`
+  /// - `max_values` should be between 1-25 (inclusive), and more than `min_values` 
+  /// - `required` only applies to modals, and `disabled` only applies to message components
   ChannelSelect(
     custom_id: String,
     channel_types: List(Int),
@@ -207,6 +230,9 @@ pub type DefaultSelectValue =
   String
 
 pub type FileUpload {
+  /// Important notes:
+  /// - `min_values` should be between 0-10 (inclusive), and less than `max_values`
+  /// - `max_values` should be between 1-10 (inclusive), and more than `min_values` 
   FileUpload(
     custom_id: String,
     min_values: Int,
@@ -217,10 +243,16 @@ pub type FileUpload {
 }
 
 pub type RadioGroup {
+  /// Important notes:
+  /// - number of elements in `options` should be between 2-10 (inclusive)
   RadioGroup(custom_id: String, options: List(GroupOption), required: Bool)
 }
 
 pub type CheckboxGroup {
+  /// Important notes:
+  /// - number of elements in `options` should be between `min_values` and `max_values`
+  /// - `min_values` should be between 0-10 (inclusive), and less than `max_values`
+  /// - `max_values` should be between 1-10 (inclusive), and more than `min_values` 
   CheckboxGroup(
     custom_id: String,
     options: List(GroupOption),
