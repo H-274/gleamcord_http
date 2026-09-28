@@ -1,4 +1,7 @@
 import gleam/dict.{type Dict}
+import gleam/dynamic.{type Dynamic}
+import gleam/option.{type Option}
+import gleamcord_http/locale.{type Locale}
 
 pub type Interaction {
   ApplicationPingInteraction(PingInteraction)
@@ -15,7 +18,26 @@ pub type PingInteraction {
 }
 
 pub type CommandInteraction {
-  CommandInteraction
+  CommandInteraction(
+    id: String,
+    application_id: String,
+    data: Nil,
+    guild: Option(Dynamic),
+    guild_id: Option(String),
+    channel: Option(Dynamic),
+    channel_id: Option(String),
+    member: Option(Dynamic),
+    user: Option(Dynamic),
+    token: String,
+    version: String,
+    app_permissions: String,
+    locale: Option(Locale),
+    guild_locale: Option(Locale),
+    entitlements: List(Dynamic),
+    authorizing_integration_owners: Dict(Dynamic, Dynamic),
+    context: Int,
+    attachment_size_limit: Int,
+  )
 }
 
 pub const string_min_len = 0
