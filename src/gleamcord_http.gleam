@@ -1,4 +1,5 @@
 import gleam/dict.{type Dict}
+import gleam/dynamic.{type Dynamic}
 import gleam/list
 import gleam/string
 import gleamcord_http/component
@@ -262,7 +263,7 @@ fn autocomplete_list(
   }
 }
 
-pub type MessageComponent {
+pub type GleamcordComponent {
   Button(component: component.InteractiveButton, handler: ButtonHandler)
   StringSelect(component: component.StringSelect, handler: SelectHandler)
   UserSelect(component: component.UserSelect, handler: SelectHandler)
@@ -272,6 +273,40 @@ pub type MessageComponent {
     handler: SelectHandler,
   )
   ChannelSelect(component: component.ChannelSelect, handler: SelectHandler)
+}
+
+pub fn component_tuple(component: GleamcordComponent) {
+  case component {
+    Button(component:, handler:) -> #(
+      component.custom_id,
+      ComponentButtonHandler(handler),
+    )
+    StringSelect(component:, handler:) -> #(
+      component.custom_id,
+      ComponentSelectHandler(handler),
+    )
+    UserSelect(component:, handler:) -> #(
+      component.custom_id,
+      ComponentSelectHandler(handler),
+    )
+    RoleSelect(component:, handler:) -> #(
+      component.custom_id,
+      ComponentSelectHandler(handler),
+    )
+    MentionableSelect(component:, handler:) -> #(
+      component.custom_id,
+      ComponentSelectHandler(handler),
+    )
+    ChannelSelect(component:, handler:) -> #(
+      component.custom_id,
+      ComponentSelectHandler(handler),
+    )
+  }
+}
+
+pub type ComponentHandler {
+  ComponentButtonHandler(ButtonHandler)
+  ComponentSelectHandler(SelectHandler)
 }
 
 pub type ButtonHandler =
@@ -286,4 +321,23 @@ pub type ComponentResponse {
   ComponentMessageUpdate(String)
   ComponentDeferredMessageUpdate(fn() -> String)
   ComponentModalResponse
+}
+
+pub type GleamcordModal {
+  GleamcordModal(
+    custom_id: String,
+    title: String,
+    components: List(component.Label),
+    handler: ModalHandler,
+  )
+}
+
+pub type ModalHandler =
+  fn(discord.ModalInteraction, Dict(String, Dynamic)) -> ModalResponse
+
+pub type ModalResponse {
+  ModalMessageResponse(String)
+  ModalDeferredMessageResponse(fn() -> String)
+  ModalMessageUpdate(String)
+  ModalDeferredMessageUpdate(fn() -> String)
 }

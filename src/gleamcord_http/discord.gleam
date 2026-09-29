@@ -7,6 +7,7 @@ pub type Interaction {
   ApplicationPingInteraction(PingInteraction)
   ApplicationCommandInteraction(CommandInteraction)
   ApplicationComponentInteraction(ComponentInteraction)
+  ApplicationModalInteraction(ModalInteraction)
 }
 
 pub type PingInteraction {
@@ -43,6 +44,10 @@ pub type CommandInteraction {
 
 pub type ComponentInteraction {
   ComponentInteraction
+}
+
+pub type ModalInteraction {
+  ModalInteraction
 }
 
 pub const string_min_len = 0
