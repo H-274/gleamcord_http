@@ -1,20 +1,21 @@
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/string
+import gleamcord_http/component
 import gleamcord_http/discord
 
 pub type GleamcordCommand {
   ChatCommand(
     definition: CommandDefinition,
     options: List(CommandOption),
-    handle: ChatCommandHandler,
+    handler: ChatCommandHandler,
   )
   ChatCommandGroup(
     definition: CommandDefinition,
     elements: List(CommandGroupElement),
   )
-  UserCommand(definition: CommandDefinition, handle: ContextCommandHandler)
-  MessageCommand(definition: CommandDefinition, handle: ContextCommandHandler)
+  UserCommand(definition: CommandDefinition, handler: ContextCommandHandler)
+  MessageCommand(definition: CommandDefinition, handler: ContextCommandHandler)
 }
 
 pub type CommandDefinition {
@@ -51,7 +52,7 @@ pub type SubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    handle: ChatCommandHandler,
+    handler: ChatCommandHandler,
   )
 }
 
@@ -195,18 +196,19 @@ pub fn command_dicts(commands: List(GleamcordCommand)) -> CommandDicts {
 
 fn command_dicts_lists(command: GleamcordCommand) -> List(CommandDicts) {
   case command {
-    ChatCommand(definition:, options:, handle:) -> {
+    ChatCommand(definition:, options:, handler:) -> {
       let command_dict =
-        dict.from_list([#(definition.name, ChatCommandHandler(handle))])
+        dict.from_list([#(definition.name, ChatCommandHandler(handler))])
       let autocomplete_dict =
         dict.from_list(autocomplete_list(definition.name, options))
       [#(command_dict, autocomplete_dict)]
     }
     ChatCommandGroup(definition:, elements:) ->
       group_elements_dicts_list(definition.name, elements)
-    UserCommand(definition:, handle:) | MessageCommand(definition:, handle:) -> {
+    UserCommand(definition:, handler:)
+    | MessageCommand(definition:, handler:) -> {
       let command_dict =
-        dict.from_list([#(definition.name, ContextCommandHandler(handle))])
+        dict.from_list([#(definition.name, ContextCommandHandler(handler))])
       [#(command_dict, dict.new())]
     }
   }
@@ -234,7 +236,7 @@ fn sub_command_dicts(
 ) -> CommandDicts {
   let path = string.join([command_path, sub_command.name], "/")
   let command_dict =
-    dict.from_list([#(path, ChatCommandHandler(sub_command.handle))])
+    dict.from_list([#(path, ChatCommandHandler(sub_command.handler))])
   let autocomplete_dict =
     dict.from_list(autocomplete_list(path, sub_command.options))
   #(command_dict, autocomplete_dict)
@@ -258,4 +260,30 @@ fn autocomplete_list(
       #(path, NumberAutocompleteHandler(autocomplete)) |> Ok
     _ -> Error(Nil)
   }
+}
+
+pub type MessageComponent {
+  Button(component: component.InteractiveButton, handler: ButtonHandler)
+  StringSelect(component: component.StringSelect, handler: SelectHandler)
+  UserSelect(component: component.UserSelect, handler: SelectHandler)
+  RoleSelect(component: component.RoleSelect, handler: SelectHandler)
+  MentionableSelect(
+    component: component.MentionableSelect,
+    handler: SelectHandler,
+  )
+  ChannelSelect(component: component.ChannelSelect, handler: SelectHandler)
+}
+
+pub type ButtonHandler =
+  fn(discord.ComponentInteraction) -> ComponentResponse
+
+pub type SelectHandler =
+  fn(discord.ComponentInteraction, List(String)) -> ComponentResponse
+
+pub type ComponentResponse {
+  ComponentMessageResponse(String)
+  ComponentDeferredMessageResponse(fn() -> String)
+  ComponentMessageUpdate(String)
+  ComponentDeferredMessageUpdate(fn() -> String)
+  ComponentModalResponse
 }

@@ -9,7 +9,7 @@ pub const hello_command = gleamcord_http.ChatCommand(
     description: "greets a name",
   ),
   options: [name_option],
-  handle: hello_handle,
+  handler: hello_handler,
 )
 
 const name_option = gleamcord_http.StringOption(
@@ -20,7 +20,7 @@ const name_option = gleamcord_http.StringOption(
   max_length: 128,
 )
 
-fn hello_handle(
+fn hello_handler(
   _i: discord.CommandInteraction,
   o: Dict(String, discord.ValueOption),
 ) -> gleamcord_http.CommandResponse {
@@ -57,10 +57,10 @@ const ping_sub_command = gleamcord_http.SubCommand(
   name: "ping",
   description: "pongs",
   options: [],
-  handle: ping_handle,
+  handler: ping_handler,
 )
 
-fn ping_handle(
+fn ping_handler(
   _i: discord.CommandInteraction,
   _o: Dict(String, discord.ValueOption),
 ) {
@@ -72,10 +72,10 @@ const slow_sub_command = gleamcord_http.SubCommand(
   name: "slow",
   description: "slow command",
   options: [],
-  handle: slow_handle,
+  handler: slow_handler,
 )
 
-fn slow_handle(
+fn slow_handler(
   _i: discord.CommandInteraction,
   _o: Dict(String, discord.ValueOption),
 ) {

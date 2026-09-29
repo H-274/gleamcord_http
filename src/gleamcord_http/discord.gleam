@@ -6,6 +6,7 @@ import gleamcord_http/locale.{type Locale}
 pub type Interaction {
   ApplicationPingInteraction(PingInteraction)
   ApplicationCommandInteraction(CommandInteraction)
+  ApplicationComponentInteraction(ComponentInteraction)
 }
 
 pub type PingInteraction {
@@ -38,6 +39,10 @@ pub type CommandInteraction {
     context: Int,
     attachment_size_limit: Int,
   )
+}
+
+pub type ComponentInteraction {
+  ComponentInteraction
 }
 
 pub const string_min_len = 0
