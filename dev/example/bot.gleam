@@ -68,7 +68,7 @@ pub fn add_commands_safe(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
   |> Ok
 }
 
-/// Add the list of commands to the bot, overwritting old commands, and pruning old autocomplete handlers.
+/// Add the list of commands to the bot, overwriting old commands, and pruning old autocomplete handlers.
 pub fn add_commands(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
   let Bot(commands:, command_handler_dict:, autocomplete_handler_dict:, ..) =
     bot
