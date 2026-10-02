@@ -108,7 +108,24 @@ fn group_element_json(
   group_element: CommandGroupElement,
   translator: locale.Translator,
 ) {
-  todo
+  case group_element {
+    SubCommandGroup(name:, description:, sub_commands:) ->
+      [
+        #("name", json.string(name)),
+        #(
+          "name_localizations",
+          json.dict(translator(name), locale.to_string, json.string),
+        ),
+        #("description", json.string(description)),
+        #(
+          "description_localizations",
+          json.dict(translator(description), locale.to_string, json.string),
+        ),
+        #("options", json.array(sub_commands, sub_command_json(_, translator))),
+      ]
+      |> json.object
+    SubCommandElement(sub_command) -> sub_command_json(sub_command, translator)
+  }
 }
 
 pub type SubCommand {
@@ -118,6 +135,28 @@ pub type SubCommand {
     options: List(CommandOption),
     handler: ChatCommandHandler,
   )
+}
+
+pub fn sub_command_json(
+  sub_command: SubCommand,
+  translator: locale.Translator,
+) {
+  let SubCommand(name:, description:, options:, ..) = sub_command
+
+  [
+    #("name", json.string(name)),
+    #(
+      "name_localizations",
+      json.dict(translator(name), locale.to_string, json.string),
+    ),
+    #("description", json.string(description)),
+    #(
+      "description_localizations",
+      json.dict(translator(description), locale.to_string, json.string),
+    ),
+    #("options", json.array(options, option_json(_, translator))),
+  ]
+  |> json.object
 }
 
 pub type CommandOption {
@@ -132,7 +171,7 @@ pub type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    choices: List(#(String, String)),
+    choices: List(OptionChoice(String)),
   )
   StringAutocompleteOption(
     name: String,
@@ -153,7 +192,7 @@ pub type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    choices: List(#(String, Int)),
+    choices: List(OptionChoice(Int)),
   )
   IntegerAutocompleteOption(
     name: String,
@@ -184,7 +223,7 @@ pub type CommandOption {
     name: String,
     description: String,
     required: Bool,
-    choices: List(#(String, Float)),
+    choices: List(OptionChoice(Float)),
   )
   NumberAutocompleteOption(
     name: String,
@@ -215,21 +254,69 @@ fn option_json(command_option: CommandOption, translator: locale.Translator) {
     ),
     #("required", json.bool(command_option.required)),
     ..case command_option {
-      StringOption(min_length:, max_length:, ..) -> todo
-      StringChoicesOption(choices:, ..) -> todo
-      StringAutocompleteOption(min_length:, max_length:, ..) -> todo
-      IntegerOption(min_value:, max_value:, ..) -> todo
-      IntegerChoicesOption(choices:, ..) -> todo
-      IntegerAutocompleteOption(min_value:, max_value:, ..) -> todo
-      BooleanOption(..) -> todo
-      UserOption(..) -> todo
-      ChannelOption(channel_types:, ..) -> todo
-      RoleOption(..) -> todo
-      MentionableOption(..) -> todo
-      NumberOption(min_value:, max_value:, ..) -> todo
-      NumberChoicesOption(choices:, ..) -> todo
-      NumberAutocompleteOption(min_value:, max_value:, ..) -> todo
-      AttachmentOption(..) -> todo
+      StringOption(min_length:, max_length:, ..) -> [
+        #("type", json.int(3)),
+        #("min_length", json.int(min_length)),
+        #("max_length", json.int(max_length)),
+      ]
+      StringChoicesOption(choices:, ..) -> [
+        #("type", json.int(3)),
+        #(
+          "choices",
+          json.array(choices, option_choice_json(_, json.string, translator)),
+        ),
+      ]
+      StringAutocompleteOption(min_length:, max_length:, ..) -> [
+        #("type", json.int(3)),
+        #("min_length", json.int(min_length)),
+        #("max_length", json.int(max_length)),
+        #("autocomplete", json.bool(True)),
+      ]
+      IntegerOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(4)),
+        #("min_value", json.int(min_value)),
+        #("max_value", json.int(max_value)),
+      ]
+      IntegerChoicesOption(choices:, ..) -> [
+        #("type", json.int(4)),
+        #(
+          "choices",
+          json.array(choices, option_choice_json(_, json.int, translator)),
+        ),
+      ]
+      IntegerAutocompleteOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(4)),
+        #("min_value", json.int(min_value)),
+        #("max_value", json.int(max_value)),
+        #("autocomplete", json.bool(True)),
+      ]
+      BooleanOption(..) -> [#("type", json.int(5))]
+      UserOption(..) -> [#("type", json.int(6))]
+      ChannelOption(channel_types:, ..) -> [
+        #("type", json.int(7)),
+        #("channel_types", json.array(channel_types, json.int)),
+      ]
+      RoleOption(..) -> [#("type", json.int(8))]
+      MentionableOption(..) -> [#("type", json.int(9))]
+      NumberOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(10)),
+        #("min_value", json.float(min_value)),
+        #("max_value", json.float(max_value)),
+      ]
+      NumberChoicesOption(choices:, ..) -> [
+        #("type", json.int(10)),
+        #(
+          "choices",
+          json.array(choices, option_choice_json(_, json.float, translator)),
+        ),
+      ]
+      NumberAutocompleteOption(min_value:, max_value:, ..) -> [
+        #("type", json.int(10)),
+        #("min_value", json.float(min_value)),
+        #("max_value", json.float(max_value)),
+        #("autocomplete", json.bool(True)),
+      ]
+      AttachmentOption(..) -> [#("type", json.int(11))]
     }
   ]
   |> json.object
@@ -272,9 +359,9 @@ pub type NumberAutocompleteHandler =
     List(#(String, Float))
 
 pub type AutocompleteResponse {
-  StringAutocompleteResponse(StringAutocompleteResponse)
-  IntegerAutocompleteResponse(IntegerAutocompleteResponse)
-  NumberAutocompleteResponse(NumberAutocompleteResponse)
+  StringAutocompleteResponse(List(OptionChoice(String)))
+  IntegerAutocompleteResponse(List(OptionChoice(Int)))
+  NumberAutocompleteResponse(List(OptionChoice(Float)))
 }
 
 pub fn autocomplete_response_json(
@@ -318,14 +405,24 @@ pub fn autocomplete_response_json(
   }
 }
 
-pub type StringAutocompleteResponse =
-  List(#(String, String))
+pub type OptionChoice(t) =
+  #(String, t)
 
-pub type IntegerAutocompleteResponse =
-  List(#(String, Int))
-
-pub type NumberAutocompleteResponse =
-  List(#(String, Float))
+fn option_choice_json(
+  choice: OptionChoice(t),
+  apply: fn(t) -> Json,
+  translator: locale.Translator,
+) {
+  [
+    #("name", json.string(choice.0)),
+    #(
+      "name_localizations",
+      json.dict(translator(choice.0), locale.to_string, json.string),
+    ),
+    #("value", apply(choice.1)),
+  ]
+  |> json.object
+}
 
 /// Converts a list of `GleamcordCommands` to a set of dictionaries.
 /// These dictionaries are to get a certain command/autocomplete interaction's handler based on its path
