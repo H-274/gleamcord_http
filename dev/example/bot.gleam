@@ -77,22 +77,16 @@ pub fn add_commands(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
 
   let clean_commands =
     list.filter(commands, fn(c) {
-      list.any(new, fn(n) { n.definition.name != c.definition.name })
+      !list.any(new, fn(n) { n.definition.name == c.definition.name })
     })
   let clean_command_handler_dict =
-    dict.drop(
-      command_handler_dict,
-      list.filter(dict.keys(autocomplete_handler_dict), fn(k) {
-        list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
-      }),
-    )
+    dict.filter(command_handler_dict, fn(k, _) {
+      !list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
+    })
   let clean_autocomplete_handler_dict =
-    dict.drop(
-      autocomplete_handler_dict,
-      list.filter(dict.keys(autocomplete_handler_dict), fn(k) {
-        list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
-      }),
-    )
+    dict.filter(autocomplete_handler_dict, fn(k, _) {
+      !list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
+    })
 
   Bot(
     ..bot,
