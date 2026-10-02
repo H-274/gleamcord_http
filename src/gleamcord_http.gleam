@@ -282,42 +282,39 @@ pub fn autocomplete_response_json(
   translator: locale.Translator,
 ) {
   case autocomplete_response {
-    StringAutocompleteResponse(r) -> {
-      use e <- json.array(r)
-      [
-        #("name", json.string(e.0)),
-        #(
-          "name_localizations",
-          json.dict(translator(e.0), locale.to_string, json.string),
-        ),
-        #("value", json.string(e.1)),
-      ]
-      |> json.object
-    }
-    IntegerAutocompleteResponse(r) -> {
-      use e <- json.array(r)
-      [
-        #("name", json.string(e.0)),
-        #(
-          "name_localizations",
-          json.dict(translator(e.0), locale.to_string, json.string),
-        ),
-        #("value", json.int(e.1)),
-      ]
-      |> json.object
-    }
-    NumberAutocompleteResponse(r) -> {
-      use e <- json.array(r)
-      [
-        #("name", json.string(e.0)),
-        #(
-          "name_localizations",
-          json.dict(translator(e.0), locale.to_string, json.string),
-        ),
-        #("value", json.float(e.1)),
-      ]
-      |> json.object
-    }
+    StringAutocompleteResponse(r) ->
+      json.array(r, fn(e) {
+        json.object([
+          #("name", json.string(e.0)),
+          #(
+            "name_localizations",
+            json.dict(translator(e.0), locale.to_string, json.string),
+          ),
+          #("value", json.string(e.1)),
+        ])
+      })
+    IntegerAutocompleteResponse(r) ->
+      json.array(r, fn(e) {
+        json.object([
+          #("name", json.string(e.0)),
+          #(
+            "name_localizations",
+            json.dict(translator(e.0), locale.to_string, json.string),
+          ),
+          #("value", json.int(e.1)),
+        ])
+      })
+    NumberAutocompleteResponse(r) ->
+      json.array(r, fn(e) {
+        json.object([
+          #("name", json.string(e.0)),
+          #(
+            "name_localizations",
+            json.dict(translator(e.0), locale.to_string, json.string),
+          ),
+          #("value", json.float(e.1)),
+        ])
+      })
   }
 }
 
