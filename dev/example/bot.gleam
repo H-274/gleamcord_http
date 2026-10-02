@@ -1,6 +1,7 @@
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
+import gleam/option
 import gleam/string
 import gleamcord_http
 import gleamcord_http/discord
@@ -50,11 +51,11 @@ pub fn add_commands_safe(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
     bot
   let new_dicts = gleamcord_http.command_dicts(new)
 
-  let command_key_collision =
+  let command_collision =
     list.any(dict.keys(new_dicts.0), fn(k) {
-      dict.has_key(command_handler_dict, k)
+      list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
     })
-  use <- bool.guard(command_key_collision, Error(Nil))
+  use <- bool.guard(command_collision, Error(Nil))
 
   Bot(
     ..bot,
@@ -74,30 +75,31 @@ pub fn add_commands(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
     bot
   let new_dicts = gleamcord_http.command_dicts(new)
 
-  let command_collisions =
-    list.filter(dict.keys(new_dicts.0), fn(k) {
-      dict.has_key(command_handler_dict, k)
-    })
-
-  let commands =
+  let clean_commands =
     list.filter(commands, fn(c) {
       list.any(new, fn(n) { n.definition.name != c.definition.name })
     })
-  let command_handler_dict = dict.drop(command_handler_dict, command_collisions)
-  let autocomplete_handler_dict =
+  let clean_command_handler_dict =
+    dict.drop(
+      command_handler_dict,
+      list.filter(dict.keys(autocomplete_handler_dict), fn(k) {
+        list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
+      }),
+    )
+  let clean_autocomplete_handler_dict =
     dict.drop(
       autocomplete_handler_dict,
       list.filter(dict.keys(autocomplete_handler_dict), fn(k) {
-        list.any(command_collisions, string.starts_with(k, _))
+        list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
       }),
     )
 
   Bot(
     ..bot,
-    commands: list.append(commands, new),
-    command_handler_dict: dict.merge(command_handler_dict, new_dicts.0),
+    commands: list.append(clean_commands, new),
+    command_handler_dict: dict.merge(clean_command_handler_dict, new_dicts.0),
     autocomplete_handler_dict: dict.merge(
-      autocomplete_handler_dict,
+      clean_autocomplete_handler_dict,
       new_dicts.1,
     ),
   )
@@ -107,10 +109,11 @@ pub fn add_commands(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
 pub fn handle_command(bot: Bot, interaction: discord.CommandInteraction) {
   let #(path, options) = todo as "grab interaction path and options"
 
-  case dict.get(bot.command_handler_dict, path) {
-    Ok(gleamcord_http.ChatCommandHandler(handler)) ->
-      handler(interaction, options)
-    Ok(gleamcord_http.ContextCommandHandler(handler)) -> handler(interaction)
-    Error(_) -> todo as "Command not found"
+  case dict.get(bot.command_handler_dict, path), options {
+    Ok(gleamcord_http.ChatCommandHandler(handler)), option.Some(o) ->
+      handler(interaction, o)
+    Ok(gleamcord_http.ContextCommandHandler(handler)), option.None ->
+      handler(interaction)
+    _, _ -> todo as "Command not found"
   }
 }
