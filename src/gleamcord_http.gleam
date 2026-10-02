@@ -1,9 +1,11 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
+import gleam/json.{type Json}
 import gleam/list
 import gleam/string
 import gleamcord_http/component
 import gleamcord_http/discord
+import gleamcord_http/locale
 
 pub type GleamcordCommand {
   ChatCommand(
@@ -19,6 +21,29 @@ pub type GleamcordCommand {
   MessageCommand(definition: CommandDefinition, handler: ContextCommandHandler)
 }
 
+pub fn command_json(
+  command: GleamcordCommand,
+  translator: locale.Translator,
+) -> Json {
+  let def_json = command_def_json_list(command.definition, translator)
+
+  case command {
+    ChatCommand(options:, ..) -> [
+      #("type", json.int(1)),
+      #("options", json.array(options, option_json(_, translator))),
+      ..def_json
+    ]
+    ChatCommandGroup(elements:, ..) -> [
+      #("type", json.int(1)),
+      #("options", json.array(elements, group_element_json(_, translator))),
+      ..def_json
+    ]
+    UserCommand(..) -> [#("type", json.int(2)), ..def_json]
+    MessageCommand(..) -> [#("type", json.int(3)), ..def_json]
+  }
+  |> json.object
+}
+
 pub type CommandDefinition {
   CommandDefinition(
     name: String,
@@ -28,6 +53,37 @@ pub type CommandDefinition {
     contexts: List(Int),
     nsfw: Bool,
   )
+}
+
+fn command_def_json_list(
+  command_definition: CommandDefinition,
+  translator: locale.Translator,
+) -> List(#(String, Json)) {
+  let CommandDefinition(
+    name:,
+    description:,
+    default_member_permissions:,
+    integration_types:,
+    contexts:,
+    nsfw:,
+  ) = command_definition
+
+  [
+    #("name", json.string(name)),
+    #(
+      "name_localizations",
+      json.dict(translator(name), locale.to_string, json.string),
+    ),
+    #("description", json.string(description)),
+    #(
+      "description_localizations",
+      json.dict(translator(description), locale.to_string, json.string),
+    ),
+    #("default_member_permissions", json.string(default_member_permissions)),
+    #("integration_types", json.array(integration_types, json.int)),
+    #("contexts", json.array(contexts, json.int)),
+    #("nsfw", json.bool(nsfw)),
+  ]
 }
 
 pub const guild_command_definition = CommandDefinition(
@@ -46,6 +102,13 @@ pub type CommandGroupElement {
     sub_commands: List(SubCommand),
   )
   SubCommandElement(SubCommand)
+}
+
+fn group_element_json(
+  group_element: CommandGroupElement,
+  translator: locale.Translator,
+) {
+  todo
 }
 
 pub type SubCommand {
@@ -134,6 +197,44 @@ pub type CommandOption {
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
+fn option_json(command_option: CommandOption, translator: locale.Translator) {
+  [
+    #("name", json.string(command_option.name)),
+    #(
+      "name_localizations",
+      json.dict(translator(command_option.name), locale.to_string, json.string),
+    ),
+    #("description", json.string(command_option.description)),
+    #(
+      "description_localizations",
+      json.dict(
+        translator(command_option.description),
+        locale.to_string,
+        json.string,
+      ),
+    ),
+    #("required", json.bool(command_option.required)),
+    ..case command_option {
+      StringOption(min_length:, max_length:, ..) -> todo
+      StringChoicesOption(choices:, ..) -> todo
+      StringAutocompleteOption(min_length:, max_length:, ..) -> todo
+      IntegerOption(min_value:, max_value:, ..) -> todo
+      IntegerChoicesOption(choices:, ..) -> todo
+      IntegerAutocompleteOption(min_value:, max_value:, ..) -> todo
+      BooleanOption(..) -> todo
+      UserOption(..) -> todo
+      ChannelOption(channel_types:, ..) -> todo
+      RoleOption(..) -> todo
+      MentionableOption(..) -> todo
+      NumberOption(min_value:, max_value:, ..) -> todo
+      NumberChoicesOption(choices:, ..) -> todo
+      NumberAutocompleteOption(min_value:, max_value:, ..) -> todo
+      AttachmentOption(..) -> todo
+    }
+  ]
+  |> json.object
+}
+
 pub type CommandHandler {
   ChatCommandHandler(ChatCommandHandler)
   ContextCommandHandler(ContextCommandHandler)
@@ -174,6 +275,50 @@ pub type AutocompleteResponse {
   StringAutocompleteResponse(StringAutocompleteResponse)
   IntegerAutocompleteResponse(IntegerAutocompleteResponse)
   NumberAutocompleteResponse(NumberAutocompleteResponse)
+}
+
+pub fn autocomplete_response_json(
+  autocomplete_response: AutocompleteResponse,
+  translator: locale.Translator,
+) {
+  case autocomplete_response {
+    StringAutocompleteResponse(r) -> {
+      use e <- json.array(r)
+      [
+        #("name", json.string(e.0)),
+        #(
+          "name_localizations",
+          json.dict(translator(e.0), locale.to_string, json.string),
+        ),
+        #("value", json.string(e.1)),
+      ]
+      |> json.object
+    }
+    IntegerAutocompleteResponse(r) -> {
+      use e <- json.array(r)
+      [
+        #("name", json.string(e.0)),
+        #(
+          "name_localizations",
+          json.dict(translator(e.0), locale.to_string, json.string),
+        ),
+        #("value", json.int(e.1)),
+      ]
+      |> json.object
+    }
+    NumberAutocompleteResponse(r) -> {
+      use e <- json.array(r)
+      [
+        #("name", json.string(e.0)),
+        #(
+          "name_localizations",
+          json.dict(translator(e.0), locale.to_string, json.string),
+        ),
+        #("value", json.float(e.1)),
+      ]
+      |> json.object
+    }
+  }
 }
 
 pub type StringAutocompleteResponse =
