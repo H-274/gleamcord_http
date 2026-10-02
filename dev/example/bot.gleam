@@ -79,6 +79,10 @@ pub fn add_commands(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
       dict.has_key(command_handler_dict, k)
     })
 
+  let commands =
+    list.filter(commands, fn(c) {
+      list.any(new, fn(n) { n.definition.name != c.definition.name })
+    })
   let command_handler_dict = dict.drop(command_handler_dict, command_collisions)
   let autocomplete_handler_dict =
     dict.drop(
