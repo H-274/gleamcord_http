@@ -137,10 +137,7 @@ pub type SubCommand {
   )
 }
 
-pub fn sub_command_json(
-  sub_command: SubCommand,
-  translator: locale.Translator,
-) {
+fn sub_command_json(sub_command: SubCommand, translator: locale.Translator) {
   let SubCommand(name:, description:, options:, ..) = sub_command
 
   [
