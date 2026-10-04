@@ -513,31 +513,47 @@ pub type GleamcordComponent {
 
 pub fn component_tuple(component: GleamcordComponent) {
   case component {
-    Button(component:, handler:) -> #(
-      component.custom_id,
-      ComponentButtonHandler(handler),
-    )
-    StringSelect(component:, handler:) -> #(
-      component.custom_id,
-      ComponentSelectHandler(handler),
-    )
-    UserSelect(component:, handler:) -> #(
-      component.custom_id,
-      ComponentSelectHandler(handler),
-    )
-    RoleSelect(component:, handler:) -> #(
-      component.custom_id,
-      ComponentSelectHandler(handler),
-    )
-    MentionableSelect(component:, handler:) -> #(
-      component.custom_id,
-      ComponentSelectHandler(handler),
-    )
-    ChannelSelect(component:, handler:) -> #(
-      component.custom_id,
-      ComponentSelectHandler(handler),
-    )
+    Button(component: c, ..) -> #(c.custom_id, component)
+    StringSelect(component: c, ..) -> #(c.custom_id, component)
+    UserSelect(component: c, ..) -> #(c.custom_id, component)
+    RoleSelect(component: c, ..) -> #(c.custom_id, component)
+    MentionableSelect(component: c, ..) -> #(c.custom_id, component)
+    ChannelSelect(component: c, ..) -> #(c.custom_id, component)
   }
+}
+
+pub fn components_dict(
+  components: List(GleamcordComponent),
+) -> Dict(String, ComponentHandler) {
+  list.map(components, fn(component) {
+    case component {
+      Button(component:, handler:) -> #(
+        component.custom_id,
+        ComponentButtonHandler(handler),
+      )
+      StringSelect(component:, handler:) -> #(
+        component.custom_id,
+        ComponentSelectHandler(handler),
+      )
+      UserSelect(component:, handler:) -> #(
+        component.custom_id,
+        ComponentSelectHandler(handler),
+      )
+      RoleSelect(component:, handler:) -> #(
+        component.custom_id,
+        ComponentSelectHandler(handler),
+      )
+      MentionableSelect(component:, handler:) -> #(
+        component.custom_id,
+        ComponentSelectHandler(handler),
+      )
+      ChannelSelect(component:, handler:) -> #(
+        component.custom_id,
+        ComponentSelectHandler(handler),
+      )
+    }
+  })
+  |> dict.from_list
 }
 
 pub type ComponentHandler {
