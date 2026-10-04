@@ -23,13 +23,11 @@ pub fn next_button_handler(_i) {
 pub fn tag_select() {
   gleamcord_http.StringSelect(
     component: StringSelect(
+      ..component.default_string_select,
       custom_id: "tag-select",
       options: get_tags(),
       placeholder: "Tags",
-      min_values: 1,
       max_values: 3,
-      required: True,
-      disabled: False,
     ),
     handler: tag_select_handler,
   )
