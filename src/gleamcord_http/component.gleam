@@ -127,6 +127,16 @@ pub type StringSelect {
   )
 }
 
+pub const default_string_select = StringSelect(
+  custom_id: "todo",
+  options: [],
+  placeholder: "",
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
+
 pub type SelectOption {
   SelectOption(
     label: String,
@@ -136,6 +146,14 @@ pub type SelectOption {
     default: Bool,
   )
 }
+
+pub const default_select_option = SelectOption(
+  label: "todo",
+  value: "todo",
+  description: "",
+  emoji: option.None,
+  default: False,
+)
 
 pub type TextInput {
   ShortTextInput(
@@ -156,6 +174,24 @@ pub type TextInput {
   )
 }
 
+pub const default_short_text = ShortTextInput(
+  custom_id: "todo",
+  min_length: 1,
+  max_length: 4000,
+  required: True,
+  value: "",
+  placeholder: "",
+)
+
+pub const default_long_text = LongTextInput(
+  custom_id: "todo",
+  min_length: 1,
+  max_length: 4000,
+  required: True,
+  value: "",
+  placeholder: "",
+)
+
 pub type UserSelect {
   /// Important notes:
   /// - number of elements in `default_values` should be between `min_values` and `max_values`
@@ -172,6 +208,16 @@ pub type UserSelect {
     disabled: Bool,
   )
 }
+
+pub const default_user_select = UserSelect(
+  custom_id: "todo",
+  default_values: [],
+  placeholder: "",
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
 
 pub type RoleSelect {
   /// Important notes:
@@ -190,6 +236,16 @@ pub type RoleSelect {
   )
 }
 
+pub const default_role_select = RoleSelect(
+  custom_id: "todo",
+  default_values: [],
+  placeholder: "",
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
+
 pub type MentionableSelect {
   /// Important notes:
   /// - number of elements in `options` should be between `min_values` and `max_values`
@@ -206,6 +262,16 @@ pub type MentionableSelect {
     disabled: Bool,
   )
 }
+
+pub const default_mentionable_select = MentionableSelect(
+  custom_id: "todo",
+  default_values: [],
+  placeholder: "",
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
 
 pub type ChannelSelect {
   /// Important notes:
@@ -224,6 +290,17 @@ pub type ChannelSelect {
     disabled: Bool,
   )
 }
+
+pub const default_channel_select = ChannelSelect(
+  custom_id: "todo",
+  channel_types: [],
+  placeholder: "",
+  default_values: [],
+  min_values: 1,
+  max_values: 1,
+  required: True,
+  disabled: False,
+)
 
 /// Representing the snowflake of the select component's type
 pub type DefaultSelectValue =
