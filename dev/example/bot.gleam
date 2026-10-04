@@ -2,6 +2,7 @@ import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option
+import gleam/result
 import gleamcord_http
 import gleamcord_http/discord
 
@@ -70,15 +71,16 @@ pub fn add_commands(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
   let new_handler_dicts = gleamcord_http.command_dicts(new)
   let new = dict.from_list(list.map(new, fn(n) { #(n.definition.name, n) }))
 
-  let collisions = dict.filter(commands, fn(k, _) { dict.has_key(new, k) })
-  let collision_paths = dict.values(collisions) |> gleamcord_http.command_dicts
+  let collisions =
+    list.map(dict.keys(new), dict.get(commands, _)) |> result.values
+  let collision_dicts = gleamcord_http.command_dicts(collisions)
 
   let commands = dict.merge(commands, new)
   let command_handler_dict =
-    dict.drop(command_handler_dict, dict.keys(collision_paths.0))
+    dict.drop(command_handler_dict, dict.keys(collision_dicts.0))
     |> dict.merge(new_handler_dicts.0)
   let autocomplete_handler_dict =
-    dict.drop(autocomplete_handler_dict, dict.keys(collision_paths.1))
+    dict.drop(autocomplete_handler_dict, dict.keys(collision_dicts.1))
     |> dict.merge(new_handler_dicts.1)
 
   Ok(Bot(..bot, commands:, command_handler_dict:, autocomplete_handler_dict:))
