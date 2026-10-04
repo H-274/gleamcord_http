@@ -2,15 +2,14 @@ import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/list
 import gleam/option
-import gleam/string
 import gleamcord_http
 import gleamcord_http/discord
 
 pub opaque type Bot {
   Bot(
-    commands: List(gleamcord_http.GleamcordCommand),
-    components: List(gleamcord_http.GleamcordComponent),
-    modals: List(gleamcord_http.GleamcordModal),
+    commands: Dict(String, gleamcord_http.GleamcordCommand),
+    components: Dict(String, gleamcord_http.GleamcordComponent),
+    modals: Dict(String, gleamcord_http.GleamcordModal),
     command_handler_dict: Dict(String, gleamcord_http.CommandHandler),
     autocomplete_handler_dict: Dict(String, gleamcord_http.AutocompleteHandler),
     component_handler_dict: Dict(String, gleamcord_http.ComponentHandler),
@@ -20,9 +19,9 @@ pub opaque type Bot {
 
 pub fn bot() {
   Bot(
-    commands: [],
-    components: [],
-    modals: [],
+    commands: dict.new(),
+    components: dict.new(),
+    modals: dict.new(),
     command_handler_dict: dict.new(),
     autocomplete_handler_dict: dict.new(),
     component_handler_dict: dict.new(),
@@ -37,6 +36,8 @@ pub fn commands(bot: Bot) {
 pub fn set_commands(bot: Bot, commands: List(gleamcord_http.GleamcordCommand)) {
   let #(command_handler_dict, autocomplete_handler_dict) =
     gleamcord_http.command_dicts(commands)
+  let commands =
+    dict.from_list(list.map(commands, fn(c) { #(c.definition.name, c) }))
 
   Bot(..bot, commands:, command_handler_dict:, autocomplete_handler_dict:)
 }
@@ -45,34 +46,40 @@ pub fn set_commands(bot: Bot, commands: List(gleamcord_http.GleamcordCommand)) {
 pub fn add_commands_safe(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
   let Bot(commands:, command_handler_dict:, autocomplete_handler_dict:, ..) =
     bot
-  let new_dicts = gleamcord_http.command_dicts(new)
+  let new_handler_dicts = gleamcord_http.command_dicts(new)
 
   let command_collision =
-    list.any(dict.keys(new_dicts.0), fn(k) {
-      list.any(new, fn(n) { string.starts_with(k, n.definition.name) })
-    })
+    list.any(new, fn(n) { dict.has_key(commands, n.definition.name) })
   use <- bool.guard(command_collision, Error(Nil))
 
-  let commands = list.append(commands, new)
-  let command_handler_dict = dict.merge(command_handler_dict, new_dicts.0)
+  let new = dict.from_list(list.map(new, fn(n) { #(n.definition.name, n) }))
+
+  let commands = dict.merge(commands, new)
+  let command_handler_dict =
+    dict.merge(command_handler_dict, new_handler_dicts.0)
   let autocomplete_handler_dict =
-    dict.merge(autocomplete_handler_dict, new_dicts.1)
+    dict.merge(autocomplete_handler_dict, new_handler_dicts.1)
 
   Ok(Bot(..bot, commands:, command_handler_dict:, autocomplete_handler_dict:))
 }
 
 /// Add the list of commands to the bot, overwriting old commands, and updating dicts
 pub fn add_commands(bot: Bot, new: List(gleamcord_http.GleamcordCommand)) {
-  let Bot(commands:, ..) = bot
+  let Bot(commands:, command_handler_dict:, autocomplete_handler_dict:, ..) =
+    bot
+  let new_handler_dicts = gleamcord_http.command_dicts(new)
+  let new = dict.from_list(list.map(new, fn(n) { #(n.definition.name, n) }))
 
-  let clean_commands =
-    list.filter(commands, fn(c) {
-      !list.any(new, fn(n) { n.definition.name == c.definition.name })
-    })
+  let collisions = dict.filter(commands, fn(k, _) { dict.has_key(new, k) })
+  let collision_paths = dict.values(collisions) |> gleamcord_http.command_dicts
 
-  let commands = clean_commands |> list.append(new)
-  let #(command_handler_dict, autocomplete_handler_dict) =
-    gleamcord_http.command_dicts(commands)
+  let commands = dict.merge(commands, new)
+  let command_handler_dict =
+    dict.drop(command_handler_dict, dict.keys(collision_paths.0))
+    |> dict.merge(new_handler_dicts.0)
+  let autocomplete_handler_dict =
+    dict.drop(autocomplete_handler_dict, dict.keys(collision_paths.1))
+    |> dict.merge(new_handler_dicts.1)
 
   Ok(Bot(..bot, commands:, command_handler_dict:, autocomplete_handler_dict:))
 }

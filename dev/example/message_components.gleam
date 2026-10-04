@@ -36,19 +36,20 @@ pub fn tag_select() {
 }
 
 fn get_tags() {
-  let tags: List(String) = todo as "get list of tags"
-  list.map(tags, fn(tag) {
-    SelectOption(
-      label: string.capitalise(tag),
-      value: tag,
-      description: "Tagged with " <> tag,
-      emoji: option.None,
-      default: False,
-    )
-  })
-  |> list.take(25)
+  // Get list of tags
+  let tags: List(String) = []
+
+  use tag <- list.map(tags)
+  SelectOption(
+    label: string.capitalise(tag),
+    value: tag,
+    description: "Tagged with " <> tag,
+    emoji: option.None,
+    default: False,
+  )
 }
 
-pub fn tag_select_handler(_i, values) {
-  todo
+pub fn tag_select_handler(_i, _values) {
+  "New results"
+  |> gleamcord_http.ComponentMessageResponse
 }
