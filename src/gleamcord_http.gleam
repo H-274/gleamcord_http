@@ -233,6 +233,61 @@ pub type CommandOption {
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
+pub const default_string_option = StringOption(
+  name: "todo",
+  description: "",
+  required: True,
+  min_length: 1,
+  max_length: 4000,
+)
+
+pub const default_string_autocomplete_option = StringAutocompleteOption(
+  name: "todo",
+  description: "",
+  required: True,
+  min_length: 1,
+  max_length: 4000,
+  autocomplete: autocomplete_identity,
+)
+
+pub const default_integer_option = IntegerOption(
+  name: "todo",
+  description: "",
+  required: True,
+  min_value: -9_007_199_254_740_991,
+  max_value: 9_007_199_254_740_991,
+)
+
+pub const default_integer_autocomplete_option = IntegerAutocompleteOption(
+  name: "todo",
+  description: "",
+  required: True,
+  min_value: -9_007_199_254_740_991,
+  max_value: 9_007_199_254_740_991,
+  autocomplete: autocomplete_identity,
+)
+
+pub const default_number_option = NumberOption(
+  name: "todo",
+  description: "",
+  required: True,
+  min_value: -1.7976931348623157e308,
+  max_value: 1.7976931348623157e308,
+)
+
+pub const default_number_autocomplete_option = NumberAutocompleteOption(
+  name: "todo",
+  description: "",
+  required: True,
+  min_value: -1.7976931348623157e308,
+  max_value: 1.7976931348623157e308,
+  autocomplete: autocomplete_identity,
+)
+
+fn autocomplete_identity(_, _, _) {
+  []
+}
+
 fn option_json(command_option: CommandOption, translator: locale.Translator) {
   [
     #("name", json.string(command_option.name)),

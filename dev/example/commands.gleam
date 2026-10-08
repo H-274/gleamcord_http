@@ -13,10 +13,8 @@ pub const hello_command = gleamcord_http.ChatCommand(
 )
 
 const name_option = gleamcord_http.StringOption(
+  ..gleamcord_http.default_string_option,
   name: "name",
-  description: "name to greet",
-  required: True,
-  min_length: 1,
   max_length: 128,
 )
 
