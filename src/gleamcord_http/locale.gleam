@@ -1,4 +1,5 @@
 import gleam/dict.{type Dict}
+import gleam/dynamic/decode
 
 const indonesian = "id"
 
@@ -97,6 +98,14 @@ pub type Locale {
   Japanese
   ChineseTW
   Korean
+}
+
+pub fn decoder() {
+  use string_locale <- decode.then(decode.string)
+  case from_string(string_locale) {
+    Ok(locale) -> decode.success(locale)
+    Error(_) -> decode.failure(Indonesian, "Locale")
+  }
 }
 
 pub fn to_string(locale: Locale) {

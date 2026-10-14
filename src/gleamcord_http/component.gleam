@@ -93,22 +93,71 @@ pub type File {
 /// Start of interactive components
 pub type Button {
   InteractiveButton(InteractiveButton)
-  LinkButton(url: String, appearance: ButtonDisplay, disabled: Bool)
+  LinkButton(url: String, label: String, emoji: Option(Dynamic), disabled: Bool)
   PremiunButton(sku_id: String, disabled: Bool)
 }
 
+pub const default_link_button =
+  LinkButton(url: "todo", label: "", emoji: option.None, disabled: False)
+
 pub type InteractiveButton {
-  PrimaryButton(custom_id: String, appearance: ButtonDisplay, disabled: Bool)
-  SecondaryButton(custom_id: String, appearance: ButtonDisplay, disabled: Bool)
-  SuccessButton(custom_id: String, appearance: ButtonDisplay, disabled: Bool)
-  DangerButton(custom_id: String, appearance: ButtonDisplay, disabled: Bool)
+  PrimaryButton(
+    custom_id: String,
+    label: String,
+    emoji: Option(Dynamic),
+    disabled: Bool,
+  )
+  SecondaryButton(
+    custom_id: String,
+    label: String,
+    emoji: Option(Dynamic),
+    disabled: Bool,
+  )
+  SuccessButton(
+    custom_id: String,
+    label: String,
+    emoji: Option(Dynamic),
+    disabled: Bool,
+  )
+  DangerButton(
+    custom_id: String,
+    label: String,
+    emoji: Option(Dynamic),
+    disabled: Bool,
+  )
 }
 
-pub type ButtonDisplay {
-  StringButton(label: String)
-  EmojiButton(emoji: Dynamic)
-  StringEmojiButton(label: String, emoji: Dynamic)
-}
+pub const default_primary_button =
+  PrimaryButton(
+    custom_id: "todo",
+    label: "",
+    emoji: option.None,
+    disabled: False,
+  )
+
+pub const default_secondary_button =
+  SecondaryButton(
+    custom_id: "todo",
+    label: "",
+    emoji: option.None,
+    disabled: False,
+  )
+
+pub const default_success_button =
+  SuccessButton(
+    custom_id: "todo",
+    label: "",
+    emoji: option.None,
+    disabled: False,
+  )
+
+pub const default_danger_button =
+  DangerButton(
+    custom_id: "todo",
+    label: "",
+    emoji: option.None,
+    disabled: False,
+  )
 
 pub type StringSelect {
   /// Important notes:
@@ -127,15 +176,16 @@ pub type StringSelect {
   )
 }
 
-pub const default_string_select = StringSelect(
-  custom_id: "todo",
-  options: [],
-  placeholder: "",
-  min_values: 1,
-  max_values: 1,
-  required: True,
-  disabled: False,
-)
+pub const default_string_select =
+  StringSelect(
+    custom_id: "todo",
+    options: [],
+    placeholder: "",
+    min_values: 1,
+    max_values: 1,
+    required: True,
+    disabled: False,
+  )
 
 pub type SelectOption {
   SelectOption(
@@ -147,13 +197,14 @@ pub type SelectOption {
   )
 }
 
-pub const default_select_option = SelectOption(
-  label: "todo",
-  value: "todo",
-  description: "",
-  emoji: option.None,
-  default: False,
-)
+pub const default_select_option =
+  SelectOption(
+    label: "todo",
+    value: "todo",
+    description: "",
+    emoji: option.None,
+    default: False,
+  )
 
 pub type TextInput {
   ShortTextInput(
@@ -174,23 +225,25 @@ pub type TextInput {
   )
 }
 
-pub const default_short_text = ShortTextInput(
-  custom_id: "todo",
-  min_length: 1,
-  max_length: 4000,
-  required: True,
-  value: "",
-  placeholder: "",
-)
+pub const default_short_text =
+  ShortTextInput(
+    custom_id: "todo",
+    min_length: 1,
+    max_length: 4000,
+    required: True,
+    value: "",
+    placeholder: "",
+  )
 
-pub const default_long_text = LongTextInput(
-  custom_id: "todo",
-  min_length: 1,
-  max_length: 4000,
-  required: True,
-  value: "",
-  placeholder: "",
-)
+pub const default_long_text =
+  LongTextInput(
+    custom_id: "todo",
+    min_length: 1,
+    max_length: 4000,
+    required: True,
+    value: "",
+    placeholder: "",
+  )
 
 pub type UserSelect {
   /// Important notes:
@@ -209,15 +262,16 @@ pub type UserSelect {
   )
 }
 
-pub const default_user_select = UserSelect(
-  custom_id: "todo",
-  default_values: [],
-  placeholder: "",
-  min_values: 1,
-  max_values: 1,
-  required: True,
-  disabled: False,
-)
+pub const default_user_select =
+  UserSelect(
+    custom_id: "todo",
+    default_values: [],
+    placeholder: "",
+    min_values: 1,
+    max_values: 1,
+    required: True,
+    disabled: False,
+  )
 
 pub type RoleSelect {
   /// Important notes:
@@ -236,15 +290,16 @@ pub type RoleSelect {
   )
 }
 
-pub const default_role_select = RoleSelect(
-  custom_id: "todo",
-  default_values: [],
-  placeholder: "",
-  min_values: 1,
-  max_values: 1,
-  required: True,
-  disabled: False,
-)
+pub const default_role_select =
+  RoleSelect(
+    custom_id: "todo",
+    default_values: [],
+    placeholder: "",
+    min_values: 1,
+    max_values: 1,
+    required: True,
+    disabled: False,
+  )
 
 pub type MentionableSelect {
   /// Important notes:
@@ -263,15 +318,16 @@ pub type MentionableSelect {
   )
 }
 
-pub const default_mentionable_select = MentionableSelect(
-  custom_id: "todo",
-  default_values: [],
-  placeholder: "",
-  min_values: 1,
-  max_values: 1,
-  required: True,
-  disabled: False,
-)
+pub const default_mentionable_select =
+  MentionableSelect(
+    custom_id: "todo",
+    default_values: [],
+    placeholder: "",
+    min_values: 1,
+    max_values: 1,
+    required: True,
+    disabled: False,
+  )
 
 pub type ChannelSelect {
   /// Important notes:
@@ -291,16 +347,17 @@ pub type ChannelSelect {
   )
 }
 
-pub const default_channel_select = ChannelSelect(
-  custom_id: "todo",
-  channel_types: [],
-  placeholder: "",
-  default_values: [],
-  min_values: 1,
-  max_values: 1,
-  required: True,
-  disabled: False,
-)
+pub const default_channel_select =
+  ChannelSelect(
+    custom_id: "todo",
+    channel_types: [],
+    placeholder: "",
+    default_values: [],
+    min_values: 1,
+    max_values: 1,
+    required: True,
+    disabled: False,
+  )
 
 /// Representing the snowflake of the select component's type
 pub type DefaultSelectValue =
