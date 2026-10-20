@@ -76,7 +76,7 @@ pub type CommandInteraction {
 fn command_interaction_decoder() {
   use id <- decode.field("id", decode.string)
   use application_id <- decode.field("application_id", decode.string)
-  use data <- decode.field("data", todo)
+  use data <- decode.field("data", command_interaction_data_decoder())
   use guild <- decode.optional_field(
     "guild",
     option.None,
@@ -155,7 +155,7 @@ pub type CommandInteractionData {
     id: String,
     name: String,
     resolved: Resolved,
-    options: Nil,
+    options: CommandOptions,
     guild_id: Option(String),
   )
   MessageCommandData(
@@ -174,7 +174,96 @@ pub type CommandInteractionData {
   )
 }
 
-pub type CommandOption
+fn command_interaction_data_decoder() {
+  use typ <- decode.field("type", decode.int)
+  use id <- decode.field("id", decode.string)
+  use name <- decode.field("name", decode.string)
+  use resolved <- decode.optional_field(
+    "resolved",
+    empty_resolved(),
+    resolved_decoder(),
+  )
+  use guild_id <- decode.optional_field(
+    "guild_id",
+    option.None,
+    decode.optional(decode.string),
+  )
+
+  case typ {
+    1 ->
+      decode.at(
+        ["options"],
+        command_options_decoder()
+          |> decode.map(ChatCommandData(
+            id:,
+            name:,
+            resolved:,
+            options: _,
+            guild_id:,
+          )),
+      )
+    2 ->
+      decode.at(["target_id"], decode.string)
+      |> decode.map(MessageCommandData(
+        id:,
+        name:,
+        resolved:,
+        guild_id:,
+        target_id: _,
+      ))
+    3 ->
+      decode.at(["target_id"], decode.string)
+      |> decode.map(UserCommandData(
+        id:,
+        name:,
+        resolved:,
+        guild_id:,
+        target_id: _,
+      ))
+    _ ->
+      decode.failure(
+        ChatCommandData("", "", empty_resolved(), ValueOptions([]), option.None),
+        "CommandInteractionData",
+      )
+  }
+}
+
+pub type CommandOptions {
+  SubCommandGroupOption(name: String, options: SubCommand)
+  SubCommandOption(SubCommand)
+  ValueOptions(List(ValueOption))
+}
+
+pub fn command_options_decoder() {
+  use first_type <- decode.field(0, decode.at(["type"], decode.int))
+  case first_type {
+    1 ->
+      decode.at([0], {
+        sub_command_decoder()
+        |> decode.map(SubCommandOption)
+      })
+    2 ->
+      decode.at([0], {
+        use name <- decode.field("name", decode.string)
+        use options <- decode.field("options", sub_command_decoder())
+        decode.success(SubCommandGroupOption(name:, options:))
+      })
+    3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 ->
+      decode.list(value_option_decoder())
+      |> decode.map(ValueOptions)
+    _ -> decode.failure(ValueOptions([]), "CommandOptions")
+  }
+}
+
+pub type SubCommand {
+  SubCommand(name: String, options: List(ValueOption))
+}
+
+fn sub_command_decoder() -> decode.Decoder(SubCommand) {
+  use name <- decode.field("name", decode.string)
+  use options <- decode.field("options", decode.list(value_option_decoder()))
+  decode.success(SubCommand(name:, options:))
+}
 
 pub type ComponentInteraction {
   ComponentInteraction
@@ -194,6 +283,61 @@ pub type ValueOption {
   MentionableOption(name: String, value: String)
   NumberOption(name: String, value: Float, focused: Bool)
   AttachmentOption(name: String, value: String)
+}
+
+fn value_option_decoder() -> decode.Decoder(ValueOption) {
+  use variant <- decode.field("type", decode.int)
+  case variant {
+    3 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(StringOption(name:, value:, focused:))
+    }
+    4 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.int)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(IntegerOption(name:, value:, focused:))
+    }
+    5 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.bool)
+      decode.success(BooleanOption(name:, value:))
+    }
+    6 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(UserOption(name:, value:))
+    }
+    7 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(ChannelOption(name:, value:))
+    }
+    8 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(RoleOption(name:, value:))
+    }
+    9 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(MentionableOption(name:, value:))
+    }
+    10 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.float)
+      use focused <- decode.field("focused", decode.bool)
+      decode.success(NumberOption(name:, value:, focused:))
+    }
+    11 -> {
+      use name <- decode.field("name", decode.string)
+      use value <- decode.field("value", decode.string)
+      decode.success(AttachmentOption(name:, value:))
+    }
+    _ -> decode.failure(BooleanOption(name: "", value: False), "ValueOption")
+  }
 }
 
 pub fn string_value(
@@ -287,5 +431,64 @@ pub fn attachment_value(
 }
 
 pub type Resolved {
-  Resolved
+  Resolved(
+    users: Dict(String, Dynamic),
+    members: Dict(String, Dynamic),
+    roles: Dict(String, Dynamic),
+    channels: Dict(String, Dynamic),
+    messages: Dict(String, Dynamic),
+    attachments: Dict(String, Dynamic),
+  )
+}
+
+pub fn empty_resolved() {
+  Resolved(
+    users: dict.new(),
+    members: dict.new(),
+    roles: dict.new(),
+    channels: dict.new(),
+    messages: dict.new(),
+    attachments: dict.new(),
+  )
+}
+
+fn resolved_decoder() -> decode.Decoder(Resolved) {
+  use users <- decode.optional_field(
+    "users",
+    dict.new(),
+    decode.dict(decode.string, decode.dynamic),
+  )
+  use members <- decode.optional_field(
+    "members",
+    dict.new(),
+    decode.dict(decode.string, decode.dynamic),
+  )
+  use roles <- decode.optional_field(
+    "roles",
+    dict.new(),
+    decode.dict(decode.string, decode.dynamic),
+  )
+  use channels <- decode.optional_field(
+    "channels",
+    dict.new(),
+    decode.dict(decode.string, decode.dynamic),
+  )
+  use messages <- decode.optional_field(
+    "messages",
+    dict.new(),
+    decode.dict(decode.string, decode.dynamic),
+  )
+  use attachments <- decode.optional_field(
+    "attachments",
+    dict.new(),
+    decode.dict(decode.string, decode.dynamic),
+  )
+  decode.success(Resolved(
+    users:,
+    members:,
+    roles:,
+    channels:,
+    messages:,
+    attachments:,
+  ))
 }
