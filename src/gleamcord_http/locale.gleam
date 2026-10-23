@@ -108,7 +108,7 @@ pub fn decoder() {
   }
 }
 
-pub fn to_string(locale: Locale) {
+pub fn to_string(locale: Locale) -> String {
   case locale {
     Indonesian -> indonesian
     Danish -> danish
@@ -145,40 +145,40 @@ pub fn to_string(locale: Locale) {
   }
 }
 
-pub fn from_string(locale: String) {
-  case locale {
-    l if l == indonesian -> Ok(Indonesian)
-    l if l == danish -> Ok(Danish)
-    l if l == german -> Ok(German)
-    l if l == english_uk -> Ok(EnglishUK)
-    l if l == english_us -> Ok(EnglishUS)
-    l if l == spanish -> Ok(Spanish)
-    l if l == spanish_latam -> Ok(SpanishLATAM)
-    l if l == french -> Ok(French)
-    l if l == croatian -> Ok(Croatian)
-    l if l == italian -> Ok(Italian)
-    l if l == lithuanian -> Ok(Lithuanian)
-    l if l == hungarian -> Ok(Hungarian)
-    l if l == dutch -> Ok(Dutch)
-    l if l == norwegian -> Ok(Norwegian)
-    l if l == polish -> Ok(Polish)
-    l if l == portuguese -> Ok(Portuguese)
-    l if l == romanian -> Ok(Romanian)
-    l if l == finnish -> Ok(Finnish)
-    l if l == swedish -> Ok(Swedish)
-    l if l == vietnamese -> Ok(Vietnamese)
-    l if l == turkish -> Ok(Turkish)
-    l if l == czech -> Ok(Czech)
-    l if l == greek -> Ok(Greek)
-    l if l == bulgarian -> Ok(Bulgarian)
-    l if l == russian -> Ok(Russian)
-    l if l == ukranian -> Ok(Ukranian)
-    l if l == hindi -> Ok(Hindi)
-    l if l == thai -> Ok(Thai)
-    l if l == chinese_cn -> Ok(ChineseCN)
-    l if l == japanese -> Ok(Japanese)
-    l if l == chinese_tw -> Ok(ChineseTW)
-    l if l == korean -> Ok(Korean)
+pub fn from_string(locale l: String) -> Result(Locale, Nil) {
+  case l {
+    _ if l == indonesian -> Ok(Indonesian)
+    _ if l == danish -> Ok(Danish)
+    _ if l == german -> Ok(German)
+    _ if l == english_uk -> Ok(EnglishUK)
+    _ if l == english_us -> Ok(EnglishUS)
+    _ if l == spanish -> Ok(Spanish)
+    _ if l == spanish_latam -> Ok(SpanishLATAM)
+    _ if l == french -> Ok(French)
+    _ if l == croatian -> Ok(Croatian)
+    _ if l == italian -> Ok(Italian)
+    _ if l == lithuanian -> Ok(Lithuanian)
+    _ if l == hungarian -> Ok(Hungarian)
+    _ if l == dutch -> Ok(Dutch)
+    _ if l == norwegian -> Ok(Norwegian)
+    _ if l == polish -> Ok(Polish)
+    _ if l == portuguese -> Ok(Portuguese)
+    _ if l == romanian -> Ok(Romanian)
+    _ if l == finnish -> Ok(Finnish)
+    _ if l == swedish -> Ok(Swedish)
+    _ if l == vietnamese -> Ok(Vietnamese)
+    _ if l == turkish -> Ok(Turkish)
+    _ if l == czech -> Ok(Czech)
+    _ if l == greek -> Ok(Greek)
+    _ if l == bulgarian -> Ok(Bulgarian)
+    _ if l == russian -> Ok(Russian)
+    _ if l == ukranian -> Ok(Ukranian)
+    _ if l == hindi -> Ok(Hindi)
+    _ if l == thai -> Ok(Thai)
+    _ if l == chinese_cn -> Ok(ChineseCN)
+    _ if l == japanese -> Ok(Japanese)
+    _ if l == chinese_tw -> Ok(ChineseTW)
+    _ if l == korean -> Ok(Korean)
     _ -> Error(Nil)
   }
 }

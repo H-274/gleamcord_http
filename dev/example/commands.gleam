@@ -2,21 +2,23 @@ import gleam/dict.{type Dict}
 import gleamcord_http
 import gleamcord_http/discord
 
-pub const hello_command = gleamcord_http.ChatCommand(
-  definition: gleamcord_http.CommandDefinition(
-    ..gleamcord_http.guild_command_definition,
-    name: "greet",
-    description: "greets a name",
-  ),
-  options: [name_option],
-  handler: hello_handler,
-)
+pub const hello_command =
+  gleamcord_http.ChatCommand(
+    definition: gleamcord_http.CommandDefinition(
+      ..gleamcord_http.guild_command_definition,
+      name: "greet",
+      description: "greets a name",
+    ),
+    options: [name_option],
+    handler: hello_handler,
+  )
 
-const name_option = gleamcord_http.StringOption(
-  ..gleamcord_http.default_string_option,
-  name: "name",
-  max_length: 128,
-)
+const name_option =
+  gleamcord_http.StringOption(
+    ..gleamcord_http.default_string_option,
+    name: "name",
+    max_length: 128,
+  )
 
 fn hello_handler(
   _i: discord.CommandInteraction,
@@ -28,35 +30,37 @@ fn hello_handler(
   |> gleamcord_http.CommandMessageResponse
 }
 
-pub const utils_tree = gleamcord_http.ChatCommandGroup(
-  definition: gleamcord_http.CommandDefinition(
-    ..gleamcord_http.guild_command_definition,
-    name: "utils",
-    description: "utilitary commands",
-  ),
-  elements: [
-    gleamcord_http.SubCommandElement(
-      // utils ping
-      ping_sub_command,
+pub const utils_tree =
+  gleamcord_http.ChatCommandGroup(
+    definition: gleamcord_http.CommandDefinition(
+      ..gleamcord_http.guild_command_definition,
+      name: "utils",
+      description: "utilitary commands",
     ),
+    elements: [
+      gleamcord_http.SubCommandElement(
+        // utils ping
+        ping_sub_command,
+      ),
 
-    gleamcord_http.SubCommandGroup(
-      name: "test",
-      description: "test commands",
-      sub_commands: [
-        // utils test slow
-        slow_sub_command,
-      ],
-    ),
-  ],
-)
+      gleamcord_http.SubCommandGroup(
+        name: "test",
+        description: "test commands",
+        sub_commands: [
+          // utils test slow
+          slow_sub_command,
+        ],
+      ),
+    ],
+  )
 
-const ping_sub_command = gleamcord_http.SubCommand(
-  name: "ping",
-  description: "pongs",
-  options: [],
-  handler: ping_handler,
-)
+const ping_sub_command =
+  gleamcord_http.SubCommand(
+    name: "ping",
+    description: "pongs",
+    options: [],
+    handler: ping_handler,
+  )
 
 fn ping_handler(
   _i: discord.CommandInteraction,
@@ -66,12 +70,13 @@ fn ping_handler(
   |> gleamcord_http.CommandMessageResponse
 }
 
-const slow_sub_command = gleamcord_http.SubCommand(
-  name: "slow",
-  description: "slow command",
-  options: [],
-  handler: slow_handler,
-)
+const slow_sub_command =
+  gleamcord_http.SubCommand(
+    name: "slow",
+    description: "slow command",
+    options: [],
+    handler: slow_handler,
+  )
 
 fn slow_handler(
   _i: discord.CommandInteraction,
