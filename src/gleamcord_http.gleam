@@ -2,102 +2,116 @@ import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/json.{type Json}
 import gleam/list
-import gleam/string
 import gleamcord_http/component
 import gleamcord_http/discord
 import gleamcord_http/locale
 
-pub type GleamcordCommand {
-  ChatCommand(
-    definition: CommandDefinition,
-    options: List(CommandOption),
-    handler: ChatCommandHandler,
-  )
-  ChatCommandGroup(
-    definition: CommandDefinition,
-    elements: List(CommandGroupElement),
-  )
-  UserCommand(definition: CommandDefinition, handler: ContextCommandHandler)
-  MessageCommand(definition: CommandDefinition, handler: ContextCommandHandler)
-}
-
-pub fn command_json(
-  command: GleamcordCommand,
-  translator: locale.Translator,
-) -> Json {
-  let def_json = command_def_json_list(command.definition, translator)
-
-  case command {
-    ChatCommand(options:, ..) -> [
-      #("type", json.int(1)),
-      #("options", json.array(options, option_json(_, translator))),
-      ..def_json
-    ]
-    ChatCommandGroup(elements:, ..) -> [
-      #("type", json.int(1)),
-      #("options", json.array(elements, group_element_json(_, translator))),
-      ..def_json
-    ]
-    UserCommand(..) -> [#("type", json.int(2)), ..def_json]
-    MessageCommand(..) -> [#("type", json.int(3)), ..def_json]
-  }
-  |> json.object
-}
-
-pub type CommandDefinition {
-  CommandDefinition(
+pub type SlashCommand {
+  SlashCommand(
     name: String,
     description: String,
-    default_member_permissions: String,
-    integration_types: List(Int),
+    // Maps to default_member_permissions
+    permissions: String,
+    // Maps to integration_types
+    integrations: List(Int),
     contexts: List(Int),
     nsfw: Bool,
+    options: List(CommandOption),
+    handler: SlashCommandHandler,
+  )
+  SlashCommandGroup(
+    name: String,
+    description: String,
+    // Maps to default_member_permissions
+    permissions: String,
+    // Maps to integration_types
+    integrations: List(Int),
+    contexts: List(Int),
+    nsfw: Bool,
+    sub_commands: List(SubCommandElement),
   )
 }
 
-fn command_def_json_list(
-  command_definition: CommandDefinition,
-  translator: locale.Translator,
-) -> List(#(String, Json)) {
-  let CommandDefinition(
-    name:,
-    description:,
-    default_member_permissions:,
-    integration_types:,
-    contexts:,
-    nsfw:,
-  ) = command_definition
+/// Slash commands that are installed in guilds and only useable in guilds
+pub const strict_guild_slash_command =
+  SlashCommand(
+    name: "",
+    description: "",
+    permissions: "0",
+    integrations: [0],
+    contexts: [0],
+    nsfw: False,
+    options: [],
+    handler: slash_command_identity,
+  )
 
-  [
-    #("name", json.string(name)),
-    #(
-      "name_localizations",
-      json.dict(translator(name), locale.to_string, json.string),
-    ),
-    #("description", json.string(description)),
-    #(
-      "description_localizations",
-      json.dict(translator(description), locale.to_string, json.string),
-    ),
-    #("default_member_permissions", json.string(default_member_permissions)),
-    #("integration_types", json.array(integration_types, json.int)),
-    #("contexts", json.array(contexts, json.int)),
-    #("nsfw", json.bool(nsfw)),
-  ]
-}
-
-pub const guild_command_definition =
-  CommandDefinition(
-    name: "todo",
-    description: "todo",
-    default_member_permissions: "0",
-    integration_types: [0],
+/// Slash command that is installed per user and callable in DMs with the bot
+pub const strict_user_slash_command =
+  SlashCommand(
+    name: "",
+    description: "",
+    permissions: "0",
+    integrations: [1],
     contexts: [1],
     nsfw: False,
+    options: [],
+    handler: slash_command_identity,
   )
 
-pub type CommandGroupElement {
-  SubCommandGroup(
+/// Slash command group that is installed in guilds and only useable in guilds
+pub const strict_guild_slash_command_group =
+  SlashCommandGroup(
+    name: "",
+    description: "",
+    permissions: "0",
+    integrations: [0],
+    contexts: [0],
+    nsfw: False,
+    sub_commands: [],
+  )
+
+/// Slash command group that is installed per user and callable in DMs with the bot
+pub const strict_user_slash_command_group =
+  SlashCommandGroup(
+    name: "",
+    description: "",
+    permissions: "0",
+    integrations: [1],
+    contexts: [1],
+    nsfw: False,
+    sub_commands: [],
+  )
+
+pub fn slash_command_json(
+  command: SlashCommand,
+  translator: locale.Translator,
+) {
+  json.object([
+    #("name", json.string(command.name)),
+    #(
+      "name_localization",
+      json.dict(translator(command.name), locale.to_string, json.string),
+    ),
+    #("description", json.string(command.description)),
+    #(
+      "description_localization",
+      json.dict(translator(command.description), locale.to_string, json.string),
+    ),
+    #("options", case command {
+      SlashCommand(options:, ..) ->
+        json.array(options, option_json(_, translator))
+      SlashCommandGroup(sub_commands:, ..) ->
+        json.array(sub_commands, sub_command_element_json(_, translator))
+    }),
+    #("default_member_permissions", json.string(command.permissions)),
+    #("integration_types", json.array(command.integrations, json.int)),
+    #("contexts", json.array(command.contexts, json.int)),
+    #("nsfw", json.bool(command.nsfw)),
+  ])
+}
+
+pub type SubCommandElement {
+  SubCommandGroupElement(
     name: String,
     description: String,
     sub_commands: List(SubCommand),
@@ -105,26 +119,25 @@ pub type CommandGroupElement {
   SubCommandElement(SubCommand)
 }
 
-fn group_element_json(
-  group_element: CommandGroupElement,
+fn sub_command_element_json(
+  sub_command_element: SubCommandElement,
   translator: locale.Translator,
 ) {
-  case group_element {
-    SubCommandGroup(name:, description:, sub_commands:) ->
-      [
+  case sub_command_element {
+    SubCommandGroupElement(name:, description:, sub_commands:) ->
+      json.object([
         #("name", json.string(name)),
         #(
-          "name_localizations",
+          "name_localization",
           json.dict(translator(name), locale.to_string, json.string),
         ),
         #("description", json.string(description)),
         #(
-          "description_localizations",
+          "description_localization",
           json.dict(translator(description), locale.to_string, json.string),
         ),
         #("options", json.array(sub_commands, sub_command_json(_, translator))),
-      ]
-      |> json.object
+      ])
     SubCommandElement(sub_command) -> sub_command_json(sub_command, translator)
   }
 }
@@ -134,27 +147,88 @@ pub type SubCommand {
     name: String,
     description: String,
     options: List(CommandOption),
-    handler: ChatCommandHandler,
+    handler: SlashCommandHandler,
   )
 }
 
 fn sub_command_json(sub_command: SubCommand, translator: locale.Translator) {
   let SubCommand(name:, description:, options:, ..) = sub_command
 
-  [
+  json.object([
     #("name", json.string(name)),
     #(
-      "name_localizations",
+      "name_localization",
       json.dict(translator(name), locale.to_string, json.string),
     ),
     #("description", json.string(description)),
     #(
-      "description_localizations",
+      "description_localization",
       json.dict(translator(description), locale.to_string, json.string),
     ),
     #("options", json.array(options, option_json(_, translator))),
-  ]
-  |> json.object
+  ])
+}
+
+pub type ContextCommand {
+  UserContextCommand(
+    name: String,
+    // Maps to default_member_permissions
+    permissions: String,
+    // Maps to integration_types
+    integrations: List(Int),
+    contexts: List(Int),
+    nsfw: Bool,
+    handler: ContextCommandHandler,
+  )
+  MessageContextCommand(
+    name: String,
+    // Maps to default_member_permissions
+    permissions: String,
+    // Maps to integration_types
+    integrations: List(Int),
+    contexts: List(Int),
+    nsfw: Bool,
+    handler: ContextCommandHandler,
+  )
+}
+
+/// User context commands that are installed in guilds and only useable in guilds
+pub const strict_guild_user_command =
+  UserContextCommand(
+    name: "",
+    permissions: "0",
+    integrations: [0],
+    contexts: [0],
+    nsfw: False,
+    handler: context_command_identity,
+  )
+
+/// Message context commands that are installed in guilds and only useable in guilds
+pub const strict_guild_message_command =
+  MessageContextCommand(
+    name: "",
+    permissions: "0",
+    integrations: [0],
+    contexts: [0],
+    nsfw: False,
+    handler: context_command_identity,
+  )
+
+pub fn context_command_json(
+  command: ContextCommand,
+  translator: locale.Translator,
+) {
+  json.object([
+    #("name", json.string(command.name)),
+    #(
+      "name_localization",
+      json.dict(translator(command.name), locale.to_string, json.string),
+    ),
+    #("default_member_permissions", json.string(command.permissions)),
+    #("integration_types", json.array(command.integrations, json.int)),
+    #("contexts", json.array(command.contexts, json.int)),
+    #("nsfw", json.bool(command.nsfw)),
+  ])
 }
 
 pub type CommandOption {
@@ -382,16 +456,24 @@ fn option_json(command_option: CommandOption, translator: locale.Translator) {
 }
 
 pub type CommandHandler {
-  ChatCommandHandler(ChatCommandHandler)
+  SlashCommandHandler(SlashCommandHandler)
   ContextCommandHandler(ContextCommandHandler)
 }
 
-pub type ChatCommandHandler =
+pub type SlashCommandHandler =
   fn(discord.CommandInteraction, Dict(String, discord.ValueOption)) ->
     CommandResponse
 
+fn slash_command_identity(_, _) {
+  panic as "Implement a handler"
+}
+
 pub type ContextCommandHandler =
   fn(discord.CommandInteraction) -> CommandResponse
+
+fn context_command_identity(_) {
+  panic as "Implement a handler"
+}
 
 pub type CommandResponse {
   CommandMessageResponse(String)
@@ -483,84 +565,6 @@ fn option_choice_json(
   |> json.object
 }
 
-/// Converts a list of `GleamcordCommands` to a set of dictionaries.
-/// These dictionaries are to get a certain command/autocomplete interaction's handler based on its path
-/// 
-/// If multiple commands in the list share a path, the last command with the path takes precedence
-pub fn command_dicts(commands: List(GleamcordCommand)) -> CommandDicts {
-  let acc = #(dict.new(), dict.new())
-  use acc, dicts <- list.fold(list.flat_map(commands, command_dicts_lists), acc)
-  #(dict.merge(acc.0, dicts.0), dict.merge(acc.1, dicts.1))
-}
-
-fn command_dicts_lists(command: GleamcordCommand) -> List(CommandDicts) {
-  case command {
-    ChatCommand(definition:, options:, handler:) -> {
-      let command_dict =
-        dict.from_list([#(definition.name, ChatCommandHandler(handler))])
-      let autocomplete_dict =
-        dict.from_list(autocomplete_list(definition.name, options))
-      [#(command_dict, autocomplete_dict)]
-    }
-    ChatCommandGroup(definition:, elements:) ->
-      group_elements_dicts_list(definition.name, elements)
-    UserCommand(definition:, handler:)
-    | MessageCommand(definition:, handler:) -> {
-      let command_dict =
-        dict.from_list([#(definition.name, ContextCommandHandler(handler))])
-      [#(command_dict, dict.new())]
-    }
-  }
-}
-
-fn group_elements_dicts_list(
-  command_path: String,
-  elements: List(CommandGroupElement),
-) -> List(CommandDicts) {
-  use element <- list.flat_map(elements)
-  case element {
-    SubCommandElement(sub_command) -> [
-      sub_command_dicts(command_path, sub_command),
-    ]
-    SubCommandGroup(name:, sub_commands:, ..) -> {
-      let path = string.join([command_path, name], "/")
-      list.map(sub_commands, sub_command_dicts(path, _))
-    }
-  }
-}
-
-fn sub_command_dicts(
-  command_path: String,
-  sub_command: SubCommand,
-) -> CommandDicts {
-  let path = string.join([command_path, sub_command.name], "/")
-  let command_dict =
-    dict.from_list([#(path, ChatCommandHandler(sub_command.handler))])
-  let autocomplete_dict =
-    dict.from_list(autocomplete_list(path, sub_command.options))
-  #(command_dict, autocomplete_dict)
-}
-
-type CommandDicts =
-  #(dict.Dict(String, CommandHandler), dict.Dict(String, AutocompleteHandler))
-
-fn autocomplete_list(
-  command_path: String,
-  options: List(CommandOption),
-) -> List(#(String, AutocompleteHandler)) {
-  use option <- list.filter_map(options)
-  let path = string.join([command_path, option.name], "/")
-  case option {
-    StringAutocompleteOption(autocomplete:, ..) ->
-      #(path, StringAutocompleteHandler(autocomplete)) |> Ok
-    IntegerAutocompleteOption(autocomplete:, ..) ->
-      #(path, IntegerAutocompleteHandler(autocomplete)) |> Ok
-    NumberAutocompleteOption(autocomplete:, ..) ->
-      #(path, NumberAutocompleteHandler(autocomplete)) |> Ok
-    _ -> Error(Nil)
-  }
-}
-
 pub type GleamcordComponent {
   Button(component: component.InteractiveButton, handler: ButtonHandler)
   StringSelect(component: component.StringSelect, handler: SelectHandler)
@@ -586,33 +590,15 @@ pub fn component_tuple(component: GleamcordComponent) {
 
 pub fn components_dict(
   components: List(GleamcordComponent),
-) -> Dict(String, ComponentHandler) {
+) -> Dict(String, GleamcordComponent) {
   list.map(components, fn(component) {
     case component {
-      Button(component:, handler:) -> #(
-        component.custom_id,
-        ComponentButtonHandler(handler),
-      )
-      StringSelect(component:, handler:) -> #(
-        component.custom_id,
-        ComponentSelectHandler(handler),
-      )
-      UserSelect(component:, handler:) -> #(
-        component.custom_id,
-        ComponentSelectHandler(handler),
-      )
-      RoleSelect(component:, handler:) -> #(
-        component.custom_id,
-        ComponentSelectHandler(handler),
-      )
-      MentionableSelect(component:, handler:) -> #(
-        component.custom_id,
-        ComponentSelectHandler(handler),
-      )
-      ChannelSelect(component:, handler:) -> #(
-        component.custom_id,
-        ComponentSelectHandler(handler),
-      )
+      Button(component: c, ..) -> #(c.custom_id, component)
+      StringSelect(component: c, ..) -> #(c.custom_id, component)
+      UserSelect(component: c, ..) -> #(c.custom_id, component)
+      RoleSelect(component: c, ..) -> #(c.custom_id, component)
+      MentionableSelect(component: c, ..) -> #(c.custom_id, component)
+      ChannelSelect(component: c, ..) -> #(c.custom_id, component)
     }
   })
   |> dict.from_list
