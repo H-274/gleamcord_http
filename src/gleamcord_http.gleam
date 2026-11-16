@@ -34,54 +34,76 @@ pub type SlashCommand {
 }
 
 /// Slash commands that are installed in guilds and only useable in guilds
-pub const strict_guild_slash_command =
+pub fn strict_guild_slash_command(
+  name: String,
+  description: String,
+  options: List(CommandOption),
+  handler,
+) {
   SlashCommand(
-    name: "",
-    description: "",
+    name:,
+    description:,
     permissions: "0",
     integrations: [discord.GuildInstall],
     contexts: [discord.GuildContext],
     nsfw: False,
-    options: [],
-    handler: slash_command_identity,
+    options:,
+    handler:,
   )
+}
 
 /// Slash command that is installed per user and callable in DMs with the bot
-pub const strict_user_slash_command =
+pub fn strict_user_slash_command(
+  name: String,
+  description: String,
+  options: List(CommandOption),
+  handler,
+) {
   SlashCommand(
-    name: "",
-    description: "",
+    name:,
+    description:,
     permissions: "0",
     integrations: [discord.UserInstall],
     contexts: [discord.PrivateDMContext],
     nsfw: False,
-    options: [],
-    handler: slash_command_identity,
+    options:,
+    handler:,
   )
+}
 
 /// Slash command group that is installed in guilds and only useable in guilds
-pub const strict_guild_slash_command_group =
+pub fn strict_guild_slash_command_group(
+  name: String,
+  description: String,
+  sub_commands,
+) {
   SlashCommandGroup(
-    name: "",
-    description: "",
+    name:,
+    description:,
     permissions: "0",
     integrations: [discord.GuildInstall],
     contexts: [discord.GuildContext],
     nsfw: False,
-    sub_commands: [],
+    sub_commands:,
   )
+}
 
 /// Slash command group that is installed per user and callable in DMs with the bot
-pub const strict_user_slash_command_group =
+pub fn strict_user_slash_command_group(
+  name: String,
+  description: String,
+  sub_commands,
+) {
   SlashCommandGroup(
-    name: "",
-    description: "",
+    name:,
+    description:,
     permissions: "0",
     integrations: [discord.UserInstall],
     contexts: [discord.PrivateDMContext],
     nsfw: False,
-    sub_commands: [],
+    sub_commands:,
   )
+}
 
 pub fn slash_command_json(
   command: SlashCommand,
@@ -197,26 +219,28 @@ pub type ContextCommand {
 }
 
 /// User context commands that are installed in guilds and only useable in guilds
-pub const strict_guild_user_command =
+pub fn strict_guild_user_command(name: String, handler) {
   UserContextCommand(
-    name: "",
+    name:,
     permissions: "0",
     integrations: [discord.GuildInstall],
     contexts: [discord.GuildContext],
     nsfw: False,
-    handler: context_command_identity,
+    handler:,
   )
+}
 
 /// Message context commands that are installed in guilds and only useable in guilds
-pub const strict_guild_message_command =
+pub fn strict_guild_message_command(name: String, handler) {
   MessageContextCommand(
-    name: "",
+    name:,
     permissions: "0",
     integrations: [discord.GuildInstall],
     contexts: [discord.GuildContext],
     nsfw: False,
-    handler: context_command_identity,
+    handler:,
   )
+}
 
 pub fn context_command_json(
   command: ContextCommand,
@@ -315,65 +339,79 @@ pub type CommandOption {
   AttachmentOption(name: String, description: String, required: Bool)
 }
 
-pub const default_string_option =
+pub fn default_string_option(name: String, description: String) {
   StringOption(
-    name: "todo",
-    description: "",
+    name:,
+    description:,
     required: True,
     min_length: 1,
     max_length: 4000,
   )
+}
 
-pub const default_string_autocomplete_option =
+pub fn default_string_autocomplete_option(
+  name: String,
+  description: String,
+  autocomplete,
+) {
   StringAutocompleteOption(
-    name: "todo",
-    description: "",
+    name:,
+    description:,
     required: True,
     min_length: 1,
     max_length: 4000,
-    autocomplete: autocomplete_identity,
+    autocomplete:,
   )
+}
 
-pub const default_integer_option =
+pub fn default_integer_option(name: String, description: String) {
   IntegerOption(
-    name: "todo",
-    description: "",
+    name:,
+    description:,
     required: True,
     min_value: -9_007_199_254_740_991,
     max_value: 9_007_199_254_740_991,
   )
+}
 
-pub const default_integer_autocomplete_option =
+pub fn default_integer_autocomplete_option(
+  name: String,
+  description: String,
+  autocomplete,
+) {
   IntegerAutocompleteOption(
-    name: "todo",
-    description: "",
+    name:,
+    description:,
     required: True,
     min_value: -9_007_199_254_740_991,
     max_value: 9_007_199_254_740_991,
-    autocomplete: autocomplete_identity,
+    autocomplete:,
   )
+}
 
-pub const default_number_option =
+pub fn default_number_option(name: String, description: String) {
   NumberOption(
-    name: "todo",
-    description: "",
+    name:,
+    description:,
     required: True,
     min_value: -1.7976931348623157e308,
     max_value: 1.7976931348623157e308,
   )
+}
 
-pub const default_number_autocomplete_option =
+pub fn default_number_autocomplete_option(
+  name: String,
+  description: String,
+  autocomplete,
+) {
   NumberAutocompleteOption(
-    name: "todo",
-    description: "",
+    name:,
+    description:,
     required: True,
     min_value: -1.7976931348623157e308,
     max_value: 1.7976931348623157e308,
-    autocomplete: autocomplete_identity,
+    autocomplete:,
   )
-
-fn autocomplete_identity(_, _, _) {
-  []
 }
 
 fn option_json(command_option: CommandOption, translator: locale.Translator) {
@@ -471,16 +509,8 @@ pub type SlashCommandHandler =
   fn(discord.CommandInteraction, Dict(String, discord.ValueOption)) ->
     CommandResponse
 
-fn slash_command_identity(_, _) {
-  panic as "Implement a handler"
-}
-
 pub type ContextCommandHandler =
   fn(discord.CommandInteraction) -> CommandResponse
-
-fn context_command_identity(_) {
-  panic as "Implement a handler"
-}
 
 pub type CommandResponse {
   CommandMessageResponse(Message)

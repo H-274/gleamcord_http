@@ -8,12 +8,12 @@ import gleamcord_http/locale.{type Locale}
 
 fn translation_lists() {
   [
-    #(slash_command.greet_command.name, [
+    #(slash_command.greet_command().name, [
       #(locale.French, "saluer"),
       #(locale.Swedish, "hämnad"),
       #(locale.German, "grüß"),
     ]),
-    #(slash_command.greet_command.description, [
+    #(slash_command.greet_command().description, [
       #(locale.French, "saluer un utilisateur"),
       #(locale.Swedish, "hälsa en användare"),
       #(locale.German, "begrüße einen Nutzer"),
@@ -40,7 +40,7 @@ pub fn example() {
   )
 
   echo {
-    gleamcord_http.slash_command_json(slash_command.greet_command, translator)
+    gleamcord_http.slash_command_json(slash_command.greet_command(), translator)
     |> json.to_string
   }
 }
@@ -48,7 +48,7 @@ pub fn example() {
 pub fn no_translation() {
   echo {
     gleamcord_http.slash_command_json(
-      slash_command.greet_command,
+      slash_command.greet_command(),
       locale.empty_translator,
     )
     |> json.to_string

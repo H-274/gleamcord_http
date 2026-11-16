@@ -97,8 +97,9 @@ pub type Button {
   PremiunButton(sku_id: String, disabled: Bool)
 }
 
-pub const default_link_button =
-  LinkButton(url: "todo", label: "", emoji: option.None, disabled: False)
+pub fn default_link_button(url: String, label: String) {
+  LinkButton(url:, label:, emoji: option.None, disabled: False)
+}
 
 pub type InteractiveButton {
   PrimaryButton(
@@ -127,37 +128,21 @@ pub type InteractiveButton {
   )
 }
 
-pub const default_primary_button =
-  PrimaryButton(
-    custom_id: "todo",
-    label: "",
-    emoji: option.None,
-    disabled: False,
-  )
+pub fn default_primary_button(custom_id: String, label: String) {
+  PrimaryButton(custom_id:, label:, emoji: option.None, disabled: False)
+}
 
-pub const default_secondary_button =
-  SecondaryButton(
-    custom_id: "todo",
-    label: "",
-    emoji: option.None,
-    disabled: False,
-  )
+pub fn default_secondary_button(custom_id: String, label: String) {
+  SecondaryButton(custom_id:, label:, emoji: option.None, disabled: False)
+}
 
-pub const default_success_button =
-  SuccessButton(
-    custom_id: "todo",
-    label: "",
-    emoji: option.None,
-    disabled: False,
-  )
+pub fn default_success_button(custom_id: String, label: String) {
+  SuccessButton(custom_id:, label:, emoji: option.None, disabled: False)
+}
 
-pub const default_danger_button =
-  DangerButton(
-    custom_id: "todo",
-    label: "",
-    emoji: option.None,
-    disabled: False,
-  )
+pub fn default_danger_button(custom_id: String, label: String) {
+  DangerButton(custom_id:, label:, emoji: option.None, disabled: False)
+}
 
 pub type StringSelect {
   /// Important notes:
@@ -176,16 +161,17 @@ pub type StringSelect {
   )
 }
 
-pub const default_string_select =
+pub fn default_string_select(custom_id: String, options, placeholder: String) {
   StringSelect(
-    custom_id: "todo",
-    options: [],
-    placeholder: "",
+    custom_id:,
+    options:,
+    placeholder:,
     min_values: 1,
     max_values: 1,
     required: True,
     disabled: False,
   )
+}
 
 pub type SelectOption {
   SelectOption(
@@ -197,14 +183,15 @@ pub type SelectOption {
   )
 }
 
-pub const default_select_option =
+pub fn default_select_option(label: String, value: String) {
   SelectOption(
-    label: "todo",
-    value: "todo",
+    label:,
+    value:,
     description: "",
     emoji: option.None,
     default: False,
   )
+}
 
 pub type TextInput {
   ShortTextInput(
@@ -225,25 +212,27 @@ pub type TextInput {
   )
 }
 
-pub const default_short_text =
+pub fn default_short_text(custom_id: String, placeholder: String) {
   ShortTextInput(
-    custom_id: "todo",
+    custom_id:,
     min_length: 1,
     max_length: 4000,
     required: True,
     value: "",
-    placeholder: "",
+    placeholder:,
   )
+}
 
-pub const default_long_text =
+pub fn default_long_text(custom_id: String, placeholder: String) {
   LongTextInput(
-    custom_id: "todo",
+    custom_id:,
     min_length: 1,
     max_length: 4000,
     required: True,
     value: "",
-    placeholder: "",
+    placeholder:,
   )
+}
 
 pub type UserSelect {
   /// Important notes:
@@ -262,16 +251,17 @@ pub type UserSelect {
   )
 }
 
-pub const default_user_select =
+pub fn default_user_select(custom_id: String, placeholder: String) {
   UserSelect(
-    custom_id: "todo",
+    custom_id:,
     default_values: [],
-    placeholder: "",
+    placeholder:,
     min_values: 1,
     max_values: 1,
     required: True,
     disabled: False,
   )
+}
 
 pub type RoleSelect {
   /// Important notes:
@@ -290,16 +280,17 @@ pub type RoleSelect {
   )
 }
 
-pub const default_role_select =
+pub fn default_role_select(custom_id: String, placeholder: String) {
   RoleSelect(
-    custom_id: "todo",
+    custom_id:,
     default_values: [],
-    placeholder: "",
+    placeholder:,
     min_values: 1,
     max_values: 1,
     required: True,
     disabled: False,
   )
+}
 
 pub type MentionableSelect {
   /// Important notes:
@@ -318,16 +309,17 @@ pub type MentionableSelect {
   )
 }
 
-pub const default_mentionable_select =
+pub fn default_mentionable_select(custom_id: String, placeholder: String) {
   MentionableSelect(
-    custom_id: "todo",
+    custom_id:,
     default_values: [],
-    placeholder: "",
+    placeholder:,
     min_values: 1,
     max_values: 1,
     required: True,
     disabled: False,
   )
+}
 
 pub type ChannelSelect {
   /// Important notes:
@@ -347,17 +339,18 @@ pub type ChannelSelect {
   )
 }
 
-pub const default_channel_select =
+pub fn default_channel_select(custom_id: String, placeholder: String) {
   ChannelSelect(
-    custom_id: "todo",
+    custom_id:,
     channel_types: [],
-    placeholder: "",
+    placeholder:,
     default_values: [],
     min_values: 1,
     max_values: 1,
     required: True,
     disabled: False,
   )
+}
 
 /// Representing the snowflake of the select component's type
 pub type DefaultSelectValue =
