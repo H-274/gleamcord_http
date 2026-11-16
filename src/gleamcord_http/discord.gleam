@@ -1,6 +1,7 @@
 import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/dynamic/decode
+import gleam/json
 import gleam/option.{type Option}
 import gleamcord_http/locale.{type Locale}
 
@@ -67,8 +68,8 @@ pub type CommandInteraction {
     locale: Option(Locale),
     guild_locale: Option(Locale),
     entitlements: List(Dynamic),
-    authorizing_integration_owners: Dict(Int, String),
-    context: Int,
+    authorizing_integration_owners: Dict(Integration, String),
+    context: Context,
     attachment_size_limit: Int,
   )
 }
@@ -123,9 +124,9 @@ fn command_interaction_decoder() {
   use entitlements <- decode.field("entitlements", decode.list(decode.dynamic))
   use authorizing_integration_owners <- decode.field(
     "authorizing_integration_owners",
-    decode.dict(decode.int, decode.string),
+    decode.dict(integration_decoder(), decode.string),
   )
-  use context <- decode.field("context", decode.int)
+  use context <- decode.field("context", context_decoder())
   use attachment_size_limit <- decode.field("attachment_size_limit", decode.int)
 
   decode.success(CommandInteraction(
@@ -266,11 +267,94 @@ fn sub_command_decoder() -> decode.Decoder(SubCommand) {
 }
 
 pub type ComponentInteraction {
-  ComponentInteraction
+  ComponentInteraction(
+    id: String,
+    application_id: String,
+    data: ComponentInteractionData,
+    guild: Option(Dynamic),
+    guild_id: Option(String),
+    channel: Option(Dynamic),
+    channel_id: Option(String),
+    member: Option(Dynamic),
+    user: Option(Dynamic),
+    token: String,
+    version: Int,
+    app_permissions: String,
+    locale: Option(Locale),
+    guild_locale: Option(Locale),
+    entitlements: List(Dynamic),
+    authorizing_integration_owners: Dict(Integration, String),
+    context: Context,
+    attachment_size_limit: Int,
+  )
+}
+
+pub type ComponentInteractionData {
+  ButtonInteractionData(custom_id: String)
+  SelectInteractionData(
+    custom_id: String,
+    values: List(String),
+    resolved: Resolved,
+  )
 }
 
 pub type ModalInteraction {
   ModalInteraction
+}
+
+pub type ModalInteractionData {
+  ModalInteractionData(
+    custom_id: String,
+    components: List(Nil),
+    resolved: Resolved,
+  )
+}
+
+pub type Integration {
+  GuildInstall
+  UserInstall
+}
+
+pub fn integration_json(integration: Integration) {
+  case integration {
+    GuildInstall -> 0
+    UserInstall -> 1
+  }
+  |> json.int
+}
+
+fn integration_decoder() -> decode.Decoder(Integration) {
+  use typ <- decode.then(decode.int)
+  case typ {
+    0 -> decode.success(GuildInstall)
+    1 -> decode.success(UserInstall)
+    _ -> decode.failure(GuildInstall, "CommandIntegration")
+  }
+}
+
+pub type Context {
+  GuildContext
+  BotDMContext
+  PrivateDMContext
+}
+
+pub fn context_json(context: Context) -> json.Json {
+  case context {
+    GuildContext -> 0
+    BotDMContext -> 1
+    PrivateDMContext -> 2
+  }
+  |> json.int
+}
+
+fn context_decoder() -> decode.Decoder(Context) {
+  use typ <- decode.then(decode.int)
+  case typ {
+    0 -> decode.success(GuildContext)
+    1 -> decode.success(BotDMContext)
+    2 -> decode.success(PrivateDMContext)
+    _ -> decode.failure(GuildContext, "CommandContext")
+  }
 }
 
 pub type ValueOption {

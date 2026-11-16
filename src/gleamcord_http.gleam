@@ -3,7 +3,7 @@ import gleam/dynamic.{type Dynamic}
 import gleam/json.{type Json}
 import gleam/list
 import gleamcord_http/component
-import gleamcord_http/discord
+import gleamcord_http/discord.{type Context, type Integration}
 import gleamcord_http/locale
 
 pub type SlashCommand {
@@ -13,8 +13,8 @@ pub type SlashCommand {
     // Maps to default_member_permissions
     permissions: String,
     // Maps to integration_types
-    integrations: List(Int),
-    contexts: List(Int),
+    integrations: List(Integration),
+    contexts: List(Context),
     nsfw: Bool,
     options: List(CommandOption),
     handler: SlashCommandHandler,
@@ -25,8 +25,8 @@ pub type SlashCommand {
     // Maps to default_member_permissions
     permissions: String,
     // Maps to integration_types
-    integrations: List(Int),
-    contexts: List(Int),
+    integrations: List(Integration),
+    contexts: List(Context),
     nsfw: Bool,
     sub_commands: List(SubCommandElement),
   )
@@ -38,8 +38,8 @@ pub const strict_guild_slash_command =
     name: "",
     description: "",
     permissions: "0",
-    integrations: [0],
-    contexts: [0],
+    integrations: [discord.GuildInstall],
+    contexts: [discord.GuildContext],
     nsfw: False,
     options: [],
     handler: slash_command_identity,
@@ -51,8 +51,8 @@ pub const strict_user_slash_command =
     name: "",
     description: "",
     permissions: "0",
-    integrations: [1],
-    contexts: [1],
+    integrations: [discord.UserInstall],
+    contexts: [discord.PrivateDMContext],
     nsfw: False,
     options: [],
     handler: slash_command_identity,
@@ -64,8 +64,8 @@ pub const strict_guild_slash_command_group =
     name: "",
     description: "",
     permissions: "0",
-    integrations: [0],
-    contexts: [0],
+    integrations: [discord.GuildInstall],
+    contexts: [discord.GuildContext],
     nsfw: False,
     sub_commands: [],
   )
@@ -76,8 +76,8 @@ pub const strict_user_slash_command_group =
     name: "",
     description: "",
     permissions: "0",
-    integrations: [1],
-    contexts: [1],
+    integrations: [discord.UserInstall],
+    contexts: [discord.PrivateDMContext],
     nsfw: False,
     sub_commands: [],
   )
@@ -104,8 +104,11 @@ pub fn slash_command_json(
         json.array(sub_commands, sub_command_element_json(_, translator))
     }),
     #("default_member_permissions", json.string(command.permissions)),
-    #("integration_types", json.array(command.integrations, json.int)),
-    #("contexts", json.array(command.contexts, json.int)),
+    #(
+      "integration_types",
+      json.array(command.integrations, discord.integration_json),
+    ),
+    #("contexts", json.array(command.contexts, discord.context_json)),
     #("nsfw", json.bool(command.nsfw)),
   ])
 }
@@ -175,8 +178,8 @@ pub type ContextCommand {
     // Maps to default_member_permissions
     permissions: String,
     // Maps to integration_types
-    integrations: List(Int),
-    contexts: List(Int),
+    integrations: List(Integration),
+    contexts: List(Context),
     nsfw: Bool,
     handler: ContextCommandHandler,
   )
@@ -185,8 +188,8 @@ pub type ContextCommand {
     // Maps to default_member_permissions
     permissions: String,
     // Maps to integration_types
-    integrations: List(Int),
-    contexts: List(Int),
+    integrations: List(Integration),
+    contexts: List(Context),
     nsfw: Bool,
     handler: ContextCommandHandler,
   )
@@ -197,8 +200,8 @@ pub const strict_guild_user_command =
   UserContextCommand(
     name: "",
     permissions: "0",
-    integrations: [0],
-    contexts: [0],
+    integrations: [discord.GuildInstall],
+    contexts: [discord.GuildContext],
     nsfw: False,
     handler: context_command_identity,
   )
@@ -208,8 +211,8 @@ pub const strict_guild_message_command =
   MessageContextCommand(
     name: "",
     permissions: "0",
-    integrations: [0],
-    contexts: [0],
+    integrations: [discord.GuildInstall],
+    contexts: [discord.GuildContext],
     nsfw: False,
     handler: context_command_identity,
   )
@@ -225,8 +228,11 @@ pub fn context_command_json(
       json.dict(translator(command.name), locale.to_string, json.string),
     ),
     #("default_member_permissions", json.string(command.permissions)),
-    #("integration_types", json.array(command.integrations, json.int)),
-    #("contexts", json.array(command.contexts, json.int)),
+    #(
+      "integration_types",
+      json.array(command.integrations, discord.integration_json),
+    ),
+    #("contexts", json.array(command.contexts, discord.context_json)),
     #("nsfw", json.bool(command.nsfw)),
   ])
 }
