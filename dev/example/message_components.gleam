@@ -15,6 +15,7 @@ pub const next_button =
 
 pub fn next_button_handler(_i) {
   "Next message step"
+  |> gleamcord_http.basic_text_message
   |> gleamcord_http.ComponentMessageResponse
 }
 
@@ -46,5 +47,6 @@ fn get_tags() {
 
 pub fn tag_select_handler(_i, _values) {
   "New results"
+  |> gleamcord_http.basic_text_message
   |> gleamcord_http.ComponentMessageResponse
 }

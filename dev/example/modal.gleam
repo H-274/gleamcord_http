@@ -57,5 +57,6 @@ const reason_component =
 
 fn test_modal_handler(_i, _v) {
   "Answers submitted"
+  |> gleamcord_http.basic_text_message
   |> gleamcord_http.ModalMessageResponse
 }

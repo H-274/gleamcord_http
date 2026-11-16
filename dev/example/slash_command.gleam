@@ -29,5 +29,6 @@ fn greet_command_handler(i: discord.CommandInteraction, o) {
     _ -> "Unknown"
   }
 
-  gleamcord_http.CommandMessageResponse("Hello " <> username)
+  gleamcord_http.basic_text_message("Hello " <> username)
+  |> gleamcord_http.CommandMessageResponse
 }

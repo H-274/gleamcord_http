@@ -2,6 +2,7 @@ import gleam/dict.{type Dict}
 import gleam/dynamic.{type Dynamic}
 import gleam/json.{type Json}
 import gleam/list
+import gleam/option.{type Option}
 import gleamcord_http/component
 import gleamcord_http/discord.{type Context, type Integration}
 import gleamcord_http/locale
@@ -482,8 +483,8 @@ fn context_command_identity(_) {
 }
 
 pub type CommandResponse {
-  CommandMessageResponse(String)
-  CommandDeferredMessageResponse(fn() -> String)
+  CommandMessageResponse(Message)
+  CommandDeferredMessageResponse(fn() -> Message)
   CommandModalResponse
 }
 
@@ -622,10 +623,10 @@ pub type SelectHandler =
   fn(discord.ComponentInteraction, List(String)) -> ComponentResponse
 
 pub type ComponentResponse {
-  ComponentMessageResponse(String)
-  ComponentDeferredMessageResponse(fn() -> String)
-  ComponentMessageUpdate(String)
-  ComponentDeferredMessageUpdate(fn() -> String)
+  ComponentMessageResponse(Message)
+  ComponentDeferredMessageResponse(fn() -> Message)
+  ComponentMessageUpdate(Message)
+  ComponentDeferredMessageUpdate(fn() -> Message)
   ComponentModalResponse
 }
 
@@ -642,8 +643,114 @@ pub type ModalHandler =
   fn(discord.ModalInteraction, Dict(String, Dynamic)) -> ModalResponse
 
 pub type ModalResponse {
-  ModalMessageResponse(String)
-  ModalDeferredMessageResponse(fn() -> String)
-  ModalMessageUpdate(String)
-  ModalDeferredMessageUpdate(fn() -> String)
+  ModalMessageResponse(Message)
+  ModalDeferredMessageResponse(fn() -> Message)
+  ModalMessageUpdate(Message)
+  ModalDeferredMessageUpdate(fn() -> Message)
+}
+
+pub type Message {
+  TextMessage(
+    flags: List(Nil),
+    allowed_mentions: List(String),
+    message_reference: Option(String),
+    nonce: Option(String),
+    files: Dict(String, BitArray),
+    attachments: Dict(String, AttachmentDescription),
+    tts: Bool,
+    sticker_ids: List(String),
+    content: String,
+  )
+  ComponentMessage(
+    flags: List(Nil),
+    allowed_mentions: List(String),
+    message_reference: Option(String),
+    nonce: Option(String),
+    files: Dict(String, BitArray),
+    attachments: Dict(String, AttachmentDescription),
+    components: List(MessageComponent),
+  )
+  PollMessage(
+    nonce: Option(String),
+    question: String,
+    answers: List(PollAnswer),
+    duration: Int,
+    allow_multiselect: Bool,
+  )
+}
+
+pub fn basic_text_message(content: String) {
+  TextMessage(
+    flags: [],
+    allowed_mentions: [],
+    message_reference: option.None,
+    nonce: option.None,
+    files: dict.new(),
+    attachments: dict.new(),
+    tts: False,
+    sticker_ids: [],
+    content:,
+  )
+}
+
+pub fn basic_component_message(components: List(MessageComponent)) {
+  ComponentMessage(
+    flags: [],
+    allowed_mentions: [],
+    message_reference: option.None,
+    nonce: option.None,
+    files: dict.new(),
+    attachments: dict.new(),
+    components:,
+  )
+}
+
+pub fn basic_poll_message(
+  question: String,
+  answers: List(PollAnswer),
+  duration: Int,
+  multi: Bool,
+) {
+  PollMessage(
+    nonce: option.None,
+    question:,
+    answers:,
+    duration:,
+    allow_multiselect: multi,
+  )
+}
+
+pub type AttachmentDescription {
+  OtherAttachmentDescription(
+    id: String,
+    filename: String,
+    title: String,
+    description: String,
+    mime_type: String,
+    is_spoiler: Bool,
+  )
+  AudioAttachmentDescription(
+    id: String,
+    filename: String,
+    title: String,
+    description: String,
+    mime_type: String,
+    is_spoiler: Bool,
+    duration_secs: Float,
+    waveform: String,
+  )
+}
+
+pub type MessageComponent {
+  MessageRow(component.ActionRow)
+  MessageSection(component.Section)
+  MessageText(component.TextDisplay)
+  MessageMedia(component.MediaGallery)
+  MessageFile(component.File)
+  MessageSeparator(component.Separator)
+  MessageContainer(component.Container)
+}
+
+pub type PollAnswer {
+  PollAnswer(text: String, emoji: Option(String))
 }

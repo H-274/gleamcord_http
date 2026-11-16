@@ -12,6 +12,7 @@ fn report_message_handler(i: discord.CommandInteraction) {
   let assert discord.MessageCommandData(target_id:, ..) = i.data
 
   { "Successfully reported message: `" <> target_id <> "`" }
+  |> gleamcord_http.basic_text_message
   |> gleamcord_http.CommandMessageResponse
 }
 
@@ -26,5 +27,6 @@ fn boop_user_handler(i: discord.CommandInteraction) {
   let assert discord.UserCommandData(target_id:, ..) = i.data
 
   { "<@" <> target_id <> ">" <> ", you've been booped" }
+  |> gleamcord_http.basic_text_message
   |> gleamcord_http.CommandMessageResponse
 }
