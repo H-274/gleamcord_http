@@ -209,8 +209,8 @@ pub fn guild_user(name: String, handler) {
   User(
     name:,
     permissions: "0",
-    integrations: [discord.GuildInstall],
-    contexts: [discord.GuildContext],
+    integrations: [],
+    contexts: [],
     nsfw: False,
     handler:,
   )
@@ -220,8 +220,8 @@ pub fn guild_message(name: String, handler) {
   Message(
     name:,
     permissions: "0",
-    integrations: [discord.GuildInstall],
-    contexts: [discord.GuildContext],
+    integrations: [],
+    contexts: [],
     nsfw: False,
     handler:,
   )
