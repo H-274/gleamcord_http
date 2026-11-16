@@ -1,41 +1,38 @@
 import gleamcord_http
 import gleamcord_http/component
+import gleamcord_http/modal
 
-fn modal_components() {
+fn favourite_components() {
   [
     component.StringSelectLabel(
       label: "Animal",
-      description: "Your Fav. Animal",
+      description: "Your fav. animal",
       component: component.default_string_select(
         "fav-animal",
         [
           component.default_select_option("Dog", "dog"),
           component.default_select_option("Cat", "cat"),
           component.default_select_option("Snake", "snake"),
-          component.default_select_option("Fish", "fish"),
         ],
-        "",
+        "Select One",
       ),
     ),
     component.TextInputLabel(
-      label: "Reason",
-      description: "",
-      component: component.default_long_text(
-        "reason",
-        "Explain why it's your fav.",
-      ),
+      label: "Song",
+      description: "Your fav. song",
+      component: component.default_short_text("fav-song", ""),
     ),
   ]
 }
 
-pub fn test_modal() {
-  use _i, _v <- gleamcord_http.GleamcordModal(
-    custom_id: "test-modal",
-    title: "Test",
-    components: modal_components(),
+pub fn favourite_things() {
+  use _i, _f <- modal.Modal(
+    custom_id: "fav-things",
+    title: "Favourite Things",
+    components: favourite_components(),
   )
 
-  "Answers submitted"
+  "Successfully submitted"
   |> gleamcord_http.basic_text_message
-  |> gleamcord_http.ModalMessageResponse
+  |> modal.MessageResponse
 }
